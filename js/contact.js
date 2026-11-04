@@ -68,7 +68,7 @@
       form.reset(); sessionStorage.removeItem('neeksMockup'); $('#mockAttached').classList.remove('show'); mock = null; logo = null;
       $('#fileText').textContent = '📎 Tap to attach a logo or artwork (max 2.5 MB)';
     } catch (err) {
-      show('We couldn\'t send that right now. Please DM us on <a href="https://www.instagram.com/neeksxart/" target="_blank" rel="noopener" style="text-decoration:underline">Instagram</a> or <a href="https://www.facebook.com/NEEKSxART/" target="_blank" rel="noopener" style="text-decoration:underline">Facebook</a> and we\'ll take care of you.', false);
+      show('We couldn\'t send that right now. Please email <a href="mailto:info@neeksxart.com" style="text-decoration:underline">info@neeksxart.com</a> or DM us on <a href="https://www.instagram.com/neeksxart/" target="_blank" rel="noopener" style="text-decoration:underline">Instagram</a> or <a href="https://www.facebook.com/NEEKSxART/" target="_blank" rel="noopener" style="text-decoration:underline">Facebook</a> and we\'ll take care of you.', false);
     } finally { btn.disabled = false; btn.style.opacity = 1; btn.innerHTML = label; }
   });
 })();
