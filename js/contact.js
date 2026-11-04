@@ -5,6 +5,11 @@
   const status = $('#formStatus');
   let mock = null, logo = null;
 
+  // ---- preselect topic from the URL (e.g. /contact?topic=event) ----
+  if (new URLSearchParams(location.search).get('topic') === 'event') {
+    const t = document.querySelector('input[name=topic][value="Event or wedding"]'); if (t) t.checked = true;
+  }
+
   // ---- attach a design coming from the Merch Studio ----
   try { mock = JSON.parse(sessionStorage.getItem('neeksMockup') || 'null'); } catch (e) { mock = null; }
   if (mock && mock.mockup) {

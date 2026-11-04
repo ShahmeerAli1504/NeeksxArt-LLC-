@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeeksxArt Live Pop-Up | Upload Your Photos</title>
+<meta name="description" content="Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.">
+<meta name="theme-color" content="#0b0b0b">
+<meta property="og:title" content="NeeksxArt Live Pop-Up | Upload Your Photos">
+<meta property="og:description" content="Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.">
+<meta property="og:image" content="/assets/img/neeks-studio.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;600;700;800&family=Yellowtail&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/event.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"NeeksxArt LLC","description":"Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch for brands, creators and events.","address":{"@type":"PostalAddress","addressLocality":"Reno","addressRegion":"NV","addressCountry":"US"},"areaServed":"US","sameAs":["https://www.instagram.com/neeksxart/","https://www.facebook.com/NEEKSxART/","https://www.tiktok.com/@neeksxart"]}
+</script>
+</head>
+<body class="event-page">
+<main>
+<div class="ev-app">
+  <header class="ev-top">
+    <a href="/" class="ev-logo" aria-label="NeeksxArt home"><img src="/assets/img/logo-white.png" alt="NeeksxArt" width="768" height="551"></a>
+    <span class="ev-live"><i></i> Live pop-up</span>
+  </header>
+
+  <!-- ===== ordering ===== -->
+  <div id="orderView">
+    <section class="ev-hero">
+      <p class="ev-event" id="eventName">Pop-Up</p>
+      <h1 class="display">Your photos. <span class="script">pressed</span> while you wait.</h1>
+      <div class="ev-timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg> Ready in <b id="readyRange">10–15 min</b></div>
+    </section>
+
+    <section class="ev-step" id="step1">
+      <h2><b>1</b> Pick your pack</h2>
+      <div class="bundles" id="bundleList" role="radiogroup" aria-label="Bundle packs"></div>
+    </section>
+
+    <section class="ev-step" id="step2">
+      <h2><b>2</b> Add your photos</h2>
+      <p class="ev-sub" id="slotHint">Tap a spot to add a photo, or add them all at once.</p>
+      <label class="btn btn-orange ev-add">
+        <input type="file" id="multiInput" accept="image/*" multiple hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span id="addLabel">Add photos</span>
+      </label>
+      <div class="slots" id="slots"></div>
+      <div class="ev-progress"><div class="bar"><i id="progBar"></i></div><span id="progText">0 of 9 added</span></div>
+      <button type="button" class="ev-repeat" id="repeatBtn" hidden>Fill the empty spots by repeating my photos</button>
+    </section>
+
+    <section class="ev-step" id="step3">
+      <h2><b>3</b> Who's it for?</h2>
+      <form id="detailsForm" novalidate>
+        <div class="field"><label for="evName">First name <em>*</em></label><input id="evName" autocomplete="given-name" required placeholder="So we can call your name"></div>
+        <div class="field"><label for="evPhone">Phone <em class="opt">optional</em></label><input id="evPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="In case we need to reach you"></div>
+        <div class="field"><label for="evEmail">Email <em class="opt">optional</em></label><input id="evEmail" type="email" autocomplete="email" placeholder="For your receipt &amp; future drops"></div>
+        <div class="field"><label for="evNote">Notes for Neeks <em class="opt">optional</em></label><input id="evNote" maxlength="140" placeholder="e.g. black &amp; white for photo 3"></div>
+      </form>
+    </section>
+
+    <div class="ev-bar">
+      <div class="ev-bar-info"><strong id="barBundle">The Nine Pack</strong><span id="barPrice">Pay at the booth</span></div>
+      <button type="button" class="btn btn-orange" id="submitBtn" disabled>Send to the press</button>
+    </div>
+  </div>
+
+  <!-- ===== ticket ===== -->
+  <div id="ticketView" hidden>
+    <section class="ticket">
+      <div class="ticket-head">
+        <span class="ev-live"><i></i> Order received</span>
+        <p>Your order number</p>
+        <div class="ticket-num" id="tNum">NX-000</div>
+        <p class="ticket-ready">Ready around <b id="tTime">--:--</b></p>
+      </div>
+      <div class="ticket-body">
+        <img id="tSheet" alt="Your photos">
+        <dl>
+          <dt>Name</dt><dd id="tName"></dd>
+          <dt>Pack</dt><dd id="tBundle"></dd>
+          <dt>Event</dt><dd id="tEvent"></dd>
+          <dt>Pay</dt><dd id="tPrice"></dd>
+        </dl>
+        <p class="ticket-note">Show this screen at the NeeksxArt booth. We'll call your name and number when your pack comes off the press.</p>
+        <p class="ticket-demo" id="tDemo" hidden>Demo mode: this order wasn't emailed because the site's email isn't set up yet.</p>
+      </div>
+    </section>
+    <div class="ticket-actions">
+      <a class="btn btn-ghost" href="https://www.instagram.com/neeksxart/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> <span>Tag @neeksxart</span></a>
+      <button type="button" class="btn btn-orange" id="newOrderBtn">Start another order</button>
+    </div>
+  </div>
+</div>
+
+<!-- crop editor -->
+<div class="editor" id="editor" hidden role="dialog" aria-modal="true" aria-label="Adjust photo">
+  <div class="editor-card">
+    <p class="editor-title" id="editorTitle">Photo 1</p>
+    <div class="editor-stage"><canvas id="editCanvas" width="700" height="700"></canvas></div>
+    <p class="editor-hint">Drag to move · slide to zoom</p>
+    <input type="range" id="editZoom" min="100" max="300" value="100" aria-label="Zoom">
+    <div class="editor-btns">
+      <label class="mini">Replace<input type="file" id="replaceInput" accept="image/*" hidden></label>
+      <button type="button" class="mini danger" id="removeBtn">Remove</button>
+      <button type="button" class="btn btn-orange" id="doneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script src="/js/bundles.js"></script>
+<script src="/js/event.js"></script>
+</body>
+</html>
