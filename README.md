@@ -102,6 +102,8 @@ Staff dashboard → **Templates** (`/admin/templates`, login required) has blank
 | 2.25" round keychain / button | 12-up, Letter | 2.625" circle | 2.25" | 1.875" |
 | 2.5" square magnet (with or without NeeksxArt flap text) | 6-up, Letter | 3.333" octagon | 2.5" (art 2.54") | 2.25" |
 
+The keychain uses the NeeksxArt rim design from `Template/2.25in keychain update.png` (black ring + gold lettering between the 2.25" photo window and the 2.625" cut); the script cuts it out into `print-templates/keychain-ring-2.625in.png`, which order print sheets also lay over each photo.
+
 Each comes as a vector PDF (exactly 8.5 × 11 in), a 300 DPI PNG (2550 × 3300 px), an editable SVG, plus a single-piece artboard.
 Print at **100% / Actual size** — every sheet has a 1-inch check bar in the margin.
 

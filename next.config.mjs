@@ -9,7 +9,8 @@ const nextConfig = {
   // /api/admin/templates reads the print templates from disk
   outputFileTracingIncludes: {
     '/media/[...path]': ['./supabase/seed-media/**/*'],
-    '/api/admin/templates/[file]': ['./print-templates/**/*']
+    '/api/admin/templates/[file]': ['./print-templates/**/*'],
+    '/api/admin/print-sheet': ['./print-templates/keychain-ring-2.625in.png']
   },
   async redirects() {
     return [

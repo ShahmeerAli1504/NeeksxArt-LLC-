@@ -34,7 +34,7 @@ def n(v):
 def svg_doc(w_pt, h_pt, body, bg='#ffffff'):
     bg_rect = f'<rect width="{n(w_pt)}" height="{n(h_pt)}" fill="{bg}"/>' if bg else ''
     return (f'<?xml version="1.0" encoding="UTF-8"?>\n'
-            f'<svg xmlns="http://www.w3.org/2000/svg" width="{n(w_pt)}pt" height="{n(h_pt)}pt" '
+            f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{n(w_pt)}pt" height="{n(h_pt)}pt" '
             f'viewBox="0 0 {n(w_pt)} {n(h_pt)}">\n{bg_rect}\n{body}\n</svg>\n')
 
 
@@ -64,9 +64,42 @@ def keychain_centers():
     return [((c + .5) * K_CELL_W, (r + .5) * K_CELL_H) for r in range(K_ROWS) for c in range(K_COLS)]
 
 
-def piece_keychain(cx, cy):
-    return (f'<circle cx="{n(cx)}" cy="{n(cy)}" r="{n(K_CUT_D / 2)}" fill="none" stroke="{CUT}" stroke-width="0.5"/>'
-            f'<circle cx="{n(cx)}" cy="{n(cy)}" r="{n(K_FACE_D / 2)}" fill="none" stroke="{FACE}" stroke-width="0.5" stroke-dasharray="4 3"/>'
+RING_SRC = os.path.join(ROOT, 'Template', '2.25in keychain update.png')   # NeeksxArt keychain design (MPRO round 2.25", 300 DPI)
+RING_PNG = os.path.join(OUT, 'keychain-ring-2.625in.png')                  # black rim + gold lettering, transparent 2.25" window
+
+
+def build_ring():
+    """Cut the branded rim out of the keychain design: everything between the 2.25" face and the 2.625" cut circle."""
+    if not os.path.exists(RING_SRC):
+        if os.path.exists(RING_PNG):
+            return
+        sys.exit(f'missing {RING_SRC}')
+    import numpy as np
+    src = np.array(Image.open(RING_SRC).convert('RGB')).astype(float)
+    S, cx, cy = 788, 1245.0, 412.0                # top-middle piece of the 300 DPI sheet
+    r_out, r_in = S / 2, 2.25 * 300 / 2
+    crop = src[int(cy - S / 2):int(cy - S / 2) + S, int(cx - S / 2):int(cx - S / 2) + S]
+    yy, xx = np.mgrid[0:S, 0:S] + 0.5
+    r = np.hypot(xx - S / 2, yy - S / 2)
+    band = (r > r_in + 3) & (r < r_out - 2.5)
+    out = np.zeros_like(crop)
+    out[band] = crop[band]
+    a = np.clip(r - (r_in - 0.5), 0, 1) * np.clip((r_out + 0.5) - r, 0, 1)
+    Image.fromarray(np.dstack([out, a * 255]).round().astype(np.uint8), 'RGBA').save(RING_PNG, dpi=(300, 300), optimize=True)
+
+
+def ring_href():
+    import base64
+    with open(RING_PNG, 'rb') as fh:
+        return 'data:image/png;base64,' + base64.b64encode(fh.read()).decode()
+
+
+def piece_keychain(cx, cy, ring=None):
+    """Branded rim (2.625" cut, 2.25" photo window) + safe-area guide inside the window."""
+    r = K_CUT_D / 2
+    rim = (f'<image x="{n(cx - r)}" y="{n(cy - r)}" width="{n(K_CUT_D)}" height="{n(K_CUT_D)}" href="{ring}" xlink:href="{ring}"/>'
+           if ring else f'<circle cx="{n(cx)}" cy="{n(cy)}" r="{n(r)}" fill="none" stroke="{CUT}" stroke-width="0.5"/>')
+    return (rim +
             f'<circle cx="{n(cx)}" cy="{n(cy)}" r="{n(K_SAFE_D / 2)}" fill="none" stroke="{SAFE}" stroke-width="0.5" stroke-dasharray="1 2.5"/>'
             f'<path d="M{n(cx - 4)} {n(cy)}H{n(cx + 4)}M{n(cx)} {n(cy - 4)}V{n(cy + 4)}" stroke="{GRID}" stroke-width="0.4"/>')
 
@@ -77,11 +110,12 @@ def keychain_sheet():
     g = [f'<line x1="{n(c * K_CELL_W)}" y1="0" x2="{n(c * K_CELL_W)}" y2="{n(PAGE_H)}"/>' for c in range(1, K_COLS + 1)]
     g += [f'<line x1="0" y1="{n(r * K_CELL_H)}" x2="{n(K_GRID_W)}" y2="{n(r * K_CELL_H)}"/>' for r in range(1, K_ROWS)]
     parts.append(f'<g stroke="{GRID}" stroke-width="0.5">{"".join(g)}</g>')
-    parts += [piece_keychain(cx, cy) for cx, cy in keychain_centers()]
+    ring = ring_href()
+    parts += [piece_keychain(cx, cy, ring) for cx, cy in keychain_centers()]
     # label strip
     sx = K_GRID_W + (PAGE_W - K_GRID_W) / 2
-    label = ('NeeksxArt  ·  Round 2.25" keychain / button  ·  12 per sheet  ·  Cut circle 2.625"  ·  '
-             'Face 2.25" (dashed)  ·  Safe 1.875" (dotted)  ·  Letter 8.5 x 11 in  ·  Print at 100% / Actual size')
+    label = ('NeeksxArt  ·  Round 2.25" keychain / button  ·  12 per sheet  ·  Cut circle 2.625" (outer edge of rim)  ·  '
+             'Photo window 2.25"  ·  Safe 1.875" (dotted)  ·  Letter 8.5 x 11 in  ·  Print at 100% / Actual size')
     parts.append(f'<text transform="translate({n(sx + 2.2)} {n(PAGE_H - 12)}) rotate(-90)" font-family="{FONT}" '
                  f'font-size="5.6" font-weight="600" fill="#333">{label}</text>')
     parts.append(ruler_1in(sx, 12))
@@ -93,7 +127,7 @@ def keychain_sheet():
 def keychain_artboard():
     s = K_CUT_D
     c = s / 2
-    return svg_doc(s, s, piece_keychain(c, c), bg=None)
+    return svg_doc(s, s, piece_keychain(c, c, ring_href()), bg=None)
 
 
 # ---------------------------------------------------------------- 2.5" square magnet, 6-up
@@ -198,6 +232,7 @@ def render(name, svg, dpi=300, pdf=True, preview=False, flatten=True):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    build_ring()
     render('keychain-2.25in-round-12up-letter', keychain_sheet(), preview=True)
     render('keychain-2.25in-artboard-2.625in', keychain_artboard(), dpi=600, pdf=False, flatten=False)
     render('magnet-2.5in-square-6up-letter', magnet_sheet(True), preview=True)
