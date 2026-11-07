@@ -6,7 +6,11 @@ const nextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ['nodemailer'],
   // lets the /media fallback route read the local photos when deployed without Supabase
-  outputFileTracingIncludes: { '/media/[...path]': ['./supabase/seed-media/**/*'] },
+  // /api/admin/templates reads the print templates from disk
+  outputFileTracingIncludes: {
+    '/media/[...path]': ['./supabase/seed-media/**/*'],
+    '/api/admin/templates/[file]': ['./print-templates/**/*']
+  },
   async redirects() {
     return [
       // old static-site URLs

@@ -93,5 +93,21 @@ Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gm
 - `lib/catalog.js`: products, price tiers, pack prices, photos (catalog, magnets, pricing and estimator pages all render from it).
 - `lib/bundles.js`: pop-up packs, piece counts, shapes, prices and the 10–15 min ready time.
 
+## Print templates
+
+Staff dashboard → **Templates** (`/admin/templates`, login required) has blank, exact-size press sheets to download:
+
+| Template | Sheet | Cut | Face | Safe |
+|---|---|---|---|---|
+| 2.25" round keychain / button | 12-up, Letter | 2.625" circle | 2.25" | 1.875" |
+| 2.5" square magnet (with or without NeeksxArt flap text) | 6-up, Letter | 3.333" octagon | 2.5" (art 2.54") | 2.25" |
+
+Each comes as a vector PDF (exactly 8.5 × 11 in), a 300 DPI PNG (2550 × 3300 px), an editable SVG, plus a single-piece artboard.
+Print at **100% / Actual size** — every sheet has a 1-inch check bar in the margin.
+
+Files live in `print-templates/`. To change sizes or add a product, edit `scripts/build-print-templates.py`,
+run `python3 scripts/build-print-templates.py` (needs `rsvg-convert` + Pillow), and list the files in `lib/print-templates.js`.
+The original filled samples are in `Template/`.
+
 ## Socials
 [Instagram](https://www.instagram.com/neeksxart/) · [Facebook](https://www.facebook.com/NEEKSxART/) · [TikTok](https://www.tiktok.com/@neeksxart)
