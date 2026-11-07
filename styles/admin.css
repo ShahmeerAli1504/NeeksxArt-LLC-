@@ -70,3 +70,12 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .adm-tpl-dl span{font-weight:800;font-size:.85rem}
 .adm-tpl-dl small{font-size:.72rem;opacity:.75}
 @media (max-width:420px){.adm-tpl-dl{grid-template-columns:1fr}}
+
+/* ----- Print sheet downloads (order + inquiry cards) ----- */
+.adm-print{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:var(--paper);color:var(--ink)!important;text-decoration:none;border:1px solid var(--paper);transition:transform .15s}
+.adm-print:hover{transform:translateY(-1px)}
+.adm-print span{font-weight:800;font-size:.9rem}
+.adm-print span::before{content:'↓ '}
+.adm-print small{font-size:.74rem;opacity:.7}
+.adm-print-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:420px){.adm-print-row{grid-template-columns:1fr}}

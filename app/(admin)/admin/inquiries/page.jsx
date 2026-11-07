@@ -77,6 +77,16 @@ export default async function InquiriesPage({ searchParams }) {
                   {urls[r.logo_path] && <a href={urls[r.logo_path]} target="_blank" rel="noopener"><img src={urls[r.logo_path]} alt="Logo" /><span>Logo</span></a>}
                 </div>
               )}
+              {r.logo_path && (
+                <div className="adm-print-row">
+                  <a className="adm-print" href={`/api/admin/print-sheet?inquiry=${r.id}&kind=round`} download>
+                    <span>Logo on keychain sheet</span><small>PDF · 12 × 2.25&quot; round</small>
+                  </a>
+                  <a className="adm-print" href={`/api/admin/print-sheet?inquiry=${r.id}&kind=magnet`} download>
+                    <span>Logo on magnet sheet</span><small>PDF · 6 × 2.5&quot; square</small>
+                  </a>
+                </div>
+              )}
               <div className="adm-actions">
                 {Object.entries(STATUSES).filter(([k]) => k !== r.status).map(([k, v]) => (
                   <form key={k} action={setInquiryStatus}>

@@ -119,6 +119,12 @@ export default async function OrdersPage({ searchParams }) {
                   </a>
                 ))}
               </div>
+              {(o.photo_paths || []).length > 0 && (
+                <a className="adm-print" href={`/api/admin/print-sheet?order=${o.id}`} download>
+                  <span>Download print sheet</span>
+                  <small>PDF · {(o.photo_paths || []).length} photo{(o.photo_paths || []).length === 1 ? '' : 's'} placed on the template, exact size</small>
+                </a>
+              )}
               <div className="adm-actions">
                 {NEXT_STEP[o.status] && (
                   <form action={setOrderStatus}>

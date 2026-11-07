@@ -109,5 +109,11 @@ Files live in `print-templates/`. To change sizes or add a product, edit `script
 run `python3 scripts/build-print-templates.py` (needs `rsvg-convert` + Pillow), and list the files in `lib/print-templates.js`.
 The original filled samples are in `Template/`.
 
+**Customer images on the templates:** every pop-up order card has **Download print sheet** — a PDF with all of
+that order's photos already placed on the magnet / keychain sheets (numbered #1, #2… like the board; a 9-pack
+spills onto a second sheet). Inquiries with an uploaded logo get **Logo on keychain sheet** and **Logo on magnet
+sheet**, which fill a whole sheet with the logo inside the safe area. Built by `lib/print-sheet.js`
+(route `/api/admin/print-sheet`). JPEG photos are embedded untouched; PNG/WebP/SVG logos go through `sharp`.
+
 ## Socials
 [Instagram](https://www.instagram.com/neeksxart/) · [Facebook](https://www.facebook.com/NEEKSxART/) · [TikTok](https://www.tiktok.com/@neeksxart)
