@@ -4,6 +4,7 @@ import '@/styles/studio.css';
 import '@/styles/popup.css';
 import '@/styles/event.css';
 import '@/styles/admin.css';
+import '@/styles/responsive.css';
 import { SITE, LOCAL_BUSINESS } from '@/lib/site';
 
 export const metadata = {

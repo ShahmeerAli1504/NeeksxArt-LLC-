@@ -1,0 +1,57 @@
+/* =========================================================
+   Mobile hardening (loaded last). Keeps every layout inside
+   the screen from 320px up and stops iOS zooming into fields.
+   ========================================================= */
+
+/* grid/flex children may shrink below their content width (prevents "grid blowout") */
+.teaser > *, .live-cards > *, .live-card > *, .studio-grid > *, .contact-grid > *, .story-split > *,
+.hero-grid > *, .versus > *, .booth-grid > *, .est-grid > *, .shop-grid > *, .products > *,
+.price-groups > *, .price-row > *, .prod-grid > *, .prod-grid label > *, .pop-bundles > *, .form-card, .form-card .field-row > *, .field, .panel, .group {
+  min-width: 0;
+}
+img, video, canvas, svg { max-width: 100%; }
+.tiers { width: 100%; }
+
+@media (max-width: 900px) {
+  /* mobile menu: long labels wrap instead of running off screen */
+  .nav-links { padding: 80px 24px 40px; overflow-y: auto; }
+  .nav-links a { white-space: normal; text-align: center; max-width: 100%; line-height: 1.1; font-size: clamp(1.25rem, 6.4vw, 2.2rem); }
+  .nav-links .btn { white-space: nowrap; }
+
+  /* iOS zooms into any field under 16px when tapped */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+  select, textarea { font-size: 16px !important; }
+
+  .teaser .steps { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .studio-grid { grid-template-columns: minmax(0, 1fr); }
+  .prod-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stage-col { margin-inline: -20px; padding-inline: 20px; }
+}
+
+@media (max-width: 560px) {
+  .live-card { grid-template-columns: minmax(0, 1fr); }
+  .live-card img { width: 100%; height: 200px; }
+  .live-card ul { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+  .form-card .field-row { grid-template-columns: minmax(0, 1fr) !important; }
+  .form-card { padding: 22px 18px; }
+  .shop-ctas { flex-wrap: wrap; }
+  .shop-ctas .btn { width: 100%; }
+  .hero-ctas .btn, .cta-band .ctas .btn, .live-ctas .btn { width: 100%; }
+  .booth-btns { display: grid; gap: 10px; }
+  .booth-btns .btn { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .teaser .steps { grid-template-columns: minmax(0, 1fr) !important; }
+  .btn { white-space: normal; text-align: center; }
+  .upload-chip { font-size: .75rem; padding: 10px 12px; }
+}
+
+/* Staff dashboard on phones */
+@media (max-width: 600px) {
+  .adm-top { position: static; }
+  .adm-top nav { width: 100%; }
+  .adm-orders, .adm-inq { grid-template-columns: minmax(0, 1fr); }
+  .adm-actions .btn { width: 100%; }
+  .adm-head h1 { font-size: 2rem; }
+}
