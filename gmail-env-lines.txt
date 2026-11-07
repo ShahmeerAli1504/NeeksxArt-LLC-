@@ -1,0 +1,32 @@
+# =========================================================
+# NeeksxArt — local environment (this file is NOT committed to git)
+# Add the same keys in Vercel → Project "neeksxart" → Settings → Environment Variables.
+# Restart `npm run dev` after editing this file.
+# =========================================================
+
+# --- Supabase (supabase.com → your NeeksxArt project → Project Settings → API) ---
+# Leave these blank until the project exists: the site then serves photos from
+# supabase/seed-media and pop-up ordering runs in demo mode.
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_MEDIA_BUCKET=site-media
+
+# --- Site ---
+# Local: http://localhost:3000 · Vercel: https://neeksxart.vercel.app (later https://neeksxart.com)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Password for the staff dashboard at /admin (generated for you; change it if you like)
+ADMIN_PASSWORD=nx-gbp9QkTMzIEdw94RbQsd86F4
+
+# --- Email via Gmail SMTP: pop-up orders arrive with every photo attached ---
+# SMTP_PASS = Google "App password" (myaccount.google.com/apppasswords, needs 2-Step Verification),
+# NOT the normal Gmail password. Spaces in it are fine.
+SMTP_USER=
+SMTP_PASS=
+OWNER_EMAIL=info@neeksxart.com
+# EVENT_TO_EMAIL=
+# EVENT_EMAILS=off
+
+# --- Pop-up ordering ---
+# Set to 1 once Supabase is connected, so real events can never fall back to demo mode.
+EVENT_REQUIRE_LIVE=0

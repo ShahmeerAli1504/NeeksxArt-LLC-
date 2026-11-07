@@ -1,21 +1,3 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "redirects": [
-    { "source": "/about", "destination": "/story", "permanent": false },
-    { "source": "/pages/about-us", "destination": "/story", "permanent": true },
-    { "source": "/pages/contact", "destination": "/contact", "permanent": true },
-    { "source": "/pages/estimate-pricing", "destination": "/pricing", "permanent": true },
-    { "source": "/pages/events-party-favors", "destination": "/favors", "permanent": true },
-    { "source": "/pages/custom-orders-live-magnets-returns-policy", "destination": "/policy", "permanent": true },
-    { "source": "/collections/standard-custom-magnets", "destination": "/magnets", "permanent": true },
-    { "source": "/collections/catalog", "destination": "/catalog", "permanent": true },
-    { "source": "/collections/all", "destination": "/catalog", "permanent": true },
-    { "source": "/products/neeksxart-live-magnets", "destination": "/events", "permanent": true },
-    { "source": "/products/neeksxart-live-personalized-keychains", "destination": "/events", "permanent": true },
-    { "source": "/products/:handle", "destination": "/catalog", "permanent": true }
-  ],
-  "headers": [
-    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }] }
-  ]
+  "framework": "nextjs"
 }

@@ -1,0 +1,29 @@
+{
+  "name": "neeksxart",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NeeksxArt LLC website: Next.js frontend + Supabase backend (storage, database, live pop-up orders).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "media:upload": "node --env-file=.env.local scripts/upload-media.mjs",
+    "media:upload:force": "node --env-file=.env.local scripts/upload-media.mjs --force",
+    "email:test": "node --env-file=.env.local scripts/test-email.mjs"
+  },
+  "engines": {
+    "node": ">=20.6"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "^15.5.7",
+    "nodemailer": "^6.9.16",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.0"
+  }
+}
