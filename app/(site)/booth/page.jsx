@@ -55,7 +55,7 @@ export default function BoothPage() {
             <p className="fine-dark">Tip: test-scan the printed poster with your own phone before the doors open.</p>
           </div>
           <div className="poster" id="poster">
-            <img className="poster-logo" src={media("img/logo-white.png")} alt="NeeksxArt" />
+            <img className="poster-logo" src="/brand/neeksxart-logo-white.png" alt="NeeksxArt" />
             <p className="poster-live">
               <i></i>
               {" "}Live custom merch

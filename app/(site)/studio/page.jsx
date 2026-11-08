@@ -1,4 +1,5 @@
 import { media } from '@/lib/media';
+import PrintAsIs from '@/components/notes/PrintAsIs';
 import LegacyMount from '@/components/LegacyMount';
 
 export const metadata = {
@@ -45,11 +46,9 @@ export default function StudioPage() {
                 <div className="seg scenes" role="group" aria-label="Background scene">
                   <button type="button" className="on" data-scene="studio" title="Studio" aria-label="Dark studio scene" style={{ "--sw": "#1a1a1a" }}></button>
                   {" "}
-                  <button type="button" data-scene="paper" title="Paper" aria-label="Cream scene" style={{ "--sw": "#efe7da" }}></button>
+                  <button type="button" data-scene="paper" title="White" aria-label="White scene" style={{ "--sw": "#ffffff" }}></button>
                   {" "}
-                  <button type="button" data-scene="pink" title="Pink" aria-label="Pink scene" style={{ "--sw": "#ff5fa8" }}></button>
-                  {" "}
-                  <button type="button" data-scene="orange" title="Orange" aria-label="Orange scene" style={{ "--sw": "#ee6a2c" }}></button>
+                  <button type="button" data-scene="mustard" title="Mustard" aria-label="Mustard scene" style={{ "--sw": "#E1AD01" }}></button>
                 </div>
                 <button type="button" className="tool-btn" id="downloadBtn" title="Download mockup">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -136,10 +135,11 @@ export default function StudioPage() {
                 {" "}
                 <small>or tap to browse · PNG, JPG, WEBP or SVG · transparent PNG looks best</small>
               </label>
+              <PrintAsIs className="studio-print-note" />
               <div className="samples">
                 <span>No logo handy?</span>
                 {" "}
-                <button type="button" data-sample={media("img/logo-white.png")} data-bg="#0b0b0b">NeeksxArt logo</button>
+                <button type="button" data-sample="/brand/neeksxart-logo-white.png" data-bg="#0b0b0b">NeeksxArt logo</button>
                 {" "}
                 <button type="button" data-sample={media("img/neeks-5k.jpg")} data-bg="#3a2a1f">Photo sample</button>
               </div>
@@ -177,7 +177,7 @@ export default function StudioPage() {
                   {" "}
                   <button type="button" style={{ "--c": "#f3eee6" }} data-c="#f3eee6" aria-label="Cream"></button>
                   {" "}
-                  <button type="button" style={{ "--c": "#ee6a2c" }} data-c="#ee6a2c" aria-label="Orange"></button>
+                  <button type="button" style={{ "--c": "#E1AD01" }} data-c="#E1AD01" aria-label="Mustard"></button>
                   {" "}
                   <button type="button" style={{ "--c": "#ff2d8a" }} data-c="#ff2d8a" aria-label="Hot pink"></button>
                   {" "}
@@ -421,7 +421,7 @@ export default function StudioPage() {
             </div>
             <div className="step">
               <h3>Free mockup</h3>
-              <p>We clean up your art and send a print-ready proof to approve.</p>
+              <p>We send a proof to approve. Your design prints exactly as you uploaded it, so send your best original file.</p>
             </div>
             <div className="step">
               <h3>Hand-pressed</h3>
@@ -429,7 +429,7 @@ export default function StudioPage() {
             </div>
             <div className="step">
               <h3>Packed & shipped</h3>
-              <p>Packed with care and shipped anywhere in the US.</p>
+              <p>Free delivery in Reno &amp; Sparks, or $8 flat-rate shipping (free out of state over $150).</p>
             </div>
           </div>
         </div>

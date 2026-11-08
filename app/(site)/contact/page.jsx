@@ -283,14 +283,14 @@ export default function ContactPage() {
               <summary>How does payment work?</summary>
               <p>
                 Orders under $150 are paid in full before production. Orders of $150 or more need a 50% deposit, with the balance due before shipping or delivery. See our{" "}
-                <Link href="/policy" style={{ color: "var(--orange)", fontWeight: 800 }}>orders & returns policy</Link>
+                <Link href="/policy" style={{ color: "var(--accent-text)", fontWeight: 800 }}>orders & returns policy</Link>
                 {" "}for details.
               </p>
             </details>
             <details>
               <summary>Do you ship outside of Reno?</summary>
               <p>
-                We do. NeeksxArt is based in Reno, NV and ships nationwide. Let us know your city and deadline and we'll confirm shipping options and timing.
+                We do. Local delivery is free in Reno and Sparks. Shipping is a flat $8 on orders under $150, and free on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded). If weather or an emergency means we can&apos;t deliver locally, we ship instead under the same terms.
               </p>
             </details>
             <details>

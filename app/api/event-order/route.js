@@ -7,6 +7,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin, BUCKETS, decodeDataUrl } from '@/lib/supabase/admin';
 import { sendEmail, emailConfigured, siteUrl } from '@/lib/email';
 import { orderEmail, receivedAt } from '@/lib/email-templates';
+import { getPopup } from '@/lib/popup';
+import { isAdmin } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -22,10 +24,13 @@ export async function POST(req) {
   const orderId = clean(b.orderId, 20);
   if (!orderId || !name) return NextResponse.json({ ok: false, error: 'Missing order details' }, { status: 400 });
 
+  const popup = await getPopup();
+  if (!popup.live && !(await isAdmin())) return NextResponse.json({ ok: false, error: 'Live ordering is closed. It opens during NeeksxArt pop-up events.' }, { status: 403 });
+
   const items = (Array.isArray(b.items) ? b.items : []).slice(0, 12).map(x => clean(x, 20));
   const details = {
-    event_name: clean(b.event, 80),
-    event_slug: clean(b.eventSlug, 40).toLowerCase().replace(/[^a-z0-9-]/g, '') || 'pop-up',
+    event_name: popup.live ? popup.name : 'Preview',
+    event_slug: popup.live ? popup.slug : 'preview',
     bundle: clean(b.bundle, 80),
     bundle_id: clean(b.bundleId, 30),
     items,

@@ -68,7 +68,7 @@ export default function Estimator({ className, ...rest }) {
             </div>
           )}
           {added && !p.special && <small className="est-added">{added} ✓ <Link href="/checkout">Checkout →</Link></small>}
-          <small className="est-fine">Before tax and shipping. Your final quote is confirmed with your free mockup.</small>
+          <small className="est-fine">Before tax and shipping. Free local delivery in Reno &amp; Sparks · $8 flat-rate shipping under $150 · free shipping out of state over $150.</small>
         </div>
       </div>
     </div>

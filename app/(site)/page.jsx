@@ -1,5 +1,10 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
+import { startingPrice } from '@/lib/catalog';
+import ReviewsSection from '@/components/reviews/ReviewsSection';
+
+// reviews update from the dashboard; refreshed on approval and every 10 minutes
+export const revalidate = 600;
 
 export const metadata = {
   title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV",
@@ -38,8 +43,8 @@ export default function HomePage() {
             </div>
             <div className="hero-facts reveal d3">
               <div>
-                <strong>$0.60</strong>
-                Bulk pricing from
+                <strong>Tiered</strong>
+                Bulk pricing
               </div>
               <div>
                 <strong>Free</strong>
@@ -148,7 +153,7 @@ export default function HomePage() {
               </h3>
               <ul>
                 <li>
-                  <span style={{ color: "var(--orange)" }}>
+                  <span style={{ color: "var(--accent-text)" }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M4 12.5l5 5L20 6.5"></path>
                     </svg>
@@ -156,7 +161,7 @@ export default function HomePage() {
                   {" "}Functional keepsakes people use every single day
                 </li>
                 <li>
-                  <span style={{ color: "var(--orange)" }}>
+                  <span style={{ color: "var(--accent-text)" }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M4 12.5l5 5L20 6.5"></path>
                     </svg>
@@ -164,7 +169,7 @@ export default function HomePage() {
                   {" "}On their keys, their fridge, their bag, their jacket
                 </li>
                 <li>
-                  <span style={{ color: "var(--orange)" }}>
+                  <span style={{ color: "var(--accent-text)" }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M4 12.5l5 5L20 6.5"></path>
                     </svg>
@@ -172,7 +177,7 @@ export default function HomePage() {
                   {" "}No minimums, free mockups, tiered bulk pricing
                 </li>
                 <li>
-                  <span style={{ color: "var(--orange)" }}>
+                  <span style={{ color: "var(--accent-text)" }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M4 12.5l5 5L20 6.5"></path>
                     </svg>
@@ -196,7 +201,7 @@ export default function HomePage() {
             </div>
             <p className="lead reveal d2">
               Every piece is printed, pressed and packed by hand in our Reno studio. Tap any product to design yours, or browse the{" "}
-              <Link href="/catalog" style={{ color: "var(--orange)", fontWeight: 800 }}>full catalog</Link>
+              <Link href="/catalog" style={{ color: "var(--accent-text)", fontWeight: 800 }}>full catalog</Link>
               {" "}with pricing.
             </p>
           </div>
@@ -207,7 +212,7 @@ export default function HomePage() {
                 <img src={media("img/nextlevel-2.jpg")} alt="Next Level 775 car audio shop custom button keychains" loading="lazy" />
               </div>
               <h3>Custom Keychains</h3>
-              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From $2.50 each</p>
+              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From {startingPrice(['kc15', 'kc225'])} each</p>
               <p>
                 Glossy domed keychains with split ring and chain. The thing nobody throws away: their keys.
               </p>
@@ -229,7 +234,7 @@ export default function HomePage() {
                 <img src={media("img/mirror-pink.jpg")} alt="Pink Hairbyadilenexoxo mirror keychain with tassel" loading="lazy" style={{ objectPosition: "50% 35%" }} />
               </div>
               <h3>Mirror Keychains</h3>
-              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From $6.50 each · full package</p>
+              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From {startingPrice(['mirror225'])} each · full package</p>
               <p>
                 Your logo on the front, a real pocket mirror on the back. Lash artists, salons and beauty brands love these.
               </p>
@@ -248,10 +253,10 @@ export default function HomePage() {
             <article className="product reveal d2">
               <span className="tag">Events</span>
               <div className="product-art">
-                <img src={media("img/wedding-buttons.jpg")} alt="Custom wedding photo magnets and buttons" loading="lazy" />
+                <img src={media("img/wedding-buttons.jpg")} alt="Sierra and Ray custom wedding photo magnets" loading="lazy" />
               </div>
               <h3>Magnets</h3>
-              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From $2.75 each</p>
+              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From {startingPrice(['mag25', 'mag225'])} each</p>
               <p>
                 Photo magnets and logo magnets that live on the fridge for years. Perfect for weddings, parties and restaurants.
               </p>
@@ -272,7 +277,7 @@ export default function HomePage() {
                 <img src={media("img/logo-button.jpg")} alt="NeeksxArt logo glossy button" loading="lazy" style={{ objectFit: "contain", background: "#0b0b0b" }} />
               </div>
               <h3>Buttons</h3>
-              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From $0.60 each</p>
+              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From {startingPrice(['btn1', 'btn225'])} each</p>
               <p>
                 Vibrant, high-fidelity pin-back buttons. Statement pieces for bands, campaigns, fundraisers and merch tables.
               </p>
@@ -290,12 +295,12 @@ export default function HomePage() {
               </Link>
             </article>
             <article className="product reveal d1">
-              <span className="tag" style={{ background: "var(--orange)" }}>Smart merch</span>
+              <span className="tag" style={{ background: "var(--orange)", color: "var(--ink)" }}>Smart merch</span>
               <div className="product-art">
                 <img src={media("img/weezy-nfc.jpg")} alt="Weezy tap-to-connect NFC keychain" loading="lazy" style={{ objectPosition: "50% 45%" }} />
               </div>
               <h3>Tap-to-Connect</h3>
-              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From $8.00 each</p>
+              <p className="shop-from" style={{ fontWeight: 800, color: "var(--ink)" }}>From {startingPrice(['ttc15', 'ttc225', 'ttcmirror'])} each</p>
               <p>
                 An NFC chip inside your keychain. One tap on a phone opens your Instagram, website, booking page or menu. No app needed.
               </p>
@@ -439,7 +444,7 @@ export default function HomePage() {
               </figcaption>
             </figure>
             <figure className="reveal" data-lightbox="">
-              <img src={media("img/wedding-buttons.jpg")} alt="Wedding photo buttons" loading="lazy" />
+              <img src={media("img/wedding-buttons.jpg")} alt="Sierra and Ray wedding photo magnets" loading="lazy" />
               <figcaption>
                 <span>Wedding favors</span>
                 <span>Magnets</span>
@@ -599,6 +604,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <ReviewsSection limit={6} className="pad paper-2" />
       <section className="pad">
         <div className="wrap">
           <div className="cta-band reveal">

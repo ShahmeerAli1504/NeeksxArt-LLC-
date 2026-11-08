@@ -3,6 +3,8 @@ import { media } from '@/lib/media';
 import Estimator from '@/components/catalog/Estimator';
 import LiveCards from '@/components/catalog/LiveCards';
 import PriceTables from '@/components/catalog/PriceTables';
+import ShippingNote from '@/components/notes/ShippingNote';
+import PrintAsIs from '@/components/notes/PrintAsIs';
 
 export const metadata = {
   title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet",
@@ -34,6 +36,10 @@ export default function PricingPage() {
             <span className="script" style={{ textTransform: "none" }}>estimate</span>
           </h2>
           <Estimator className="reveal d2" />
+          <div className="notes-row" style={{ marginTop: "24px" }}>
+            <PrintAsIs />
+            <ShippingNote />
+          </div>
         </div>
       </section>
       <section className="pad paper-2">

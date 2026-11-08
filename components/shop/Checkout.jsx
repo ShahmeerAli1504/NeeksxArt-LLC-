@@ -1,19 +1,18 @@
 'use client';
 // Checkout (DEMO payments). Shows exactly how the total is built: tiered product pricing,
-// pickup / local delivery by ZIP zone / shipping by weight, Nevada sales tax and the
+// delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state over $150), Nevada sales tax and the
 // optional 50% deposit. The card form mimics Square's: any card is accepted and nothing is charged.
 // Going live = swap DemoCardForm for Square's Web Payments SDK `card.tokenize()` (see README).
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
-import { quote, fmt, CHECKOUT, productById } from '@/lib/checkout';
+import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById } from '@/lib/checkout';
 import { pics } from '@/lib/catalog';
 
 const METHODS = [
-  { id: 'pickup', title: 'Local pickup', sub: 'Free · Reno studio' },
-  { id: 'delivery', title: 'Local delivery', sub: 'Reno, Sparks & nearby · from ' + fmt(Math.min(...CHECKOUT.delivery.zones.map(z => z.feeCents))) },
-  { id: 'shipping', title: 'Ship it', sub: 'USPS anywhere in the US' }
+  { id: 'delivery', title: 'Free local delivery', sub: 'Reno & Sparks addresses' },
+  { id: 'shipping', title: 'Shipping', sub: `${fmt(CHECKOUT.shipping.flatCents)} flat rate · free out of state over ${fmt(CHECKOUT.shipping.freeOverCents)}` }
 ];
 
 const brandOf = n => /^4/.test(n) ? 'Visa' : /^(5[1-5]|2[2-7])/.test(n) ? 'Mastercard' : /^3[47]/.test(n) ? 'American Express' : /^6(011|5)/.test(n) ? 'Discover' : 'Card';
@@ -32,15 +31,14 @@ function Explain({ lines }) {
 export default function Checkout() {
   const router = useRouter();
   const { items, ready } = useCart();
-  const [method, setMethod] = useState('pickup');
-  const [service, setService] = useState('ground');
+  const [method, setMethod] = useState('delivery');
   const [plan, setPlan] = useState('full');
   const [c, setC] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', state: 'NV', zip: '', note: '' });
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', zip: '' });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
-  const q = useMemo(() => quote({ items, method, zip: c.zip, service, plan }), [items, method, c.zip, service, plan]);
+  const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state, plan }), [items, method, c.zip, c.state, plan]);
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
   const digits = card.number.replace(/\D/g, '');
 
@@ -59,9 +57,9 @@ export default function Checkout() {
       const res = await fetch('/api/checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items, method, service, plan,
+          items, method, plan,
           customer: { name: c.name, email: c.email, phone: c.phone },
-          address: method === 'pickup' ? { zip: c.zip } : { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
+          address: { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
           note: c.note,
           payment: { sourceId, brand: brandOf(digits), last4: digits.slice(-4), exp: card.exp.replace(/\s/g, ''), postal: card.zip },
           expectedTotal: q.total
@@ -106,7 +104,7 @@ export default function Checkout() {
 
         <fieldset className="co-step">
           <legend><span>2</span> How do you want it?</legend>
-          <div className="co-methods" role="radiogroup">
+          <div className="co-methods co-methods-2" role="radiogroup">
             {METHODS.map(m => (
               <label key={m.id} className={'co-method' + (method === m.id ? ' on' : '')}>
                 <input type="radio" name="method" value={m.id} checked={method === m.id} onChange={() => setMethod(m.id)} />
@@ -115,9 +113,12 @@ export default function Checkout() {
             ))}
           </div>
 
-          {method === 'pickup' && <p className="co-hint">{CHECKOUT.pickup.note}</p>}
+          {method === 'delivery' && <p className="co-hint co-note"><b>Free in Reno &amp; Sparks.</b> {CHECKOUT.delivery.note}</p>}
+          {method === 'shipping' && (
+            <p className="co-hint co-note">{SHIPPING_SUMMARY.shipping}. {SHIPPING_SUMMARY.free}.</p>
+          )}
 
-          {method !== 'pickup' && (
+          {(
             <>
               <div className="field"><label htmlFor="coL1">Street address <em>*</em></label><input id="coL1" autoComplete="address-line1" value={c.line1} onChange={set('line1')} /></div>
               <div className="field"><label htmlFor="coL2">Apt / suite</label><input id="coL2" autoComplete="address-line2" value={c.line2} onChange={set('line2')} /></div>
@@ -127,27 +128,6 @@ export default function Checkout() {
                 <div className="field"><label htmlFor="coZip">ZIP <em>*</em></label><input id="coZip" inputMode="numeric" autoComplete="postal-code" maxLength={10} value={c.zip} onChange={set('zip')} /></div>
               </div>
             </>
-          )}
-
-          {method === 'delivery' && (
-            <div className="co-zones">
-              {CHECKOUT.delivery.zones.map(z => (
-                <div key={z.id}><b>Zone {z.id} · {fmt(z.feeCents)}</b><span>{z.label}</span></div>
-              ))}
-              <div><b>Free</b><span>on orders {fmt(CHECKOUT.delivery.freeOverCents)}+</span></div>
-            </div>
-          )}
-
-          {method === 'shipping' && (
-            <div className="co-services">
-              {CHECKOUT.shipping.services.map(s => (
-                <label key={s.id} className={service === s.id ? 'on' : ''}>
-                  <input type="radio" name="service" checked={service === s.id} onChange={() => setService(s.id)} />
-                  <b>{s.label}</b><small>{s.days}{s.extraCents ? ` · +${fmt(s.extraCents)}` : ''}</small>
-                </label>
-              ))}
-              <small className="co-hint">Free standard shipping on orders {fmt(CHECKOUT.shipping.freeOverCents)}+.</small>
-            </div>
           )}
 
           <div className="field"><label htmlFor="coNote">Order note</label><input id="coNote" value={c.note} onChange={set('note')} placeholder="Deadline, colors, anything we should know" /></div>
@@ -163,7 +143,7 @@ export default function Checkout() {
               </label>
               <label className={plan === 'deposit' ? 'on' : ''}>
                 <input type="radio" name="plan" checked={plan === 'deposit'} onChange={() => setPlan('deposit')} />
-                <b>Pay 50% deposit</b><small>{fmt(Math.round(q.total * CHECKOUT.deposit.share))} today · rest before {method === 'pickup' ? 'pickup' : method === 'delivery' ? 'delivery' : 'shipping'}</small>
+                <b>Pay 50% deposit</b><small>{fmt(Math.round(q.total * CHECKOUT.deposit.share))} today · rest before {method === 'delivery' ? 'delivery' : 'shipping'}</small>
               </label>
             </div>
           )}
@@ -216,7 +196,7 @@ export default function Checkout() {
           </ul>
           <dl className="co-totals">
             <dt>Subtotal</dt><dd>{fmt(q.subtotal)}</dd>
-            <dt>{method === 'pickup' ? 'Pickup' : method === 'delivery' ? 'Delivery' : 'Shipping'}<small>{q.delivery.label}</small></dt>
+            <dt>{method === 'delivery' ? 'Delivery' : 'Shipping'}<small>{q.delivery.label}</small></dt>
             <dd>{q.delivery.amount ? fmt(q.delivery.amount) : 'Free'}</dd>
             <dd className="co-x"><Explain lines={q.delivery.explain} /></dd>
             <dt>Sales tax<small>{q.tax.rate ? (q.tax.rate * 100).toFixed(3).replace(/0+$/, '') + '%' : ''}</small></dt><dd>{fmt(q.tax.amount)}</dd>

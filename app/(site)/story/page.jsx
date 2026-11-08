@@ -20,7 +20,7 @@ export default function StoryPage() {
               <span className="script">carry.</span>
             </h1>
             <p className="lead reveal d2">
-              A small, locally owned custom merch business in Reno, Nevada. Two people, one press, and a belief that merch should be something people want to keep.
+              A Reno-based novelty shop owned and run by Neeks, made side by side with his fiancée Crystal. One press, and a belief that merch should be something people want to keep.
             </p>
           </div>
           <div className="story-photo reveal d2">
@@ -74,20 +74,23 @@ export default function StoryPage() {
               </p>
             </div>
             <div className="person reveal d1">
-              <span className="role">Production & design</span>
+              <span className="role">Design, press & shipping</span>
               <h3>Crystal Matutis</h3>
               <p>
-                Nicko's fiancée and the other half of NeeksxArt. Crystal helps with production, order prep, designs and the packaging that makes every order feel like a gift.
+                Nicko's fiancée. Crystal designs, presses and ships right alongside Neeks, and she's a big part of the brand, down to the packaging that makes every order feel like a gift.
               </p>
             </div>
           </div>
           <div className="prose reveal d2" style={{ maxWidth: "760px", marginTop: "40px" }}>
             <p>
-              We make personalized magnets, keychains, buttons, photo keepsakes and promotional products for businesses, events and personal memories. There's{" "}
-              <strong>no minimum order</strong>
-              , so you can order one piece or hundreds, and every order gets the same family-run attention to quality and service.
+              Neeks X Art LLC is a Reno-based novelty shop owned and run by Neeks. We turn business logos and personal photos into fridge-worthy magnets, key chains, pocket mirrors, and buttons — because a business card gets forgotten, but your logo on a fridge gets seen every day. My fiancée, Crystal, is right there with me — she designs, presses, and ships alongside me. It&apos;s my name on the shop, but we&apos;re a collaboration as one.
             </p>
-            <p className="script" style={{ fontSize: "2rem", color: "var(--orange)" }}>Because the best merch isn't just seen. It's carried, used, shared and remembered.</p>
+            <p>
+              There&apos;s{" "}
+              <strong>no minimum order</strong>
+              , so you can order one piece or hundreds.
+            </p>
+            <p className="script" style={{ fontSize: "2rem", color: "var(--accent-text)" }}>Because the best merch isn't just seen. It's carried, used, shared and remembered.</p>
           </div>
         </div>
       </section>

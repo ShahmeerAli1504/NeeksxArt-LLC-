@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
 import ShopGrid from '@/components/catalog/ShopGrid';
+import ShippingNote from '@/components/notes/ShippingNote';
+import PrintAsIs from '@/components/notes/PrintAsIs';
+
+// product photos can change from the dashboard; refreshed on upload and at least hourly
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Standard Custom Magnets | NeeksxArt — Reno, NV",
@@ -33,6 +38,10 @@ export default function MagnetsPage() {
               <Link href="/events">NeeksxArt Live</Link>
               {" "}page.
             </p>
+          </div>
+          <div className="notes-row">
+            <PrintAsIs />
+            <ShippingNote />
           </div>
           <ShopGrid filter="magnets" className="shop-grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }} />
         </div>

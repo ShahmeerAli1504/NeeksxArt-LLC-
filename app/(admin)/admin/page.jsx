@@ -5,6 +5,7 @@ import { setOrderStatus } from '@/lib/admin-actions';
 import { STATUS_LABEL } from '@/lib/bundles';
 import AdminNav from '@/components/admin/AdminNav';
 import AutoRefresh from '@/components/admin/AutoRefresh';
+import PopupControl from '@/components/admin/PopupControl';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,6 +73,8 @@ export default async function OrdersPage({ searchParams }) {
             <span className="st-ready"><b>{counts.ready}</b> ready</span>
           </div>
         </div>
+
+        <PopupControl />
 
         <div className="adm-filters">
           <div className="adm-tabs">

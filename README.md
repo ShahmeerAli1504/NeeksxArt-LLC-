@@ -48,7 +48,8 @@ Pages reference site photos with `media('img/neeks-studio.jpg')`. Guests' pop-up
 
 ### 1. Supabase
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor → New query**: paste `supabase/schema.sql` and run it (creates the `inquiries` + `event_orders` tables and the 3 buckets).
+2. **SQL Editor → New query**: paste `supabase/schema.sql` and run it (creates every table and the 3 buckets).
+   Already set up before November 2026? Run `supabase/updates-nov-2026.sql` once instead (adds `site_settings`, `reviews`, `product_photos`).
 3. **Project Settings → API**: copy the Project URL, `anon` key and `service_role` key.
 
 ### 2. Local
@@ -74,6 +75,8 @@ To add a photo later: put it in `supabase/seed-media/img/`, run `npm run media:u
 | `NEXT_PUBLIC_SITE_URL` | links in emails, SEO (default `https://neeksxart.com`) |
 | `SMTP_USER`, `SMTP_PASS`, `OWNER_EMAIL` | Gmail SMTP: the sending Gmail address, its 16-letter App password, and the inbox that receives orders/inquiries |
 | `EVENT_TO_EMAIL`, `EVENT_EMAILS=off`, `EVENT_REQUIRE_LIVE=1` | pop-up email options; `EVENT_REQUIRE_LIVE=1` turns off demo mode |
+| `POPUP_ALWAYS_OPEN=1` | keeps `/event` open without starting a pop-up (testing only) |
+| `NEXT_PUBLIC_YELP_URL` | the NeeksxArt Yelp page, for the "See us on Yelp" buttons |
 
 ### Pop-up order emails
 Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gmail account: order #, event, pack, price, the guest's name/phone/email/notes, the overview sheet inline, and **every cropped photo attached** (900×900 JPG, numbered in pack order, e.g. `NX-482K-01-magnet.jpg`). Replying goes straight to the guest.
@@ -85,13 +88,27 @@ Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gm
 **Gmail App password:** turn on 2-Step Verification for the Gmail account, then go to myaccount.google.com/apppasswords, create one called "NeeksxArt website" and paste the 16 letters into `SMTP_PASS`. Gmail allows about 500 emails a day, plenty for pop-ups.
 
 ## Running a pop-up
+Live ordering (`/event`) is **closed unless a pop-up is running**. Guests who scan an old QR code see a "Live ordering is closed" page.
+0. `/admin` → **Start pop-up** (event name + how many hours). It closes itself at the end time, or tap **End pop-up**. While closed, staff logged in to `/admin` can still open `/event` as a preview.
 1. `/booth` → type the event name → print the poster (or show it on a tablet).
 2. Guests scan, pick a pack, upload photos, get an order number.
 3. Open `/admin` on the press laptop: orders appear oldest-first (auto-refresh every 15 s) with numbered print files. Tap **Mark pressing now → Mark ready for pickup → Mark picked up**; the guest's ticket updates live.
 
 ## Editing products & prices
 - `lib/catalog.js`: products, price tiers, pack prices, photos (catalog, magnets, pricing and estimator pages all render from it).
-- `lib/bundles.js`: pop-up packs, piece counts, shapes, prices and the 10–15 min ready time.
+- `lib/bundles.js`: pop-up packs, piece counts, shapes, prices and the 10–15 min ready time. It's the only place live packs are defined; the home, events and `/event` pages all read from it.
+- The "From $X" starting prices on the site are the single-piece price (first tier) of each product in `lib/catalog.js`.
+
+## Product photos (4 per product)
+Dashboard → **Product photos** (`/admin/products`): every product shows exactly 4 photos. Tap **Replace** on any slot to upload a new one (JPG/PNG/WebP; it's resized automatically), or **Reset** to go back to the built-in photo. The shop updates right away. Photo 1 is the main one.
+
+## Reviews
+- `/reviews` shows website reviews and Yelp reviews; the home page shows the latest 6.
+- **Website reviews:** anyone can leave one (no account). They arrive as *pending* and are emailed to `OWNER_EMAIL`; approve, hide or delete them in Dashboard → **Reviews**.
+- **Yelp reviews:** Yelp's API costs money and only returns 3 short excerpts, so instead: open the review on Yelp → **Share review → Embed review**, copy the code, and paste it into Dashboard → Reviews → *Add a Yelp review*. It appears as Yelp's own official review card.
+
+## Branding
+Logos are in `public/brand/` (`neeksxart-logo-black.png` on light backgrounds, `neeksxart-logo-white.png` on dark). The palette is white, black and mustard `#E1AD01`; colors are set at the top of `styles/style.css` (`--mustard`, plus `--accent-text` for readable mustard text on white).
 
 ## Print templates
 
@@ -126,7 +143,7 @@ sheet**, which fill a whole sheet with the logo inside the safe area. Built by `
 Customers can **Add to cart** on the catalog and the price estimator, then check out at `/checkout`:
 
 1. **Products** are priced by the same tiers as the price sheet (`lib/catalog.js`).
-2. **Fulfillment:** free local pickup in Reno · local delivery by ZIP zone (Zone A Reno/Sparks $7.99, Zone B greater Reno $14.99, free on $150+) · USPS shipping by package weight (free standard shipping on $200+, Priority +$6).
+2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded).
 3. **Sales tax** on products only, by ZIP (Washoe 8.265%, Carson City 7.6%, other NV 6.85%, out of state 0%).
 4. **Payment:** orders $150+ can pay a 50% deposit; the balance is collected from the dashboard.
 
@@ -145,7 +162,7 @@ the dashboard are marked *Demo*. Run `supabase/shop-orders.sql` once in Supabase
 `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENV` (`sandbox` first, then `production`),
 `NEXT_PUBLIC_SQUARE_APP_ID`, `NEXT_PUBLIC_SQUARE_LOCATION_ID`, then swap the demo card inputs in
 `components/shop/Checkout.jsx` for Square's Web Payments SDK card field (`card.tokenize()` → `payment.sourceId`).
-`lib/payments.js` already has the Square Payments API call. Confirm tax rates and delivery prices before going live.
+`lib/payments.js` already has the Square Payments API call. Confirm tax rates before going live.
 
 ## Socials
 [Instagram](https://www.instagram.com/neeksxart/) · [Facebook](https://www.facebook.com/NEEKSxART/) · [TikTok](https://www.tiktok.com/@neeksxart)

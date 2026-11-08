@@ -1,21 +1,50 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
 import LegacyMount from '@/components/LegacyMount';
+import { getPopup } from '@/lib/popup';
+import { isAdmin } from '@/lib/admin-auth';
 
 export const metadata = {
   title: "NeeksxArt Live Pop-Up | Upload Your Photos",
   description: "Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.",
   openGraph: { title: "NeeksxArt Live Pop-Up | Upload Your Photos", description: "Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/event' },
+  robots: { index: false }
 };
 
-export default function EventPage() {
+export const dynamic = 'force-dynamic';
+
+const Logo = () => <img src="/brand/neeksxart-logo-white.png" alt="Neeks Art" width="967" height="712" />;
+
+function Closed() {
   return (
     <div className="ev-shell">
+      <div className="ev-app ev-closed">
+        <header className="ev-top"><Link href="/" className="ev-logo" aria-label="NeeksxArt home"><Logo /></Link></header>
+        <section className="ev-hero">
+          <p className="ev-event">NeeksxArt Live</p>
+          <h1 className="display">Live ordering <span className="script">is closed</span></h1>
+          <p className="ev-closed-text">Our Live products are available during NeeksxArt pop-up events. Please visit the booth when Live ordering reopens.</p>
+          <div className="ev-closed-ctas">
+            <Link className="btn btn-orange" href="/events">See pop-ups &amp; live packs</Link>
+            <Link className="btn btn-ghost" href="/catalog"><span>Order custom merch</span></Link>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export default async function EventPage() {
+  const popup = await getPopup();
+  const admin = !popup.live && await isAdmin();
+  if (!popup.live && !admin) return <Closed />;
+  return (
+    <div className="ev-shell" data-event-slug={popup.live ? popup.slug : 'preview'} data-event-name={popup.live ? popup.name : 'Preview'}>
       <div className="ev-app">
         <header className="ev-top">
           <Link href="/" className="ev-logo" aria-label="NeeksxArt home">
-            <img src={media("img/logo-white.png")} alt="NeeksxArt" width="768" height="551" />
+            <img src="/brand/neeksxart-logo-white.png" alt="Neeks Art" width="967" height="712" />
           </Link>
           {" "}
           <span className="ev-live">
@@ -23,6 +52,7 @@ export default function EventPage() {
             {" "}Live pop-up
           </span>
         </header>
+        {admin && <p className="ev-preview">Preview: live ordering is closed to guests. Start a pop-up in the dashboard to open it.</p>}
         <div id="orderView">
           <section className="ev-hero">
             <p className="ev-event" id="eventName">Pop-Up</p>

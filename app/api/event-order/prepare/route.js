@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
 import { POPUP } from '@/lib/bundles';
 import { emailConfigured } from '@/lib/email';
+import { getPopup } from '@/lib/popup';
+import { isAdmin } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +21,10 @@ export async function POST(req) {
   try { b = await req.json(); } catch { b = {}; }
   const count = Math.round(Number(b?.count));
   if (!(count >= 1 && count <= 12)) return NextResponse.json({ ok: false, error: 'Bad photo count' }, { status: 400 });
-  const eventSlug = String(b?.eventSlug || 'pop-up').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40) || 'pop-up';
+  // only while a pop-up is live (staff can still run a preview order)
+  const popup = await getPopup();
+  if (!popup.live && !(await isAdmin())) return NextResponse.json({ ok: false, error: 'Live ordering is closed. It opens during NeeksxArt pop-up events.' }, { status: 403 });
+  const eventSlug = popup.live ? popup.slug : 'preview';
   let orderId = ID_RE.test(b?.orderId || '') ? b.orderId : makeOrderId();
 
   const sb = supabaseAdmin();

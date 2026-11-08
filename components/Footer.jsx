@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { media } from '@/lib/media';
 import { SITE } from '@/lib/site';
 import { Instagram, Facebook, TikTok } from '@/components/icons';
 
@@ -9,7 +8,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <img src={media('img/logo-white.png')} alt="NeeksxArt" width="768" height="551" loading="lazy" />
+            <img src="/brand/neeksxart-logo-white.png" alt="Neeks Art" width="967" height="712" loading="lazy" />
             <p>
               Helping brands get seen beyond the screen. Custom keychains, mirror keychains, magnets, buttons &amp;
               tap-to-connect merch, hand-pressed in Reno, NV.
@@ -36,15 +35,17 @@ export default function Footer() {
               <li><Link href="/studio">Merch Studio</Link></li>
               <li><Link href="/work">Our Work</Link></li>
               <li><Link href="/story">About Us</Link></li>
+              <li><Link href="/reviews">Reviews</Link></li>
               <li><Link href="/contact#faq">FAQ</Link></li>
-              <li><Link href="/policy">Orders &amp; Returns Policy</Link></li>
+              <li><Link href="/policy">Orders, Shipping &amp; Returns</Link></li>
             </ul>
           </div>
           <div>
             <h4>Studio</h4>
             <ul>
               <li>📍 Reno, Nevada</li>
-              <li>📦 Ships nationwide</li>
+              <li>🚚 Free Reno &amp; Sparks delivery</li>
+              <li>📦 $8 flat shipping · free out of state over $150</li>
               <li>✨ Free logo mockups</li>
               <li><a href={`mailto:${SITE.email}`}>✉️ {SITE.email}</a></li>
               <li><Link href="/contact">Send us a message →</Link></li>

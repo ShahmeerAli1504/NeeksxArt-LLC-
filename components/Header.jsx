@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { media } from '@/lib/media';
 import { Arrow } from '@/components/icons';
 import CartLink from '@/components/shop/CartLink';
 
@@ -42,7 +41,8 @@ export default function Header() {
     <header className={cls}>
       <nav className="wrap nav" aria-label="Main">
         <Link href="/" className="brand" aria-label="NeeksxArt home">
-          <img src={media('img/logo-white.png')} alt="NeeksxArt" width="768" height="551" />
+          <img className="logo-dark" src="/brand/neeksxart-logo-black.png" alt="Neeks Art" width="1020" height="750" />
+          <img className="logo-light" src="/brand/neeksxart-logo-white.png" alt="" width="967" height="712" aria-hidden="true" />
         </Link>
         <div className={'nav-links' + (open ? ' open' : '')} id="nav-links">
           {NAV.map(([href, label]) => (

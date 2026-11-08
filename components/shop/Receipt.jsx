@@ -30,13 +30,12 @@ export default function Receipt() {
           <tr><td>Sales tax <small>{o.tax_label}</small></td><td>{fmt(a.tax)}</td></tr>
           <tr className="rc-total"><td>Total</td><td>{fmt(a.total)}</td></tr>
           <tr><td>Paid today</td><td>{fmt(a.paid)}</td></tr>
-          {a.balance > 0 && <tr className="rc-bal"><td>Balance due before {f.method === 'pickup' ? 'pickup' : f.method === 'delivery' ? 'delivery' : 'shipping'}</td><td>{fmt(a.balance)}</td></tr>}
+          {a.balance > 0 && <tr className="rc-bal"><td>Balance due before {f.method === 'delivery' ? 'delivery' : 'shipping'}</td><td>{fmt(a.balance)}</td></tr>}
         </tbody>
       </table>
       <p className="rc-next">
-        {f.method === 'pickup' && "Next: we'll email your free mockup to approve, then text you when your order is ready for pickup in Reno."}
-        {f.method === 'delivery' && `Next: we'll email your free mockup to approve, then deliver to ${f.address?.line1}, ${f.address?.city}.`}
-        {f.method === 'shipping' && `Next: we'll email your free mockup to approve, then ship by ${f.label} with tracking.`}
+        {f.method === 'delivery' && `Next: we'll email your free mockup to approve, then deliver to ${f.address?.line1}, ${f.address?.city}. If weather or an emergency means we can't deliver, we'll ship it instead under our normal shipping terms.`}
+        {f.method === 'shipping' && `Next: we'll email your free mockup to approve, then ship it with tracking.`}
       </p>
       <Link className="btn btn-orange" href="/catalog">Keep shopping</Link>
     </div>

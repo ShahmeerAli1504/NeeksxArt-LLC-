@@ -7,9 +7,9 @@ import { Arrow } from '@/components/icons';
 import TierTable from './TierTable';
 import AddToCart from '@/components/shop/AddToCart';
 
-export default function ShopCard({ product: p }) {
-  const big = pics(p);
-  const small = thumbs(p);
+export default function ShopCard({ product: p, photos }) {
+  const big = photos?.big?.length ? photos.big : pics(p);
+  const small = photos?.small?.length ? photos.small : thumbs(p);
   const [on, setOn] = useState(0);
 
   return (
@@ -31,7 +31,7 @@ export default function ShopCard({ product: p }) {
         <small className="shop-group">{p.group} · {p.short}</small>
         <h3>{p.name}</h3>
         <p className="shop-from">
-          From <strong>{money(p.tiers[p.tiers.length - 1][1])}</strong> <span>to {money(p.tiers[0][1])} each</span>
+          From <strong>{money(p.tiers[0][1])}</strong> <span>each · lower prices in bulk</span>
         </p>
         <p>{p.desc}</p>
         <details>

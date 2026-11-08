@@ -34,7 +34,9 @@ export default function WorkPage() {
             {" "}
             <button data-filter="nfc">Tap-to-connect</button>
             {" "}
-            <button data-filter="button">Buttons & magnets</button>
+            <button data-filter="button">Buttons</button>
+            {" "}
+            <button data-filter="magnet">Magnets</button>
             {" "}
             <button data-filter="event">Events</button>
           </div>
@@ -60,11 +62,11 @@ export default function WorkPage() {
                 <span>Tap-to-connect</span>
               </figcaption>
             </figure>
-            <figure data-cat="button event" data-lightbox="">
-              <img src={media("img/wedding-buttons.jpg")} alt="Sierra and Ray wedding photo buttons" loading="lazy" />
+            <figure data-cat="magnet event" data-lightbox="">
+              <img src={media("img/wedding-buttons.jpg")} alt="Sierra and Ray wedding photo magnets" loading="lazy" />
               <figcaption>
                 <span>Wedding favors</span>
-                <span>Buttons</span>
+                <span>Magnets</span>
               </figcaption>
             </figure>
             <figure data-cat="keychain" data-lightbox="">

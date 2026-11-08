@@ -19,17 +19,17 @@ export async function POST(req) {
 
   const items = (Array.isArray(b.items) ? b.items : []).slice(0, 50).map(i => ({ id: clean(i.id, 40), qty: parseInt(i.qty, 10) || 0 })).filter(i => i.qty > 0);
   if (!items.length) return bad('Your cart is empty.');
-  const method = ['pickup', 'delivery', 'shipping'].includes(b.method) ? b.method : 'pickup';
+  const method = b.method === 'delivery' ? 'delivery' : 'shipping';
   const customer = { name: clean(b.customer?.name, 120), email: clean(b.customer?.email, 160).toLowerCase(), phone: clean(b.customer?.phone, 40) };
   if (!customer.name) return bad('Please enter your name.');
   if (!EMAIL_RE.test(customer.email)) return bad('Please enter a valid email.');
-  const address = method === 'pickup' ? null : {
+  const address = {
     line1: clean(b.address?.line1), line2: clean(b.address?.line2), city: clean(b.address?.city, 80),
     state: clean(b.address?.state, 2).toUpperCase(), zip: clean(b.address?.zip, 10)
   };
-  if (address && (!address.line1 || !address.city || !address.zip)) return bad('Please complete your address.');
+  if (!address.line1 || !address.city || !address.zip) return bad('Please complete your address.');
 
-  const q = quote({ items, method, zip: address?.zip || '', service: b.service, plan: b.plan });
+  const q = quote({ items, method, zip: address.zip, state: address.state, plan: b.plan });
   if (q.errors.length) return bad(q.errors[0]);
   if (b.expectedTotal != null && Number(b.expectedTotal) !== q.total) return bad('Prices changed — please review your order and try again.');
 
@@ -50,7 +50,7 @@ export async function POST(req) {
     payment_status: q.balance > 0 ? 'deposit' : 'paid',
     demo: !!charge.demo,
     customer,
-    fulfillment: { method, label: q.delivery.label, service: q.delivery.service || null, address, explain: q.delivery.explain, weight_oz: q.weightOz },
+    fulfillment: { method, label: q.delivery.label, address, explain: q.delivery.explain },
     items: q.lines,
     tax_label: q.tax.label,
     amounts: {

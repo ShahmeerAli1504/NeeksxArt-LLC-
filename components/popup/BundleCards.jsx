@@ -1,4 +1,4 @@
-import { BUNDLES } from '@/lib/bundles';
+import { BUNDLES, pieceCount } from '@/lib/bundles';
 
 export function BundleIcon({ bundle: b }) {
   return (
@@ -20,7 +20,7 @@ export function BundleCards({ className = 'pop-bundles', ...rest }) {
           <BundleIcon bundle={b} />
           <h3>{b.name}</h3>
           <p>{b.blurb}</p>
-          <span className="count">{b.items.length} pieces · {b.price || 'Priced at the booth'}</span>
+          <span className="count">{pieceCount(b.items.length)} · {b.price || 'Priced at the booth'}</span>
         </article>
       ))}
     </div>

@@ -18,7 +18,7 @@ const VIEWS = {
 const STATUS = { new: 'New', in_production: 'In production', ready: 'Ready', completed: 'Completed', cancelled: 'Cancelled' };
 const NEXT = { new: 'in_production', in_production: 'ready', ready: 'completed' };
 const PAY = { paid: 'Paid in full', deposit: 'Deposit paid', refunded: 'Refunded' };
-const METHOD = { pickup: 'Pickup', delivery: 'Local delivery', shipping: 'Shipping' };
+const METHOD = { pickup: 'Pickup', delivery: 'Local delivery', shipping: 'Shipping' }; // pickup: older demo orders
 const time = d => d ? new Date(d).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const pct = r => r ? (r * 100).toFixed(3).replace(/\.?0+$/, '') + '%' : '0%';
 
@@ -70,14 +70,12 @@ export default async function PaymentsPage({ searchParams }) {
         <details className="pay-rules">
           <summary>How checkout calculates delivery, tax and fees</summary>
           <ul>
-            <li><b>Pickup:</b> free (Reno). Taxed at the Washoe County rate.</li>
-            {CHECKOUT.delivery.zones.map(z => <li key={z.id}><b>Local delivery Zone {z.id}</b> ({z.label}): {fmt(z.feeCents)}, by ZIP code.</li>)}
-            <li><b>Free local delivery</b> on product orders {fmt(CHECKOUT.delivery.freeOverCents)}+.</li>
-            <li><b>Shipping:</b> by package weight (products + {CHECKOUT.shipping.packagingOz} oz packaging): {CHECKOUT.shipping.table.map(([oz, c]) => `≤${oz} oz ${fmt(c)}`).join(' · ')}, then +{fmt(CHECKOUT.shipping.perExtraLbCents)}/lb. Priority +{fmt(CHECKOUT.shipping.services[1].extraCents)}. Free standard shipping {fmt(CHECKOUT.shipping.freeOverCents)}+.</li>
+            <li><b>Free local delivery:</b> Reno &amp; Sparks ZIP codes. If we can&apos;t deliver (weather, emergency), the order ships under the normal terms.</li>
+            <li><b>Shipping:</b> {fmt(CHECKOUT.shipping.flatCents)} flat rate under {fmt(CHECKOUT.shipping.freeOverCents)} · free on out-of-state orders of {fmt(CHECKOUT.shipping.freeOverCents)}+ (merchandise subtotal before tax; {CHECKOUT.shipping.noFreeStates.join(' & ')} excluded).</li>
             <li><b>Sales tax</b> on products only: {CHECKOUT.tax.zones.map(z => `${z.label} ${pct(z.rate)}`).join(' · ')} · other NV {pct(CHECKOUT.tax.nevadaDefault.rate)} · out of state 0%.</li>
             <li><b>Deposit:</b> orders {fmt(CHECKOUT.deposit.thresholdCents)}+ can pay {CHECKOUT.deposit.share * 100}% now, the rest before delivery.</li>
             <li><b>Square fee:</b> {pct(CHECKOUT.square.pct)} + {fmt(CHECKOUT.square.fixedCents)} on each card payment, paid by NeeksxArt.</li>
-            <li className="pay-muted">All of these are set in <code>lib/checkout.js</code>. Demo values: confirm tax rates and delivery prices before going live.</li>
+            <li className="pay-muted">All of these are set in <code>lib/checkout.js</code>. Confirm the tax rates before going live.</li>
           </ul>
         </details>
 

@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
 import ShopGrid from '@/components/catalog/ShopGrid';
+import ShippingNote from '@/components/notes/ShippingNote';
+import PrintAsIs from '@/components/notes/PrintAsIs';
+
+// product photos can change from the dashboard; refreshed on upload and at least hourly
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Catalog | NeeksxArt — Custom Magnets, Keychains, Mirrors & Buttons",
-  description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Prices from $0.60 each.",
-  openGraph: { title: "Catalog | NeeksxArt — Custom Magnets, Keychains, Mirrors & Buttons", description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Prices from $0.60 each.", images: [media("img/neeks-studio.jpg")] },
+  description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Buttons from $1.50, keychains from $4.00, magnets from $5.00.",
+  openGraph: { title: "Catalog | NeeksxArt — Custom Magnets, Keychains, Mirrors & Buttons", description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Buttons from $1.50, keychains from $4.00, magnets from $5.00.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/catalog' },
 };
 
@@ -40,8 +45,12 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Design yours in the Merch Studio or email your idea. All prices are before applicable tax and shipping.
+              Design yours in the Merch Studio or email your idea. Prices are before tax and shipping.
             </p>
+          </div>
+          <div className="notes-row">
+            <PrintAsIs />
+            <ShippingNote />
           </div>
           <ShopGrid filter="standard" className="shop-grid" />
         </div>
@@ -58,7 +67,7 @@ export default function CatalogPage() {
             </div>
             <p className="lead reveal d2">
               Custom mirror keychains, Tap-to-Connect keychains and pocket mirrors need a quick design consultation before purchase. Email{" "}
-              <a href="mailto:info@neeksxart.com" style={{ color: "var(--orange)", fontWeight: 800 }}>info@neeksxart.com</a>
+              <a href="mailto:info@neeksxart.com" style={{ color: "var(--accent-text)", fontWeight: 800 }}>info@neeksxart.com</a>
               {" "}to start.
             </p>
           </div>
