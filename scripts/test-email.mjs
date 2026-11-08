@@ -6,6 +6,8 @@
  *   npm run email:test                    → sends to OWNER_EMAIL
  *   npm run email:test -- you@gmail.com   → sends to another address
  */
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 import nodemailer from 'nodemailer';
 import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
