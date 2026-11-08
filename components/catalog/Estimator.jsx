@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PRODUCTS, pics, money, totalFor, mailto } from '@/lib/catalog';
 import { Arrow } from '@/components/icons';
+import { addToCart } from '@/lib/cart';
 
 const QUICK = [1, 10, 25, 50, 100, 250];
 const clamp = v => Math.max(1, Math.min(10000, parseInt(v, 10) || 1));
@@ -11,6 +12,7 @@ const clamp = v => Math.max(1, Math.min(10000, parseInt(v, 10) || 1));
 export default function Estimator({ className, ...rest }) {
   const [id, setId] = useState(PRODUCTS[0].id);
   const [qty, setQty] = useState('25');
+  const [added, setAdded] = useState('');
 
   // preselect from /pricing?p=<id>
   useEffect(() => {
@@ -60,8 +62,12 @@ export default function Estimator({ className, ...rest }) {
           {p.special ? (
             <a className="btn btn-orange" href={mailto(p, q)}>Email to order <Arrow /></a>
           ) : (
-            <Link className="btn btn-orange" href={`/studio?product=${p.studio}`}>Design it now <Arrow /></Link>
+            <div className="est-btns">
+              <button type="button" className="btn btn-orange" onClick={() => { addToCart(p.id, q); setAdded(`${q} added`); }}>Add to cart <Arrow /></button>
+              <Link className="btn btn-ghost" href={`/studio?product=${p.studio}`}>Design it</Link>
+            </div>
           )}
+          {added && !p.special && <small className="est-added">{added} ✓ <Link href="/checkout">Checkout →</Link></small>}
           <small className="est-fine">Before tax and shipping. Your final quote is confirmed with your free mockup.</small>
         </div>
       </div>

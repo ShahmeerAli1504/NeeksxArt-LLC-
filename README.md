@@ -102,20 +102,52 @@ Staff dashboard → **Templates** (`/admin/templates`, login required) has blank
 | 2.25" round keychain / button | 12-up, Letter | 2.625" circle | 2.25" | 1.875" |
 | 2.5" square magnet (with or without NeeksxArt flap text) | 6-up, Letter | 3.333" octagon | 2.5" (art 2.54") | 2.25" |
 
-The keychain uses the NeeksxArt rim design from `Template/2.25in keychain update.png` (black ring + gold lettering between the 2.25" photo window and the 2.625" cut); the script cuts it out into `print-templates/keychain-ring-2.625in.png`, which order print sheets also lay over each photo.
+The keychain uses the NeeksxArt rim design from `Template/2.25in Keychains Latest.png` (black ring + gold lettering between the 2.25" photo window and the 2.625" cut); the script cuts it out into `print-templates/keychain-ring-2.625in.png`, which order print sheets also lay over each photo.
 
 Each comes as a vector PDF (exactly 8.5 × 11 in), a 300 DPI PNG (2550 × 3300 px), an editable SVG, plus a single-piece artboard.
 Print at **100% / Actual size** — every sheet has a 1-inch check bar in the margin.
 
 Files live in `print-templates/`. To change sizes or add a product, edit `scripts/build-print-templates.py`,
 run `python3 scripts/build-print-templates.py` (needs `rsvg-convert` + Pillow), and list the files in `lib/print-templates.js`.
-The original filled samples are in `Template/`.
+The original filled samples are in `Template/`; the current designs are `2.25in Keychains Latest.png` and `2.5_ S MAGS latest.png` (magnet flap text: Helvetica/Arial Bold 8 pt hugging the art square).
+
+**Sheet maker (bulk):** Templates → *Sheet maker* — pick keychain or magnet, select/drop any number of photos at once
+and they fill the slots in order, spilling onto extra sheets. Drag a tile to reposition, slider to zoom, ←/→ to reorder,
+"Copies of each" and "Repeat to fill the last sheet" for logos or multiples, then **Download PDF** (one file, all sheets).
+Runs entirely in the browser (`components/admin/SheetMaker.jsx` + `lib/print-sheet-core.js`) — nothing is uploaded,
+so there's no size limit.
 
 **Customer images on the templates:** every pop-up order card has **Download print sheet** — a PDF with all of
 that order's photos already placed on the magnet / keychain sheets (numbered #1, #2… like the board; a 9-pack
 spills onto a second sheet). Inquiries with an uploaded logo get **Logo on keychain sheet** and **Logo on magnet
 sheet**, which fill a whole sheet with the logo inside the safe area. Built by `lib/print-sheet.js`
 (route `/api/admin/print-sheet`). JPEG photos are embedded untouched; PNG/WebP/SVG logos go through `sharp`.
+
+## Online checkout (demo payments → Square)
+
+Customers can **Add to cart** on the catalog and the price estimator, then check out at `/checkout`:
+
+1. **Products** are priced by the same tiers as the price sheet (`lib/catalog.js`).
+2. **Fulfillment:** free local pickup in Reno · local delivery by ZIP zone (Zone A Reno/Sparks $7.99, Zone B greater Reno $14.99, free on $150+) · USPS shipping by package weight (free standard shipping on $200+, Priority +$6).
+3. **Sales tax** on products only, by ZIP (Washoe 8.265%, Carson City 7.6%, other NV 6.85%, out of state 0%).
+4. **Payment:** orders $150+ can pay a 50% deposit; the balance is collected from the dashboard.
+
+Every number is in `lib/checkout.js` — edit it there and the checkout, the server and the dashboard all follow.
+The server re-prices every order, so a customer can't change prices in their browser.
+
+**Dashboard → Payments** (`/admin/payments`) lists each order with the full money breakdown (products, delivery and
+exactly how it was calculated, tax, total, collected, balance due, Square fee, net), transactions, and buttons to move
+the order along, collect a deposit balance or refund. "Delete demo orders" clears test orders before a client demo.
+
+**Demo mode (now):** `PAYMENTS_MODE` unset or `demo` → any card number is accepted and nothing is charged; orders and
+the dashboard are marked *Demo*. Run `supabase/shop-orders.sql` once in Supabase → SQL Editor so orders are saved
+(until then they're kept in server memory on `npm run dev`).
+
+**Going live with Square:** create an app in the Square Developer Dashboard, set `PAYMENTS_MODE=square`,
+`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENV` (`sandbox` first, then `production`),
+`NEXT_PUBLIC_SQUARE_APP_ID`, `NEXT_PUBLIC_SQUARE_LOCATION_ID`, then swap the demo card inputs in
+`components/shop/Checkout.jsx` for Square's Web Payments SDK card field (`card.tokenize()` → `payment.sourceId`).
+`lib/payments.js` already has the Square Payments API call. Confirm tax rates and delivery prices before going live.
 
 ## Socials
 [Instagram](https://www.instagram.com/neeksxart/) · [Facebook](https://www.facebook.com/NEEKSxART/) · [TikTok](https://www.tiktok.com/@neeksxart)

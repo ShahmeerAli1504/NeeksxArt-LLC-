@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { requireAdmin } from '@/lib/admin-auth';
 import { PRINT_TEMPLATES } from '@/lib/print-templates';
 import AdminNav from '@/components/admin/AdminNav';
+import SheetMaker from '@/components/admin/SheetMaker';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export default async function TemplatesPage() {
         <div className="adm-head">
           <div>
             <h1>Print templates</h1>
-            <p>Blank, exact-size sheets for the press. Download, drop the customer&apos;s art in, print.</p>
+            <p>Fill sheets with a whole batch of photos at once, or download blank exact-size templates.</p>
           </div>
         </div>
 
@@ -28,6 +29,9 @@ export default async function TemplatesPage() {
           single artboard to design one piece and repeat it.
         </div>
 
+        <SheetMaker />
+
+        <h2 className="adm-sub">Blank templates</h2>
         <div className="adm-tpl-grid">
           {PRINT_TEMPLATES.map(t => (
             <article key={t.id} className="adm-card adm-tpl">

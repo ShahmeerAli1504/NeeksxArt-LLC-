@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { media } from '@/lib/media';
 import { Arrow } from '@/components/icons';
+import CartLink from '@/components/shop/CartLink';
 
 const NAV = [
   ['/', 'Home'],
@@ -49,6 +50,7 @@ export default function Header() {
               {label}
             </Link>
           ))}
+          <CartLink onClick={() => setOpen(false)} />
           <Link href="/studio" className="btn btn-orange" onClick={() => setOpen(false)}>
             Free Mockup <Arrow />
           </Link>

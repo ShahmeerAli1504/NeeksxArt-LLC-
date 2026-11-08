@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { pics, thumbs, money, mailto } from '@/lib/catalog';
 import { Arrow } from '@/components/icons';
 import TierTable from './TierTable';
+import AddToCart from '@/components/shop/AddToCart';
 
 export default function ShopCard({ product: p }) {
   const big = pics(p);
@@ -37,6 +38,7 @@ export default function ShopCard({ product: p }) {
           <summary>Quantity pricing</summary>
           <TierTable product={p} />
         </details>
+        {!p.special && <AddToCart id={p.id} defaultQty={p.tiers[1]?.[0] || 10} />}
         <div className="shop-ctas">
           {p.special ? (
             <>

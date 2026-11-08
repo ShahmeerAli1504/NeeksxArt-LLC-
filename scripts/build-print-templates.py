@@ -64,7 +64,7 @@ def keychain_centers():
     return [((c + .5) * K_CELL_W, (r + .5) * K_CELL_H) for r in range(K_ROWS) for c in range(K_COLS)]
 
 
-RING_SRC = os.path.join(ROOT, 'Template', '2.25in keychain update.png')   # NeeksxArt keychain design (MPRO round 2.25", 300 DPI)
+RING_SRC = os.path.join(ROOT, 'Template', '2.25in Keychains Latest.png')  # NeeksxArt keychain design (MPRO round 2.25", 300 DPI)
 RING_PNG = os.path.join(OUT, 'keychain-ring-2.625in.png')                  # black rim + gold lettering, transparent 2.25" window
 
 
@@ -157,6 +157,26 @@ def fit_font(text, width_pt, start=8.0):
     return min(start, width_pt / w)
 
 
+# Flap text — matches Template/2.5_ S MAGS latest.png: Helvetica/Arial Bold 8 pt, hugging the art square.
+FLAP_FONT = "'Liberation Sans', Arial, Helvetica, sans-serif"   # Liberation Sans = Arial/Helvetica metrics
+FLAP_FS = 8.0
+FLAP_ASC, FLAP_DESC = 0.718 * FLAP_FS, 0.207 * FLAP_FS
+FLAP_TOP_GAP = 0.017 * IN   # top line: letter tops face the art, this far from its edge
+FLAP_RIGHT_EXTRA, FLAP_BOTTOM_SHIFT = 0.014 * IN, 0.057 * IN   # as placed on the latest template
+
+
+def flap_text(cx, cy):
+    a = M_ART / 2
+    lines = [  # (text, x, y of the baseline centre, rotation) — orientation as on the press sample
+        ('Custom Merch by @neeksxart', cx, cy - a - FLAP_TOP_GAP - FLAP_ASC, 180),
+        ('neeksxart.com', cx + FLAP_BOTTOM_SHIFT, cy + a + FLAP_DESC, 180),
+        ('Instagram: @neeksxart', cx - a - FLAP_DESC, cy, -90),
+        ('info@neeksxart.com', cx + a + FLAP_DESC + FLAP_RIGHT_EXTRA, cy, 90),
+    ]
+    return ''.join(f'<text transform="translate({n(x)} {n(y)}) rotate({r})" text-anchor="middle" font-family="{FLAP_FONT}" '
+                   f'font-size="{n(FLAP_FS)}" font-weight="700" fill="#000">{t}</text>' for t, x, y, r in lines)
+
+
 def piece_magnet(x, y, flaps=True):
     s, k = M_CUT, M_CHAMFER
     pts = [(x + k, y), (x + s - k, y), (x + s, y + k), (x + s, y + s - k), (x + s - k, y + s), (x + k, y + s), (x, y + s - k), (x, y + k)]
@@ -168,18 +188,7 @@ def piece_magnet(x, y, flaps=True):
         out.append(f'<rect x="{n(cx - size / 2)}" y="{n(cy - size / 2)}" width="{n(size)}" height="{n(size)}" fill="none" stroke="{col}" stroke-width="{w}"{d}/>')
     out.append(f'<path d="M{n(cx - 4)} {n(cy)}H{n(cx + 4)}M{n(cx)} {n(cy - 4)}V{n(cy + 4)}" stroke="{GRID}" stroke-width="0.4"/>')
     if flaps:
-        band = (s - M_ART) / 2                  # flap band between artwork and octagon edge
-        off = M_ART / 2 + band * 0.42           # text baseline position from centre
-        texts = [  # (text, rotation, dx, dy) — same orientation as the press sample
-            ('Custom Merch by @neeksxart', 180, 0, -off),
-            ('neeksxart.com', 180, 0, off),
-            ('Instagram: @neeksxart', -90, -off, 0),
-            ('info@neeksxart.com', 90, off, 0),
-        ]
-        fs = fit_font('Custom Merch by @neeksxart', 1.55 * IN, 7.5)
-        for t, rot, dx, dy in texts:
-            out.append(f'<text transform="translate({n(cx + dx)} {n(cy + dy)}) rotate({rot})" text-anchor="middle" '
-                       f'dominant-baseline="central" font-family="{FONT}" font-size="{n(fs)}" font-weight="700" fill="#000">{t}</text>')
+        out.append(flap_text(cx, cy))
     return ''.join(out)
 
 

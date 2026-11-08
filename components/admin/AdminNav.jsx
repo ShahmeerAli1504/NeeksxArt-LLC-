@@ -9,6 +9,7 @@ export default function AdminNav({ active }) {
       <nav>
         <Link href="/admin" className={active === 'orders' ? 'on' : ''}>Pop-up orders</Link>
         <Link href="/admin/inquiries" className={active === 'inquiries' ? 'on' : ''}>Inquiries</Link>
+        <Link href="/admin/payments" className={active === 'payments' ? 'on' : ''}>Payments</Link>
         <Link href="/admin/templates" className={active === 'templates' ? 'on' : ''}>Templates</Link>
         <Link href="/booth" target="_blank">Booth poster ↗</Link>
         <Link href="/" target="_blank">View site ↗</Link>
