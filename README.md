@@ -95,30 +95,28 @@ Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gm
 
 ## Print templates
 
-Staff dashboard → **Templates** (`/admin/templates`, login required) has blank, exact-size press sheets to download:
+Every print sheet is built on the client's **own press templates**, used exactly as they are:
+`Template/2.25in Keychains Latest.png` (MPRO Round 2.25", 12 per sheet, NeeksxArt rim, MPRO strip on the right) and
+`Template/2.5_ S MAGS latest.png` (2.5" magnets, 6 per sheet, flap text). The blank template goes down first and each
+photo is drawn on top, clipped to that template's exact window (measured from the file: keychain window 2.251",
+cut 2.625"; magnet square ≈2.55", octagon 3.345"). Unused spots are left blank. Nothing else is printed on the
+sheet — the order number is in the file name.
 
-| Template | Sheet | Cut | Face | Safe |
-|---|---|---|---|---|
-| 2.25" round keychain / button | 12-up, Letter | 2.625" circle | 2.25" | 1.875" |
-| 2.5" square magnet (with or without NeeksxArt flap text) | 6-up, Letter | 3.333" octagon | 2.5" (art 2.54") | 2.25" |
+Staff dashboard → **Templates** (`/admin/templates`, login required) has the blank sheets (PDF exactly 8.5 × 11 in +
+PNG) and single-piece artboards. Print with the same settings you use for the original template (100% / Actual size).
 
-The keychain uses the NeeksxArt rim design from `Template/2.25in Keychains Latest.png` (black ring + gold lettering between the 2.25" photo window and the 2.625" cut); the script cuts it out into `print-templates/keychain-ring-2.625in.png`, which order print sheets also lay over each photo.
-
-Each comes as a vector PDF (exactly 8.5 × 11 in), a 300 DPI PNG (2550 × 3300 px), an editable SVG, plus a single-piece artboard.
-Print at **100% / Actual size** — every sheet has a 1-inch check bar in the margin.
-
-Files live in `print-templates/`. To change sizes or add a product, edit `scripts/build-print-templates.py`,
-run `python3 scripts/build-print-templates.py` (needs `rsvg-convert` + Pillow), and list the files in `lib/print-templates.js`.
-The original filled samples are in `Template/`; the current designs are `2.25in Keychains Latest.png` and `2.5_ S MAGS latest.png` (magnet flap text: Helvetica/Arial Bold 8 pt hugging the art square).
+When a template changes: replace the file in `Template/`, run `python3 scripts/build-print-templates.py`
+(needs Pillow, numpy, scipy, reportlab). It re-measures every window into `lib/print-frames.js` and rebuilds the
+blank sheets in `print-templates/` — downloads, order sheets and the Sheet maker all follow.
 
 **Sheet maker (bulk):** Templates → *Sheet maker* — pick keychain or magnet, select/drop any number of photos at once
 and they fill the slots in order, spilling onto extra sheets. Drag a tile to reposition, slider to zoom, ←/→ to reorder,
 "Copies of each" and "Repeat to fill the last sheet" for logos or multiples, then **Download PDF** (one file, all sheets).
-Runs entirely in the browser (`components/admin/SheetMaker.jsx` + `lib/print-sheet-core.js`) — nothing is uploaded,
+Runs entirely in the browser (`components/admin/SheetMaker.jsx` + `lib/print-sheet-core.js`) on the same templates — nothing is uploaded,
 so there's no size limit.
 
 **Customer images on the templates:** every pop-up order card has **Download print sheet** — a PDF with all of
-that order's photos already placed on the magnet / keychain sheets (numbered #1, #2… like the board; a 9-pack
+that order's photos placed on the magnet / keychain templates in order (#1 top-left, then across; a 9-pack
 spills onto a second sheet). Inquiries with an uploaded logo get **Logo on keychain sheet** and **Logo on magnet
 sheet**, which fill a whole sheet with the logo inside the safe area. Built by `lib/print-sheet.js`
 (route `/api/admin/print-sheet`). JPEG photos are embedded untouched; PNG/WebP/SVG logos go through `sharp`.

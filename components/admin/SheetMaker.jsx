@@ -4,9 +4,10 @@
 // spilling onto as many sheets as needed. Drag a tile to reposition, use the slider to zoom,
 // then download one exact-size PDF. Everything happens in the browser: nothing is uploaded.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { renderPrintPdf, jpegInfo, SHEETS, photoWindowInches } from '@/lib/print-sheet-core';
+import { renderPrintPdf, jpegInfo, SHEETS, FRAMES, photoWindowInches, frameFile, frameFromPixels } from '@/lib/print-sheet-core';
 
 const RING_URL = '/api/admin/templates/keychain-ring-2.625in.png?inline=1';
+const ROUND_CUT = 2 * FRAMES.round.slots.reduce((a, s) => a + s.cutR, 0) / FRAMES.round.slots.length; // 2.625" in points
 const TEMPLATES = {
   round: { label: '2.25" Keychain / Button', kind: 'round', flaps: true },
   magnet: { label: '2.5" Magnet', kind: 'magnet', flaps: true },
@@ -52,20 +53,21 @@ async function deflate(u8) {
   const s = new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate'));
   return new Uint8Array(await new Response(s).arrayBuffer());
 }
-async function loadRingRaw(img) {
+/** the client's template for this sheet, with see-through photo windows */
+async function loadFrame(kind, flaps) {
+  const img = new Image();
+  img.src = `/api/admin/templates/${frameFile(kind, flaps)}?inline=1`;
+  await img.decode();
   const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
   const x = c.getContext('2d'); x.drawImage(img, 0, 0);
-  const d = x.getImageData(0, 0, c.width, c.height).data, n = c.width * c.height;
-  const rgb = new Uint8Array(n * 3), alpha = new Uint8Array(n);
-  for (let i = 0; i < n; i++) { rgb[i * 3] = d[i * 4]; rgb[i * 3 + 1] = d[i * 4 + 1]; rgb[i * 3 + 2] = d[i * 4 + 2]; alpha[i] = d[i * 4 + 3]; }
-  return { kind: 'raw', w: c.width, h: c.height, rgb, alpha };
+  return frameFromPixels(x.getImageData(0, 0, c.width, c.height).data, c.width, c.height, 4);
 }
 
 /* ---------- one preview tile ---------- */
 function Tile({ item, index, tpl, fit, ring, onChange, onRemove, onMove, total }) {
   const ref = useRef(null), drag = useRef(null);
   const round = tpl.kind === 'round';
-  const inner = round ? photoWindowInches('round') / (SHEETS.round.cut / 72) : 1; // photo window as share of the tile
+  const inner = round ? photoWindowInches('round') * 72 / ROUND_CUT : 1; // photo window as share of the tile
 
   useEffect(() => {
     const c = ref.current; if (!c) return;
@@ -77,13 +79,13 @@ function Tile({ item, index, tpl, fit, ring, onChange, onRemove, onMove, total }
     if (round) { x.beginPath(); x.arc(S / 2, S / 2, win / 2, 0, Math.PI * 2); x.clip(); }
     if (fit === 'photo') drawCover(x, item.thumb, item, win, o, o);
     else {
-      const safe = round ? SHEETS.round.safe / SHEETS.round.cut * S : SHEETS.magnet.safe / SHEETS.magnet.art * S;
+      const safe = round ? SHEETS.round.safe / ROUND_CUT * S : SHEETS.magnet.safe / SHEETS.magnet.art * S;
       if (round) { const { w, h } = dims(item.thumb), a = w / h, bw = safe * a / Math.hypot(a, 1), bh = safe / Math.hypot(a, 1), k = Math.min(bw / w, bh / h); x.drawImage(item.thumb, (S - w * k) / 2, (S - h * k) / 2, w * k, h * k); }
       else drawContain(x, item.thumb, safe, (S - safe) / 2, (S - safe) / 2);
     }
     x.restore();
     if (round && ring) x.drawImage(ring, 0, 0, S, S);
-    if (!round) { x.strokeStyle = 'rgba(0,0,0,.35)'; x.setLineDash([6, 5]); const f = SHEETS.magnet.face / SHEETS.magnet.art * S; x.strokeRect((S - f) / 2, (S - f) / 2, f, f); }
+    if (!round) { x.strokeStyle = 'rgba(0,0,0,.35)'; x.setLineDash([6, 5]); const f = 2.5 * 72 / SHEETS.magnet.art * S; x.strokeRect((S - f) / 2, (S - f) / 2, f, f); }
   });
 
   const down = e => {
@@ -125,7 +127,6 @@ export default function SheetMaker() {
   const [items, setItems] = useState([]);
   const [copies, setCopies] = useState(1);
   const [fillSheet, setFillSheet] = useState(false);
-  const [numbers, setNumbers] = useState(true);
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
@@ -178,8 +179,8 @@ export default function SheetMaker() {
     setBusy('Building sheets…'); setNote('');
     try {
       const kind = tpl.kind, round = kind === 'round';
-      const ring = round && ringImg ? await loadRingRaw(ringImg) : null;
-      const winIn = photoWindowInches(kind, !!ring), px = Math.round(winIn * PRINT_PPI);
+      const frames = { [kind]: await loadFrame(kind, tpl.flaps) };
+      const winIn = photoWindowInches(kind), px = Math.round(winIn * PRINT_PPI);
       const prepared = new Map();
       for (const [i, it] of items.entries()) {
         setBusy(`Preparing image ${i + 1} of ${items.length}…`);
@@ -199,8 +200,8 @@ export default function SheetMaker() {
         } finally { release(im); }
       }
       setBusy('Writing PDF…');
-      const pieces = run.map(({ it, n }) => ({ img: prepared.get(it.id), key: `p${it.id}`, kind, label: numbers ? `#${n}` : '' }));
-      const bytes = await renderPrintPdf({ pieces, fit, title: title.trim(), ring, deflate, flaps: tpl.flaps });
+      const pieces = run.map(({ it }) => ({ img: prepared.get(it.id), key: `p${it.id}`, kind }));
+      const bytes = await renderPrintPdf({ pieces, fit, title: title.trim(), frames, deflate });
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
       const a = document.createElement('a');
       const slug = (title.trim() || 'neeksxart').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
@@ -236,8 +237,7 @@ export default function SheetMaker() {
         <div className="sm-opts">
           <label>Copies of each <input type="number" min="1" max={per * 4} value={copies} onChange={e => setCopies(Math.max(1, Math.min(per * 4, Number(e.target.value) || 1)))} /></label>
           <label className="sm-check"><input type="checkbox" checked={fillSheet} onChange={e => setFillSheet(e.target.checked)} /> Repeat to fill the last sheet</label>
-          <label className="sm-check"><input type="checkbox" checked={numbers} onChange={e => setNumbers(e.target.checked)} /> Number the pieces</label>
-          <label className="sm-grow">Name on sheet <input type="text" value={title} placeholder="e.g. Pure Haven order" maxLength={60} onChange={e => setTitle(e.target.value)} /></label>
+          <label className="sm-grow">File name <input type="text" value={title} placeholder="e.g. Pure Haven order" maxLength={60} onChange={e => setTitle(e.target.value)} /></label>
         </div>
       </div>
 

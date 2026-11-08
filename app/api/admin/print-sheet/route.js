@@ -1,5 +1,5 @@
 // Print-ready PDF sheets with the customer's images already placed on the press templates.
-//   /api/admin/print-sheet?order=<event_orders.id>                 → pop-up order: every photo in its slot, numbered like the board
+//   /api/admin/print-sheet?order=<event_orders.id>                 → pop-up order: every photo in its slot, in order #1, #2… (order number = file name)
 //   /api/admin/print-sheet?inquiry=<inquiries.id>&kind=round|magnet → the uploaded logo repeated across a full sheet
 // Staff only.
 import { isAdmin } from '@/lib/admin-auth';
@@ -40,7 +40,7 @@ export async function GET(req) {
 
       const images = await Promise.all(paths.map(p => download(sb, BUCKETS.events, p)));
       const pieces = images.map((image, i) => ({
-        image, kind: pieceKind((o.items || [])[i], o.shape), label: `${o.order_id} #${i + 1}`
+        image, kind: pieceKind((o.items || [])[i], o.shape)
       }));
       pdf = await buildPrintSheet({ pieces, fit: 'photo', title: `${o.order_id} · ${o.name || ''} · ${o.bundle || ''}` });
       filename = `${safeName(o.order_id)}-${safeName(o.name)}-print-sheet.pdf`;

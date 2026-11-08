@@ -239,13 +239,132 @@ def render(name, svg, dpi=300, pdf=True, preview=False, flatten=True):
     return png
 
 
+# =====================================================================================
+# FRAMES — the client's own press templates, used as-is.
+# Every sheet (blank downloads, pop-up order sheets, Sheet maker) is built on these, so the
+# printed sheet is pixel-identical to Template/*Latest*.png (MPRO strip, rims, flap text).
+# The PDF engine lays the blank template down first and draws each photo on top, clipped to its
+# window — no transparency or masks, so every printer and PDF viewer renders it the same.
+# =====================================================================================
+KEY = (1, 254, 2)
+KEYCHAIN_SRC = os.path.join(ROOT, 'Template', '2.25in Keychains Latest.png')
+MAGNET_SRC = os.path.join(ROOT, 'Template', '2.5_ S MAGS latest.png')
+
+
+def _fit_circle(pts):
+    import numpy as np
+    x, y = pts[:, 0], pts[:, 1]
+    A = np.c_[2 * x, 2 * y, np.ones(len(x))]
+    cx, cy, c = np.linalg.lstsq(A, x * x + y * y, rcond=None)[0]
+    return cx, cy, (c + cx * cx + cy * cy) ** 0.5
+
+
+def build_keychain_frame():
+    import numpy as np
+    src = np.array(Image.open(KEYCHAIN_SRC).convert('RGB'))
+    H, W = src.shape[:2]
+    L = src.astype(float).mean(2)
+    frame = src.copy()
+    frame[(frame == KEY).all(2)] = (0, 0, 0)
+    yy, xx = np.mgrid[0:H, 0:W] + 0.5
+    slots = []
+    for cy0 in (412, 1238, 2064, 2890):            # piece centres on the MPRO round 2.25" sheet
+        for cx0 in (412.5, 1245, 2077):
+            inner, outer = [], []
+            rs = np.arange(300, 410, 0.25)
+            for ang in np.linspace(0, 2 * np.pi, 180, endpoint=False):
+                dx, dy = np.cos(ang), np.sin(ang)
+                xi = np.clip(np.round(cx0 + rs * dx).astype(int), 0, W - 1)
+                yi = np.clip(np.round(cy0 + rs * dy).astype(int), 0, H - 1)
+                dark = L[yi, xi] < 60
+                i = np.argmax(dark); j = len(dark) - 1 - np.argmax(dark[::-1])
+                inner.append((cx0 + rs[i] * dx, cy0 + rs[i] * dy)); outer.append((cx0 + rs[j] * dx, cy0 + rs[j] * dy))
+            wx, wy, wr = _fit_circle(np.array(inner))
+            ox, oy, orr = _fit_circle(np.array(outer))
+            r = np.hypot(xx - wx, yy - wy)
+            frame[r < wr] = KEY                                     # photo window → see-through
+            frame[(r >= wr) & (r < wr + 2.5)] = (0, 0, 0)            # clean black inner edge of the rim
+            slots.append({'cx': wx, 'cy': wy, 'r': wr, 'cutCx': ox, 'cutCy': oy, 'cutR': orr})
+    blank = frame.copy(); blank[(blank == KEY).all(2)] = (255, 255, 255)
+    return W, H, slots, blank
+
+
+def build_magnet_frames():
+    import numpy as np
+    src = np.array(Image.open(MAGNET_SRC).convert('RGB'))
+    H, W = src.shape[:2]
+    A = src.astype(int); L = A.mean(2); S = A.max(2) - A.min(2)
+    frame = src.copy()
+    frame[(frame == KEY).all(2)] = (0, 0, 0)
+    dpi = W / 8.5
+    slots = []
+    for (y0, y1) in ((0, 660), (660, 1330), (1330, 2000)):
+        for (x0, x1) in ((0, 772), (772, W)):
+            ys, xs = np.where(S[y0:y1, x0:x1] > 8)                    # the placeholder photo square
+            sx0, sy0, sx1, sy1 = x0 + xs.min(), y0 + ys.min(), x0 + xs.max() + 1, y0 + ys.max() + 1
+            ys2, xs2 = np.where((L[y0:y1, x0:x1] < 120) & (S[y0:y1, x0:x1] < 40))   # octagon line + text
+            ox0, oy0, ox1, oy1 = x0 + xs2.min(), y0 + ys2.min(), x0 + xs2.max() + 1, y0 + ys2.max() + 1
+            frame[sy0:sy1, sx0:sx1] = KEY
+            slots.append({'x': sx0, 'y': sy0, 'w': sx1 - sx0, 'h': sy1 - sy0, 'ox': ox0, 'oy': oy0, 'ow': ox1 - ox0, 'oh': oy1 - oy0})
+    # same frame without the flap text (text sits in the four bands between photo and octagon)
+    blank_flaps = frame.copy()
+    for s in slots:
+        cx, cy = s['x'] + s['w'] / 2, s['y'] + s['h'] / 2
+        hx, hy = int(0.86 * dpi), int(0.70 * dpi)
+        bands = [(int(cx - hx), s['oy'] + 4, int(cx + hx), s['y']),
+                 (int(cx - hx), s['y'] + s['h'], int(cx + hx), s['oy'] + s['oh'] - 4),
+                 (s['ox'] + 4, int(cy - hy), s['x'], int(cy + hy)),
+                 (s['x'] + s['w'], int(cy - hy), s['ox'] + s['ow'] - 4, int(cy + hy))]
+        for bx0, by0, bx1, by1 in bands:
+            blank_flaps[by0:by1, bx0:bx1] = (255, 255, 255)
+    out = []
+    for f in (frame, blank_flaps):
+        b = f.copy(); b[(b == KEY).all(2)] = (255, 255, 255); out.append(b)
+    return W, H, slots, out[0], out[1]
+
+
+def save_sheet(name, arr, dpi):
+    """blank downloadable sheet: PNG with the right DPI tag + lossless PDF at exactly 8.5 x 11 in"""
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.utils import ImageReader
+    im = Image.fromarray(arr)
+    png = os.path.join(OUT, name + '.png')
+    im.save(png, dpi=(dpi, dpi), optimize=True)
+    c = canvas.Canvas(os.path.join(OUT, name + '.pdf'), pagesize=(612, 792), pageCompression=1)
+    c.setTitle(name); c.setAuthor('NeeksxArt')
+    c.drawImage(ImageReader(png), 0, 0, width=612, height=792)   # the whole template fills the Letter page exactly
+    c.showPage(); c.save()
+    t = im.copy(); t.thumbnail((935, 1210)); t.save(os.path.join(OUT, 'preview-' + name + '.png'), optimize=True)
+
+
+def build_frames():
+    kw, kh, kslots, kblank = build_keychain_frame()
+    mw, mh, mslots, mblank, mblank_flaps = build_magnet_frames()
+    save_sheet('keychain-2.25in-round-12up-letter', kblank, 300)
+    save_sheet('magnet-2.5in-square-6up-letter', mblank, mw / 8.5)
+    save_sheet('magnet-2.5in-square-6up-letter-blank', mblank_flaps, mw / 8.5)
+    kp, mp, mpy = 612 / kw, 612 / mw, 792 / mh                   # pixels → PDF points (frame stretched to exactly 8.5 x 11)
+    r3 = lambda v: round(float(v), 3)
+    js = ['// GENERATED by scripts/build-print-templates.py from Template/*Latest*.png — do not edit by hand.',
+          '// Exact photo windows of the client\'s own press templates, in PDF points (72 = 1 inch) on a Letter page.',
+          '// `file` = the blank template sheet (print-templates/) that every printed sheet is built on.',
+          'export const FRAMES = {',
+          f"  round: {{ file: 'keychain-2.25in-round-12up-letter.png', w: {kw}, h: {kh}, slots: ["]
+    js += [f"    {{ cx: {r3(s['cx']*kp)}, cy: {r3(s['cy']*kp)}, r: {r3(s['r']*kp)}, cutR: {r3(s['cutR']*kp)} }}," for s in kslots]
+    js += ['  ] },',
+           f"  magnet: {{ file: 'magnet-2.5in-square-6up-letter.png', fileBlank: 'magnet-2.5in-square-6up-letter-blank.png', w: {mw}, h: {mh}, slots: ["]
+    js += [f"    {{ x: {r3(s['x']*mp)}, y: {r3(s['y']*mpy)}, w: {r3(s['w']*mp)}, h: {r3(s['h']*mpy)}, ox: {r3(s['ox']*mp)}, oy: {r3(s['oy']*mpy)}, ow: {r3(s['ow']*mp)}, oh: {r3(s['oh']*mpy)} }}," for s in mslots]
+    js += ['  ] }', '};', '']
+    with open(os.path.join(ROOT, 'lib', 'print-frames.js'), 'w') as fh:
+        fh.write('\n'.join(js))
+    return kslots, mslots
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     build_ring()
-    render('keychain-2.25in-round-12up-letter', keychain_sheet(), preview=True)
+    build_frames()
     render('keychain-2.25in-artboard-2.625in', keychain_artboard(), dpi=600, pdf=False, flatten=False)
-    render('magnet-2.5in-square-6up-letter', magnet_sheet(True), preview=True)
-    render('magnet-2.5in-square-6up-letter-blank', magnet_sheet(False), preview=True)
     render('magnet-2.5in-artboard-2.54in', magnet_artboard(), dpi=300, pdf=False, flatten=False)
     print('templates written to', OUT)
 

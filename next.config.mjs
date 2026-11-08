@@ -10,7 +10,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/media/[...path]': ['./supabase/seed-media/**/*'],
     '/api/admin/templates/[file]': ['./print-templates/**/*'],
-    '/api/admin/print-sheet': ['./print-templates/keychain-ring-2.625in.png']
+    '/api/admin/print-sheet': ['./print-templates/keychain-2.25in-round-12up-letter.png', './print-templates/magnet-2.5in-square-6up-letter*.png']
   },
   async redirects() {
     return [
