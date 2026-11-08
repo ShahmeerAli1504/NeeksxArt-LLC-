@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { logout } from '@/lib/admin-actions';
+import LiveStatus from '@/components/admin/LiveStatus';
 
 export default function AdminNav({ active }) {
   return (
     <header className="adm-top">
       <Link href="/admin" className="adm-brand"><img src="/brand/neeksxart-logo-white.png" alt="Neeks Art" /> Dashboard</Link>
+      <LiveStatus />
       <nav>
         <Link href="/admin" className={active === 'orders' ? 'on' : ''}>Pop-up orders</Link>
         <Link href="/admin/inquiries" className={active === 'inquiries' ? 'on' : ''}>Inquiries</Link>

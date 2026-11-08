@@ -103,3 +103,4 @@ body:has(.ev-shell){background:var(--ink);color:var(--paper)}
 .ev-closed-text{color:var(--cream-soft);margin:16px 0 22px;font-size:1.02rem;line-height:1.55}
 .ev-closed-ctas{display:grid;gap:10px}
 .ev-preview{margin:0 16px 12px;padding:10px 14px;border-radius:12px;background:#3a2a08;border:1px solid #a16207;color:#fde68a;font-size:.85rem;font-weight:700}
+.ev-tax-note{margin-top:12px;font-size:.82rem;color:var(--cream-soft)}

@@ -63,7 +63,7 @@ export default function PolicyPage() {
           <ul>
             <li>
               <strong>Free local delivery in Reno &amp; Sparks.</strong>
-              {" "}Choose local delivery at checkout for any Reno or Sparks address. If weather, a family emergency or something similar means we can&apos;t deliver, your order switches to shipping under the normal shipping terms below.
+              {" "}Choose local delivery at checkout for any Reno or Sparks address. If weather, a family emergency or something similar means we can&apos;t deliver, we&apos;ll ship your order instead and the standard ${(CHECKOUT.shipping.flatCents / 100).toFixed(2)} shipping fee applies.
             </li>
             <li>
               <strong>${(CHECKOUT.shipping.flatCents / 100).toFixed(0)} flat-rate shipping</strong>

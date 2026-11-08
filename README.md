@@ -76,7 +76,7 @@ To add a photo later: put it in `supabase/seed-media/img/`, run `npm run media:u
 | `SMTP_USER`, `SMTP_PASS`, `OWNER_EMAIL` | Gmail SMTP: the sending Gmail address, its 16-letter App password, and the inbox that receives orders/inquiries |
 | `EVENT_TO_EMAIL`, `EVENT_EMAILS=off`, `EVENT_REQUIRE_LIVE=1` | pop-up email options; `EVENT_REQUIRE_LIVE=1` turns off demo mode |
 | `POPUP_ALWAYS_OPEN=1` | keeps `/event` open without starting a pop-up (testing only) |
-| `NEXT_PUBLIC_YELP_URL` | the NeeksxArt Yelp page, for the "See us on Yelp" buttons |
+| `NEXT_PUBLIC_YELP_URL` | optional: the Yelp page for the "See us on Yelp" buttons (defaults to yelp.com/biz/neeks-x-art-reno) |
 
 ### Pop-up order emails
 Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gmail account: order #, event, pack, price, the guest's name/phone/email/notes, the overview sheet inline, and **every cropped photo attached** (900×900 JPG, numbered in pack order, e.g. `NX-482K-01-magnet.jpg`). Replying goes straight to the guest.
@@ -88,8 +88,9 @@ Every pop-up order is emailed to `OWNER_EMAIL` (or `EVENT_TO_EMAIL`) from the Gm
 **Gmail App password:** turn on 2-Step Verification for the Gmail account, then go to myaccount.google.com/apppasswords, create one called "NeeksxArt website" and paste the 16 letters into `SMTP_PASS`. Gmail allows about 500 emails a day, plenty for pop-ups.
 
 ## Running a pop-up
-Live ordering (`/event`) is **closed unless a pop-up is running**. Guests who scan an old QR code see a "Live ordering is closed" page.
-0. `/admin` → **Start pop-up** (event name + how many hours). It closes itself at the end time, or tap **End pop-up**. While closed, staff logged in to `/admin` can still open `/event` as a preview.
+Live Magnets ordering (`/event`) is **OFF unless Neeks switches it on**. While it's off, online shoppers see no links or QR codes to it, and anyone who opens `/event` gets a "Live ordering is closed" page. Every dashboard page shows a **Live Magnets ON/OFF** badge.
+0. `/admin` → **Live Magnets ordering** switch: type the event name, pick **where** the pop-up is (sets the sales tax: Washoe 8.265%, Carson City 7.6%, Lyon/Dayton 7.1%, Sacramento 8.75%… or type another rate), pick when it turns off automatically (or "Never"), and flip the switch **ON**. Flip it **OFF** when the event ends. While off, staff logged in to `/admin` can still open `/event` as a preview.
+   Pop-up prices in `lib/bundles.js` are before tax; guests see pack + tax = total and pay at the booth. Tax presets are in `lib/popup-tax.js`.
 1. `/booth` → type the event name → print the poster (or show it on a tablet).
 2. Guests scan, pick a pack, upload photos, get an order number.
 3. Open `/admin` on the press laptop: orders appear oldest-first (auto-refresh every 15 s) with numbered print files. Tap **Mark pressing now → Mark ready for pickup → Mark picked up**; the guest's ticket updates live.
@@ -143,7 +144,7 @@ sheet**, which fill a whole sheet with the logo inside the safe area. Built by `
 Customers can **Add to cart** on the catalog and the price estimator, then check out at `/checkout`:
 
 1. **Products** are priced by the same tiers as the price sheet (`lib/catalog.js`).
-2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded).
+2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead for the standard $8 fee) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded).
 3. **Sales tax** on products only, by ZIP (Washoe 8.265%, Carson City 7.6%, other NV 6.85%, out of state 0%).
 4. **Payment:** orders $150+ can pay a 50% deposit; the balance is collected from the dashboard.
 

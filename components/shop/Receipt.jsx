@@ -34,7 +34,7 @@ export default function Receipt() {
         </tbody>
       </table>
       <p className="rc-next">
-        {f.method === 'delivery' && `Next: we'll email your free mockup to approve, then deliver to ${f.address?.line1}, ${f.address?.city}. If weather or an emergency means we can't deliver, we'll ship it instead under our normal shipping terms.`}
+        {f.method === 'delivery' && `Next: we'll email your free mockup to approve, then deliver to ${f.address?.line1}, ${f.address?.city}. If weather or an emergency means we can't deliver, we'll ship it instead and the standard $8.00 shipping fee applies.`}
         {f.method === 'shipping' && `Next: we'll email your free mockup to approve, then ship it with tracking.`}
       </p>
       <Link className="btn btn-orange" href="/catalog">Keep shopping</Link>

@@ -174,9 +174,23 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .pop-ctl b{display:flex;align-items:center;gap:8px;font-size:1rem}
 .pop-ctl span{display:block;color:var(--cream-soft);font-size:.85rem;margin-top:2px}
 .pop-dot{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.25);display:inline-block}
-.pop-ctl-form{display:flex;gap:8px;flex-wrap:wrap}
-.pop-ctl-form input,.pop-ctl-form select{padding:10px 12px;border-radius:10px;border:1px solid var(--line-dark);background:var(--ink-3);color:var(--paper);font:inherit;font-weight:600;min-width:0}
-.pop-ctl-form input{width:min(280px,100%)}
+.pop-ctl-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;width:100%}
+.pop-ctl-form label{display:grid;gap:4px;flex:1 1 180px;min-width:0}
+.pop-ctl-form label.pop-ctl-rate{flex:0 1 110px}
+.pop-ctl-form small{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-soft)}
+.pop-ctl-form input,.pop-ctl-form select{padding:10px 12px;border-radius:10px;border:1px solid var(--line-dark);background:var(--ink-3);color:var(--paper);font:inherit;font-weight:600;min-width:0;width:100%}
+.pop-toggle{display:inline-flex;align-items:center;gap:10px;background:none;border:0;color:var(--paper);cursor:pointer;font:inherit;padding:4px 0}
+.pop-toggle-track{width:64px;height:34px;border-radius:999px;background:#3a3a3a;position:relative;transition:background .2s;flex:none}
+.pop-toggle-track i{position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pop-toggle.on .pop-toggle-track{background:#22c55e}
+.pop-toggle.on .pop-toggle-track i{transform:translateX(30px)}
+.pop-toggle b{font-size:1rem;letter-spacing:.08em;min-width:34px;text-align:left}
+.pop-toggle:hover .pop-toggle-track{filter:brightness(1.15)}
+.pop-toggle:focus-visible{outline:2px solid var(--orange);outline-offset:4px;border-radius:999px}
+.adm-live{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-weight:800;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--cream-soft);border:1px solid var(--line-dark);margin-right:auto}
+.adm-live i{width:8px;height:8px;border-radius:50%;background:#6b6b6b}
+.adm-live.on{color:#4ade80;border-color:#4ade80}
+.adm-live.on i{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
 .pop-ctl .btn{padding:12px 18px;font-size:.8rem}
 
 /* ----- Product photos (/admin/products) ----- */
@@ -216,3 +230,4 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .rv-yelp-add textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line-dark);background:var(--ink-3);color:var(--paper);font:inherit;font-family:ui-monospace,monospace;font-size:.8rem}
 .rv-yelp-add .btn{justify-self:start;padding:12px 18px;font-size:.8rem}
 .rv-ok{color:#4ade80;font-weight:700}
+.pop-ctl-form input,.pop-ctl-form select{height:44px}

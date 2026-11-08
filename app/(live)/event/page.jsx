@@ -40,7 +40,7 @@ export default async function EventPage() {
   const admin = !popup.live && await isAdmin();
   if (!popup.live && !admin) return <Closed />;
   return (
-    <div className="ev-shell" data-event-slug={popup.live ? popup.slug : 'preview'} data-event-name={popup.live ? popup.name : 'Preview'}>
+    <div className="ev-shell" data-event-slug={popup.live ? popup.slug : 'preview'} data-event-name={popup.live ? popup.name : 'Preview'} data-tax-rate={popup.taxRate ?? 0}>
       <div className="ev-app">
         <header className="ev-top">
           <Link href="/" className="ev-logo" aria-label="NeeksxArt home">
@@ -75,6 +75,7 @@ export default async function EventPage() {
               {" "}Pick your pack
             </h2>
             <div className="bundles" id="bundleList" role="radiogroup" aria-label="Bundle packs"></div>
+            {popup.taxRate > 0 && <p className="ev-tax-note">Prices are before sales tax ({popup.taxRate}%). Your total with tax shows below. Pay at the booth.</p>}
           </section>
           <section className="ev-step" id="step2">
             <h2>

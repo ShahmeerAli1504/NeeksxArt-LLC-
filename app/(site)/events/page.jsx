@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { media } from '@/lib/media';
 import { BundleCards } from '@/components/popup/BundleCards';
 import TryQr from '@/components/popup/TryQr';
+import LiveOrderLink, { LiveOnly } from '@/components/popup/LiveOrderLink';
+
+// the live-order button and QR only show while Live ordering is switched on in the dashboard
+export const revalidate = 300;
 
 export const metadata = {
   title: "Live Pop-Ups | Custom Photo Magnets Made On-Site — NeeksxArt",
@@ -25,13 +29,15 @@ export default function EventsPage() {
               Catch us at a pop-up: scan the QR code, pick a bundle pack, upload photos straight from your camera roll, and walk away with custom magnets and keychains in 10–15 minutes.
             </p>
             <div className="hero-ctas reveal d3">
-              <Link href={"/event?e=demo&new=1"} className="btn btn-orange">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 16V4M7 9l5-5 5 5"></path>
-                  <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path>
-                </svg>
-                {" "}Try the pop-up experience
-              </Link>
+              <LiveOrderLink className="btn btn-orange">
+                {p => (<>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 16V4M7 9l5-5 5 5"></path>
+                    <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path>
+                  </svg>
+                  {" "}Live now at {p.name}: order here
+                </>)}
+              </LiveOrderLink>
               {" "}
               <Link href="/contact?topic=event" className="btn btn-ghost">
                 <span>Book us for your event</span>
@@ -39,13 +45,22 @@ export default function EventsPage() {
             </div>
           </div>
           <div className="pop-phone reveal d2">
-            <div className="pop-qr-card">
-              <TryQr className="pop-qr" id="tryQr" aria-label="QR code to try the pop-up ordering on your phone" />
-              <p>
-                <b>Scan with your phone</b>
-                to try it right now
-              </p>
-            </div>
+            <LiveOnly fallback={
+              <div className="pop-qr-card pop-qr-off">
+                <p>
+                  <b>Live ordering opens at our pop-ups</b>
+                  Find the QR code at the NeeksxArt booth. Follow @neeksxart for the next event.
+                </p>
+              </div>
+            }>
+              <div className="pop-qr-card">
+                <TryQr className="pop-qr" id="tryQr" aria-label="QR code to order at the live pop-up" />
+                <p>
+                  <b>We&apos;re live now</b>
+                  Scan to order at the booth
+                </p>
+              </div>
+            </LiveOnly>
           </div>
         </div>
       </section>

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import LiveOrderLink from '@/components/popup/LiveOrderLink';
+import { BUNDLES } from '@/lib/bundles';
 import { media } from '@/lib/media';
 import { startingPrice } from '@/lib/catalog';
 import ReviewsSection from '@/components/reviews/ReviewsSection';
@@ -537,7 +539,7 @@ export default function HomePage() {
                 <span className="script" style={{ textTransform: "none" }}>Ready in 15.</span>
               </h2>
               <p className="lead">
-                Scan the QR code at our booth, upload your photos, and pick up your magnets before your drink is done. Live magnets from $7.99, nine for $53.99.
+                Scan the QR code at our booth, upload your photos, and pick up your magnets before your drink is done. Live magnets and keychains from {BUNDLES.find(b => b.id === 'single').price}, nine for {BUNDLES.find(b => b.id === 'nine').price}.
               </p>
             </div>
             <div className="live-ctas">
@@ -548,9 +550,9 @@ export default function HomePage() {
                 </svg>
               </Link>
               {" "}
-              <Link href={"/event?e=demo&new=1"} className="btn btn-ghost">
-                <span>Try it on your phone</span>
-              </Link>
+<LiveOrderLink className="btn btn-ghost">
+                {p => <span>Live now at {p.name}: order here</span>}
+              </LiveOrderLink>
             </div>
           </div>
         </div>

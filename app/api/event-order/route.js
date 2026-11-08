@@ -8,6 +8,8 @@ import { supabaseAdmin, BUCKETS, decodeDataUrl } from '@/lib/supabase/admin';
 import { sendEmail, emailConfigured, siteUrl } from '@/lib/email';
 import { orderEmail, receivedAt } from '@/lib/email-templates';
 import { getPopup } from '@/lib/popup';
+import { BUNDLES } from '@/lib/bundles';
+import { withTax } from '@/lib/popup-tax';
 import { isAdmin } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
@@ -35,7 +37,8 @@ export async function POST(req) {
     bundle_id: clean(b.bundleId, 30),
     items,
     shape: clean(b.shape, 20),
-    price: clean(b.price, 20) || null,
+    // priced here from the pack list + this pop-up's tax rate, never from the phone
+    price: withTax(BUNDLES.find(x => x.id === clean(b.bundleId, 30))?.price, popup.taxRate)?.line || null,
     name,
     phone: clean(b.phone, 40) || null,
     email: clean(b.email, 120) || null,
