@@ -9,8 +9,8 @@ export const revalidate = 3600;
 
 export const metadata = {
   title: "Standard Custom Magnets | NeeksxArt — Reno, NV",
-  description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, free digital mockups, tiered pricing.",
-  openGraph: { title: "Standard Custom Magnets | NeeksxArt — Reno, NV", description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, free digital mockups, tiered pricing.", images: [media("img/neeks-studio.jpg")] },
+  description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, live design preview, bundle pricing.",
+  openGraph: { title: "Standard Custom Magnets | NeeksxArt — Reno, NV", description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, live design preview, bundle pricing.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/magnets' },
 };
 
@@ -25,7 +25,7 @@ export default function MagnetsPage() {
             <span className="script">On the fridge.</span>
           </h1>
           <p className="lead reveal d2">
-            Square and circular custom magnets for logos, photos, artwork and party favors. Order one or hundreds, with a free digital mockup before we print.
+            Square and circular custom magnets for logos, photos, artwork and party favors. Order a single or a bundle pack, and preview your design before you buy.
           </p>
         </div>
       </section>
@@ -78,7 +78,7 @@ export default function MagnetsPage() {
                 <span className="script" style={{ textTransform: "none" }}>Let's make it.</span>
               </h2>
               <p>
-                Email us your photos, logo or artwork. We'll send a free digital mockup, and production starts only after you approve it.
+                Preview your photo or logo in the Merch Studio, download it and order. Need a custom quantity, or help creating artwork? Email or DM us (creative assistance is $40–$60).
               </p>
             </div>
             <div className="ctas">

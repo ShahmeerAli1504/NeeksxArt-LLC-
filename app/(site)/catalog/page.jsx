@@ -45,7 +45,7 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Design yours in the Merch Studio or email your idea. Prices are before tax and shipping.
+              Design yours in the Merch Studio or email your idea. All prices are + tax and shipping.
             </p>
           </div>
           <div className="notes-row">
@@ -83,7 +83,7 @@ export default function CatalogPage() {
                 <span className="script" style={{ textTransform: "none" }}>Let's make it.</span>
               </h2>
               <p>
-                Email us your photos, logo or artwork. We'll send a free digital mockup, and production starts only after you approve it.
+                Preview your photo or logo in the Merch Studio, download it and order. Need a custom quantity, or help creating artwork? Email or DM us (creative assistance is $40–$60).
               </p>
             </div>
             <div className="ctas">

@@ -294,3 +294,28 @@
 .rv-fine{color:var(--text-soft);font-size:.8rem}
 .rv-thanks{background:#fff8dc;border:1.5px solid var(--orange);border-radius:var(--radius);padding:18px 20px}
 @media (max-width:760px){.rv-summary{justify-items:start;text-align:left}.rv-summary p,.rv-ctas{justify-content:flex-start}}
+
+/* ---- single / bundle-pack picker (components/shop/QtyPicker.jsx) ---- */
+.qp{display:grid;gap:8px}
+.qp-chips{display:flex;flex-wrap:wrap;gap:6px}
+.qp-chips button{display:grid;gap:1px;text-align:left;padding:7px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);line-height:1.15;transition:border-color .15s,background .15s}
+.qp-chips button b{font-size:.82rem;font-weight:800}
+.qp-chips button small{font-size:.72rem;color:var(--text-soft);font-weight:700}
+.qp-chips button:hover{border-color:var(--ink)}
+.qp-chips button.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.qp-chips button.on small{color:var(--accent)}
+.qp-step{align-self:start;align-items:center;width:max-content}
+.qp-step output{min-width:40px;text-align:center;font-weight:800}
+.qp-step button:disabled{opacity:.35;cursor:not-allowed}
+.qp-step small{padding:0 12px 0 4px;font-size:.72rem;color:var(--text-soft);font-weight:700}
+.qp-select{max-width:100%;height:30px;border-radius:8px;border:1px solid var(--line-dark);background:var(--ink-2);color:inherit;font-weight:700;font-size:.8rem;padding:0 6px}
+.atc-row{align-items:center;justify-content:space-between}
+.atc-row .atc-btn{flex:0 1 auto}
+.atc-other,.est-other{font-size:.78rem;color:var(--text-soft)}
+.atc-other a,.est-other a{color:var(--accent-text);font-weight:800;text-decoration:underline}
+.plus-tax{font-size:.78em;font-weight:700;color:var(--text-soft);white-space:nowrap}
+.est-tax{font-family:var(--body,inherit);font-size:1.1rem;letter-spacing:0;color:var(--paper);vertical-align:middle}
+.live-card li .plus-tax{color:var(--cream-soft,#bbb)}
+.tiers-note{margin:8px 0 0;font-size:.75rem;color:var(--text-soft);font-weight:600}
+.tiers tr:last-child td{color:inherit;font-weight:600}
+.tiers td b{color:var(--accent-text)}

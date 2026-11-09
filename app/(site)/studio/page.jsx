@@ -4,8 +4,8 @@ import LegacyMount from '@/components/LegacyMount';
 
 export const metadata = {
   title: "Merch Studio | Design Your Custom Keychain, Magnet or Button — NeeksxArt",
-  description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, then request a free mockup.",
-  openGraph: { title: "Merch Studio | Design Your Custom Keychain, Magnet or Button — NeeksxArt", description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, then request a free mockup.", images: [media("img/neeks-studio.jpg")] },
+  description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, download your preview and order.",
+  openGraph: { title: "Merch Studio | Design Your Custom Keychain, Magnet or Button — NeeksxArt", description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, download your preview and order.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/studio' },
 };
 
@@ -21,7 +21,7 @@ export default function StudioPage() {
             {" "}Keep it.
           </h1>
           <p className="lead">
-            Upload your logo, choose a product and dial in the details. Drag your art on the preview to position it, flip it to see the back, then send it to Neeks for a free print-ready mockup.
+            Upload your logo, choose a product and dial in the details. Drag your art on the preview to position it, flip it to see the back, then download your preview and order.
           </p>
         </div>
       </section>
@@ -106,12 +106,30 @@ export default function StudioPage() {
                   </span>
                 </label>
                 {" "}
-                <label className="wide">
+                <label>
+                  <input type="radio" name="product" value="pocket" />
+                  <span>
+                    <i className="pi pi-mirror"></i>
+                    Pocket Mirror
+                    <small>3″ purse-size mirror</small>
+                  </span>
+                </label>
+                {" "}
+                <label>
                   <input type="radio" name="product" value="nfc" />
                   <span>
                     <i className="pi pi-nfc"></i>
                     Tap-to-Connect
-                    <small>NFC keychain: tap a phone to open your link</small>
+                    <small>NFC keychain: tap to open your link</small>
+                  </span>
+                </label>
+                {" "}
+                <label className="wide">
+                  <input type="radio" name="product" value="nfcmirror" />
+                  <span>
+                    <i className="pi pi-nfc"></i>
+                    Tap-to-Connect Mirror
+                    <small>Mirror keychain with an NFC chip</small>
                   </span>
                 </label>
               </div>
@@ -237,33 +255,11 @@ export default function StudioPage() {
                 <label>Size</label>
                 <div className="chips" id="sizeChips"></div>
               </div>
-              <div className="ctrl" id="shapeCtrl">
-                <label>Shape</label>
-                <div className="chips">
-                  <label>
-                    <input type="radio" name="shape" value="round" defaultChecked />
-                    <span>Round</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="shape" value="square" />
-                    <span>Square</span>
-                  </label>
-                </div>
-              </div>
               <div className="ctrl">
                 <label>Finish</label>
-                <div className="chips">
-                  <label>
-                    <input type="radio" name="finish" value="gloss" defaultChecked />
-                    <span>Glossy</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="finish" value="matte" />
-                    <span>Matte</span>
-                  </label>
-                </div>
+                <p className="finish-readout" id="finishReadout">Standard glossy</p>
               </div>
-              <p className="fine">Sizes shown are common options. Need something different? Mention it in your request.</p>
+              <p className="fine">These are the sizes we make. Buttons and keychains are standard glossy, mirror keychains are Sandy Mylar and pocket mirrors are cotton.</p>
             </fieldset>
             <fieldset className="group" data-step="5" id="hardwareGroup">
               <legend>
@@ -272,20 +268,8 @@ export default function StudioPage() {
               </legend>
               <div className="ctrl">
                 <label>Ring & chain</label>
-                <div className="chips">
-                  <label>
-                    <input type="radio" name="metal" value="silver" defaultChecked />
-                    <span>Silver</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="metal" value="gold" />
-                    <span>Gold</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="metal" value="black" />
-                    <span>Black</span>
-                  </label>
-                </div>
+                <div className="chips" id="metalChips"></div>
+                <p className="fine" id="metalNote" style={{ marginTop: "8px" }}></p>
               </div>
               <div className="ctrl">
                 <label>Tassel</label>
@@ -325,80 +309,57 @@ export default function StudioPage() {
             <fieldset className="group" data-step="7">
               <legend>
                 <b id="pkgNum">07</b>
-                {" "}Packaging & quantity
+                {" "}Quantity
               </legend>
               <div className="ctrl">
-                <label>Packaging</label>
-                <div className="chips">
-                  <label>
-                    <input type="radio" name="pack" value="none" defaultChecked />
-                    <span>Loose</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="pack" value="sleeve" />
-                    <span>Clear sleeve</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="pack" value="card" />
-                    <span>Sleeve + custom backer card</span>
-                  </label>
+                <label>Single or bundle pack</label>
+                <div className="qp">
+                  <div className="qp-chips" id="qtyChips"></div>
+                  <div className="atc-qty qp-step" id="qtyStep">
+                    <button type="button" data-qstep="-1" aria-label="Fewer">−</button>
+                    <output id="qtyOut">1</output>
+                    <button type="button" data-qstep="1" aria-label="More">+</button>
+                    <small id="qtyMax"></small>
+                  </div>
                 </div>
+                <p className="qty-price" id="qtyPrice" aria-live="polite"></p>
               </div>
-              <div className="row2">
-                <div className="ctrl">
-                  <label htmlFor="qty">Quantity</label>
-                  <input type="number" id="qty" min="1" defaultValue="50" inputMode="numeric" />
-                </div>
-                <div className="ctrl">
-                  <label htmlFor="needBy">
-                    Need it by{" "}
-                    <em>optional</em>
-                  </label>
-                  <input type="date" id="needBy" />
-                </div>
-              </div>
-              <div className="chips qty-chips">
-                <label>
-                  <input type="radio" name="qpick" value="25" />
-                  <span>25</span>
+              <div className="ctrl">
+                <label htmlFor="needBy">
+                  Need it by{" "}
+                  <em>optional</em>
                 </label>
-                {" "}
-                <label>
-                  <input type="radio" name="qpick" value="50" defaultChecked />
-                  <span>50</span>
-                </label>
-                {" "}
-                <label>
-                  <input type="radio" name="qpick" value="100" />
-                  <span>100</span>
-                </label>
-                {" "}
-                <label>
-                  <input type="radio" name="qpick" value="250" />
-                  <span>250</span>
-                </label>
-                {" "}
-                <label>
-                  <input type="radio" name="qpick" value="500" />
-                  <span>500+</span>
-                </label>
+                <input type="date" id="needBy" />
               </div>
               <p className="fine">
-                No strict minimums, and bulk pricing kicks in as quantities go up. Neeks will quote your exact order.
+                No minimums: order singles, or save with a bundle pack. Need a quantity that isn&apos;t a bundle?{" "}
+                <a id="qtyOther" href="mailto:info@neeksxart.com">Email</a> or DM us. Packaging is standard on every order.
               </p>
             </fieldset>
             <div className="summary" id="summary" aria-live="polite"></div>
+            <p className="order-note" id="orderNote"></p>
             <div className="panel-actions">
-              <button type="button" className="btn btn-orange" id="quoteBtn">
+              <button type="button" className="btn btn-orange" id="cartBtn">
+                <span id="cartLabel">Add to cart</span>
+              </button>
+              <button type="button" className="btn btn-orange hidden" id="quoteBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"></path>
                 </svg>
-                {" "}Request my free mockup & quote
+                {" "}Send my order request
               </button>
               {" "}
               <button type="button" className="btn btn-ghost" id="downloadBtn2">
                 <span>Download preview</span>
               </button>
+              <small className="atc-added hidden" id="cartAdded">Added ✓ <a href="/checkout">Go to checkout →</a></small>
+            </div>
+            <div className="help-card">
+              <strong>Need help with your artwork?</strong>
+              <p>
+                We aren&apos;t graphic designers, but creative assistance is available for custom logos and artwork for a small fee of $40–$60, depending on the complexity. Email or DM us to inquire, or send this design over.
+              </p>
+              <button type="button" className="link-arrow" id="helpBtn">Ask about creative assistance</button>
             </div>
           </form>
         </div>
@@ -416,12 +377,12 @@ export default function StudioPage() {
           </div>
           <div className="steps light-steps">
             <div className="step">
-              <h3>You send it</h3>
-              <p>Your design, product choices and quantity land in Neeks' inbox.</p>
+              <h3>Preview it</h3>
+              <p>Upload your photo or logo, download the preview and add it to your cart. Special orders are sent to Neeks by email.</p>
             </div>
             <div className="step">
-              <h3>Free mockup</h3>
-              <p>We send a proof to approve. Your design prints exactly as you uploaded it, so send your best original file.</p>
+              <h3>Prints as uploaded</h3>
+              <p>Your design prints exactly as you uploaded it, so use your best original file. Need artwork help? Ask about creative assistance.</p>
             </div>
             <div className="step">
               <h3>Hand-pressed</h3>
@@ -429,7 +390,7 @@ export default function StudioPage() {
             </div>
             <div className="step">
               <h3>Packed & shipped</h3>
-              <p>Free delivery in Reno &amp; Sparks, or $8 flat-rate shipping (free out of state over $150).</p>
+              <p>Free delivery in Reno &amp; Sparks, or $8 flat-rate shipping (free out of state on $150 and over).</p>
             </div>
           </div>
         </div>

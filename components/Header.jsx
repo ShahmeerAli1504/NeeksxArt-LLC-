@@ -52,7 +52,7 @@ export default function Header() {
           ))}
           <CartLink onClick={() => setOpen(false)} />
           <Link href="/studio" className="btn btn-orange" onClick={() => setOpen(false)}>
-            Free Mockup <Arrow />
+            Design Yours <Arrow />
           </Link>
         </div>
         <button

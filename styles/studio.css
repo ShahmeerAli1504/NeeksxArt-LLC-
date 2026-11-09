@@ -92,6 +92,27 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .panel-actions{display:flex;flex-direction:column;gap:10px}
 .panel-actions .btn{width:100%;white-space:normal;text-align:center}
 
+.studio .hidden{display:none!important}
+.finish-readout{margin:0;padding:11px 14px;border-radius:12px;border:1.5px solid #333;background:#0f0f0f;font-weight:800}
+.studio .qp-chips button{background:#0f0f0f;border-color:#333;color:var(--paper)}
+.studio .qp-chips button small{color:var(--cream-soft)}
+.studio .qp-chips button:hover{border-color:var(--orange)}
+.studio .qp-chips button.on{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.studio .qp-chips button.on small{color:var(--ink)}
+.studio .qp-step{background:#0f0f0f;border-color:#333}
+.studio .qp-step button{color:var(--paper)}
+.studio .qp-step button:hover{background:#232323}
+.studio .qp-step small{color:var(--cream-soft)}
+.qty-price{margin:2px 0 0;font-size:.88rem;color:var(--cream-soft)}
+.qty-price b{color:var(--paper)}
+.qty-price span{color:var(--accent-text);font-weight:800}
+.studio .fine a{color:var(--accent-text);font-weight:800;text-decoration:underline}
+.order-note{font-size:.85rem;color:var(--cream-soft);margin:0}
+.panel-actions .atc-added{text-align:center}
+.panel-actions .atc-added a{color:var(--accent-text);text-decoration:underline}
+.help-card{border:1px dashed #3a3a3a;border-radius:18px;padding:16px 18px;display:grid;gap:6px}
+.help-card p{font-size:.84rem;color:var(--cream-soft);margin:0}
+.help-card .link-arrow{justify-self:start;color:var(--accent-text)}
 @media (max-width:960px){
   .studio-grid{grid-template-columns:1fr}
   .stage-col{position:sticky;top:58px;z-index:5;background:var(--ink);padding:8px 0 6px;margin:0 -20px;padding-inline:20px}

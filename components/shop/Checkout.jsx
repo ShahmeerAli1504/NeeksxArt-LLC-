@@ -1,18 +1,19 @@
 'use client';
 // Checkout (DEMO payments). Shows exactly how the total is built: tiered product pricing,
-// delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state over $150), Nevada sales tax and the
+// delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state at $150 and over), Nevada sales tax and the
 // optional 50% deposit. The card form mimics Square's: any card is accepted and nothing is charged.
 // Going live = swap DemoCardForm for Square's Web Payments SDK `card.tokenize()` (see README).
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
 import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById } from '@/lib/checkout';
-import { pics } from '@/lib/catalog';
+import { pics, isOrderableQty, bundlesFor, singleTier } from '@/lib/catalog';
+import QtyPicker from './QtyPicker';
 
 const METHODS = [
   { id: 'delivery', title: 'Free local delivery', sub: 'Reno & Sparks addresses' },
-  { id: 'shipping', title: 'Shipping', sub: `${fmt(CHECKOUT.shipping.flatCents)} flat rate · free out of state over ${fmt(CHECKOUT.shipping.freeOverCents)}` }
+  { id: 'shipping', title: 'Shipping', sub: `${fmt(CHECKOUT.shipping.flatCents)} flat rate · free out of state at ${fmt(CHECKOUT.shipping.freeOverCents)} and over` }
 ];
 
 const brandOf = n => /^4/.test(n) ? 'Visa' : /^(5[1-5]|2[2-7])/.test(n) ? 'Mastercard' : /^3[47]/.test(n) ? 'American Express' : /^6(011|5)/.test(n) ? 'Discover' : 'Card';
@@ -37,6 +38,19 @@ export default function Checkout() {
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', zip: '' });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+
+  // carts saved before bundle-only pricing may hold a quantity that isn't orderable now: snap it to the
+  // closest single quantity / bundle below it, and drop special-order items (those are email-only)
+  useEffect(() => {
+    if (!ready) return;
+    items.forEach(i => {
+      const p = productById(i.id);
+      if (!p || p.special) return removeFromCart(i.id);
+      if (isOrderableQty(p, i.qty)) return;
+      const below = bundlesFor(p).filter(b => b.qty <= i.qty).pop();
+      setQty(i.id, below ? below.qty : singleTier(p).max);
+    });
+  }, [items, ready]);
 
   const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state, plan }), [items, method, c.zip, c.state, plan]);
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
@@ -165,7 +179,7 @@ export default function Checkout() {
           <button className="btn btn-orange co-pay" type="submit" disabled={busy || !ready}>
             {busy ? 'Processing…' : `Pay ${fmt(q.dueNow)}`}
           </button>
-          <small className="co-fine">Payments are processed securely by Square. Production starts after your mockup is approved. See our <Link href="/policy">policy</Link>.</small>
+          <small className="co-fine">Payments are processed securely by Square. We confirm your design with you before anything is printed. See our <Link href="/policy">policy</Link>.</small>
         </fieldset>
       </div>
 
@@ -181,11 +195,9 @@ export default function Checkout() {
                   <div className="co-line-main">
                     <b>{l.name}</b>
                     <small>{l.tierNote}</small>
-                    {l.nextTier && <small className="co-next">Next tier: {l.nextTier}</small>}
+                    {l.nextTier && <small className="co-next">Save with the {l.nextTier}</small>}
                     <div className="co-line-qty">
-                      <button type="button" aria-label="Fewer" onClick={() => setQty(l.id, l.qty - 1)}>−</button>
-                      <input type="number" min="1" value={l.qty} aria-label={`Quantity of ${l.name}`} onChange={e => setQty(l.id, parseInt(e.target.value, 10) || 1)} />
-                      <button type="button" aria-label="More" onClick={() => setQty(l.id, l.qty + 1)}>+</button>
+                      <QtyPicker product={p} value={l.qty} variant="select" onChange={n => setQty(l.id, n)} />
                       <button type="button" className="co-remove" onClick={() => removeFromCart(l.id)}>Remove</button>
                     </div>
                   </div>

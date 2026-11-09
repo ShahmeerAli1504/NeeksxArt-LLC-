@@ -11,7 +11,7 @@ export default function LiveCards({ className = 'live-cards', ...rest }) {
             <p>{l.note}</p>
             <ul>
               {l.packs.map(([n, v]) => (
-                <li key={n}><span>{n}</span><b>{money(v)}</b></li>
+                <li key={n}><span>{n}</span><b>{money(v)} <small className="plus-tax">+ tax</small></b></li>
               ))}
             </ul>
           </div>

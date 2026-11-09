@@ -87,7 +87,7 @@ export async function POST(req) {
     sendEmail({
       to: customer.email, fromName: 'NeeksxArt',
       subject: `Your NeeksxArt order ${orderNo}`,
-      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! We'll email your free mockup to approve before anything is printed.</p>${table(rows)}`
+      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! We'll email you to confirm your design before anything is printed.</p>${table(rows)}`
     })
   ]);
 

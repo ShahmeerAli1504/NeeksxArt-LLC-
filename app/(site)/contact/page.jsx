@@ -4,8 +4,8 @@ import LegacyMount from '@/components/LegacyMount';
 
 export const metadata = {
   title: "Contact & Bulk Orders | NeeksxArt LLC",
-  description: "Ask about bulk orders, shipping, events and custom merch. Free mockups, bulk pricing, Reno-based and shipping nationwide.",
-  openGraph: { title: "Contact & Bulk Orders | NeeksxArt LLC", description: "Ask about bulk orders, shipping, events and custom merch. Free mockups, bulk pricing, Reno-based and shipping nationwide.", images: [media("img/neeks-studio.jpg")] },
+  description: "Ask about bulk orders, shipping, events, Tap-to-Connect and creative assistance. Reno-based and shipping nationwide.",
+  openGraph: { title: "Contact & Bulk Orders | NeeksxArt LLC", description: "Ask about bulk orders, shipping, events, Tap-to-Connect and creative assistance. Reno-based and shipping nationwide.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/contact' },
 };
 
@@ -21,7 +21,7 @@ export default function ContactPage() {
             {" "}they keep.
           </h1>
           <p className="lead reveal d2">
-            Large order, event deadline, shipping question, or just want to talk ideas? Send a message and Neeks will get back to you with answers and a free mockup.
+            Large order, event deadline, shipping question, or just want to talk ideas? Send a message and Neeks will get back to you. Need help creating your artwork? Ask about creative assistance.
           </p>
         </div>
       </section>
@@ -61,6 +61,11 @@ export default function ContactPage() {
                 <label>
                   <input type="radio" name="topic" value="Tap-to-Connect NFC" />
                   <span>Tap-to-Connect</span>
+                </label>
+                {" "}
+                <label>
+                  <input type="radio" name="topic" value="Creative assistance" />
+                  <span>Creative assistance</span>
                 </label>
                 {" "}
                 <label>
@@ -105,7 +110,9 @@ export default function ContactPage() {
                   <option value="mirror">Mirror keychains</option>
                   <option value="magnet">Magnets</option>
                   <option value="button">Buttons</option>
+                  <option value="pocket">3-inch pocket mirrors</option>
                   <option value="nfc">Tap-to-Connect keychains</option>
+                  <option value="nfcmirror">Tap-to-Connect mirror keychains</option>
                   <option value="mix">A mix of products</option>
                 </select>
               </div>
@@ -175,7 +182,7 @@ export default function ContactPage() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"></path>
                   </svg>
-                  {" "}Free custom logo mockups
+                  {" "}Creative assistance available ($40–$60)
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -188,7 +195,7 @@ export default function ContactPage() {
                     <path d="M3 7l9-4 9 4-9 4-9-4z"></path>
                     <path d="M3 7v10l9 4 9-4V7M12 11v10"></path>
                   </svg>
-                  {" "}Tiered bulk pricing
+                  {" "}Bundle pack pricing
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -207,7 +214,7 @@ export default function ContactPage() {
             </div>
             <div className="side-card">
               <h3>Email us</h3>
-              <p>Send your idea, photos or logo and we'll reply with a free digital mockup.</p>
+              <p>Send your idea, photos or logo. For custom quantities, Tap-to-Connect or creative assistance, email is the fastest way.</p>
               <a className="email-card" href="mailto:info@neeksxart.com?subject=Custom%20order%20inquiry">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="5" width="18" height="14" rx="2"></rect>
@@ -221,7 +228,7 @@ export default function ContactPage() {
             </div>
             <div className="side-card">
               <h3>Prefer to DM?</h3>
-              <p>We're most active on social. Slide into the DMs with your logo for a quick mockup.</p>
+              <p>We're most active on social. Slide into the DMs with your logo or question.</p>
               <div className="social-row">
                 <a href="https://www.instagram.com/neeksxart/" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -270,13 +277,20 @@ export default function ContactPage() {
             <details open>
               <summary>Is there a minimum order?</summary>
               <p>
-                No strict minimums. Order a small batch for your team or a bulk run for an event. Bulk pricing tiers kick in as quantities go up, so the more you order, the better the price per piece.
+                No strict minimums. Order a few pieces at the single price, or pick one of our bundle packs for a better price per piece. Need a quantity that isn&apos;t a bundle? Email or DM us and we&apos;ll sort it out.
               </p>
             </details>
             <details>
-              <summary>Is the mockup really free?</summary>
+              <summary>Do I need a mockup before I order?</summary>
               <p>
-                Yes. Send your logo (or upload it in the Merch Studio) and we'll create a custom mockup so you can see exactly how it'll look before anything gets pressed.
+                Not for a simple photo or an established logo. Drop it into the{" "}
+                <Link href="/studio" style={{ color: "var(--accent-text)", fontWeight: 800 }}>Merch Studio</Link>, download the preview and go straight to ordering. Your design prints exactly as uploaded.
+              </p>
+            </details>
+            <details>
+              <summary>Can you help me design my artwork?</summary>
+              <p>
+                We aren&apos;t graphic designers, but creative assistance is available for custom logos and artwork for a small fee of $40–$60, depending on the complexity. Email or DM us to ask about it.
               </p>
             </details>
             <details>
@@ -290,7 +304,7 @@ export default function ContactPage() {
             <details>
               <summary>Do you ship outside of Reno?</summary>
               <p>
-                We do. Local delivery is free in Reno and Sparks. Shipping is a flat $8 on orders under $150, and free on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded). If weather or an emergency means we can&apos;t deliver locally, we ship instead under the same terms.
+                We do. Local delivery is free in Reno and Sparks. Shipping is a flat $8 on orders under $150, and free on out-of-state orders of $150 and over (merchandise subtotal before tax; Alaska and Hawaii excluded). If weather or an emergency means we can&apos;t deliver locally, we ship instead under the same terms.
               </p>
             </details>
             <details>
@@ -308,7 +322,7 @@ export default function ContactPage() {
             <details>
               <summary>What file should I send?</summary>
               <p>
-                A high-resolution PNG with a transparent background is ideal. SVG, PDF, AI or a clear JPG work too. Don't have a clean file? Send what you have and we'll help.
+                A high-resolution PNG with a transparent background is ideal. SVG, PDF, AI or a clear JPG work too. Your design prints exactly as uploaded, so send the original, highest-quality file you have. Need artwork made or cleaned up? Creative assistance is $40–$60 depending on complexity.
               </p>
             </details>
           </div>

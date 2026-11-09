@@ -70,7 +70,7 @@ export default function PolicyPage() {
               {" "}on orders under ${CHECKOUT.shipping.freeOverCents / 100}.
             </li>
             <li>
-              <strong>Free shipping on out-of-state orders over ${CHECKOUT.shipping.freeOverCents / 100}</strong>
+              <strong>Free shipping on out-of-state orders of ${CHECKOUT.shipping.freeOverCents / 100} and over</strong>
               {" "}— based on the merchandise subtotal before tax. Alaska and Hawaii are excluded.
             </li>
             <li>Live pop-up orders are picked up at the booth and don&apos;t ship.</li>

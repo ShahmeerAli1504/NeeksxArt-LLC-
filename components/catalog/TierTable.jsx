@@ -1,23 +1,20 @@
-import { money, range } from '@/lib/catalog';
+import { money, singleTier, singleRange, bundlesFor } from '@/lib/catalog';
 
+/** single price first, then the bundle packs (each sold at exactly that quantity) */
 export default function TierTable({ product: p }) {
+  const single = singleTier(p);
   return (
     <>
       <table className="tiers">
-        <thead><tr><th>Qty</th><th>Each</th></tr></thead>
+        <thead><tr><th>Order</th><th>Price</th><th>Each</th></tr></thead>
         <tbody>
-          {p.tiers.map((t, i, a) => (
-            <tr key={t[0]}><td>{range(t, i, a)}</td><td>{money(t[1])}</td></tr>
+          <tr><td>Single ({singleRange(p)})</td><td>{money(single.each)} each</td><td>{money(single.each)}</td></tr>
+          {bundlesFor(p).map(b => (
+            <tr key={b.qty}><td><b>{b.qty}-pack</b></td><td>{money(b.price)}</td><td>{money(b.each)}</td></tr>
           ))}
         </tbody>
       </table>
-      {p.packs && (
-        <div className="packs">
-          {p.packs.map(([q, v]) => (
-            <span key={q}><b>{q}-pack</b> {money(v)}</span>
-          ))}
-        </div>
-      )}
+      <p className="tiers-note">All prices + tax. {p.special ? 'Special order: email to order.' : 'Other quantities: email or DM us.'}</p>
     </>
   );
 }

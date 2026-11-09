@@ -45,8 +45,8 @@ export default function Footer() {
             <ul>
               <li>📍 Reno, Nevada</li>
               <li>🚚 Free Reno &amp; Sparks delivery</li>
-              <li>📦 $8 flat shipping · free out of state over $150</li>
-              <li>✨ Free logo mockups</li>
+              <li>📦 $8 flat shipping · free out of state $150 and over</li>
+              <li>✨ Creative assistance from $40</li>
               <li><a href={`mailto:${SITE.email}`}>✉️ {SITE.email}</a></li>
               <li><Link href="/contact">Send us a message →</Link></li>
             </ul>

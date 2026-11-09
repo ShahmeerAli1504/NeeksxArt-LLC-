@@ -4,31 +4,27 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { addToCart } from '@/lib/cart';
 import { productById } from '@/lib/checkout';
-import { money, totalFor } from '@/lib/catalog';
+import { money, totalFor, qtyLabel, EMAIL } from '@/lib/catalog';
+import QtyPicker from './QtyPicker';
 
-/** quantity + "Add to cart" for a catalog product; `compact` hides the live price line */
-export default function AddToCart({ id, defaultQty = 10, compact = false }) {
+/** single / bundle-pack picker + "Add to cart" for a catalog product; `compact` hides the live price line */
+export default function AddToCart({ id, defaultQty = 1, compact = false }) {
   const p = productById(id);
-  const [qty, setQty] = useState(String(defaultQty));
+  const [qty, setQty] = useState(defaultQty);
   const [added, setAdded] = useState(false);
   if (!p) return null;
-  const q = Math.max(1, Math.min(10000, parseInt(qty, 10) || 1));
 
   return (
     <div className="atc">
+      <QtyPicker product={p} value={qty} onChange={q => { setQty(q); setAdded(false); }} />
       <div className="atc-row">
-        <label className="atc-qty">
-          <span className="sr-only">Quantity</span>
-          <button type="button" aria-label="Fewer" onClick={() => setQty(String(Math.max(1, q - 1)))}>−</button>
-          <input type="number" min="1" max="10000" inputMode="numeric" value={qty} onChange={e => { setQty(e.target.value); setAdded(false); }} />
-          <button type="button" aria-label="More" onClick={() => setQty(String(q + 1))}>+</button>
-        </label>
-        <button type="button" className="btn btn-ink atc-btn" onClick={() => { addToCart(p.id, q); setAdded(true); }}>
+        {!compact && <small className="atc-price">{qtyLabel(p, qty)} = <b>{money(totalFor(p, qty))}</b> <span className="plus-tax">+ tax</span></small>}
+        <button type="button" className="btn btn-ink atc-btn" onClick={() => { addToCart(p.id, qty); setAdded(true); }}>
           Add to cart
         </button>
       </div>
-      {!compact && <small className="atc-price">{q} × {money(totalFor(p, q) / q)} = <b>{money(totalFor(p, q))}</b></small>}
       {added && <small className="atc-added">Added ✓ <Link href="/checkout">Go to checkout →</Link></small>}
+      <small className="atc-other">Need a different quantity? <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Custom quantity: ' + p.name)}`}>Email</a> or DM us.</small>
     </div>
   );
 }

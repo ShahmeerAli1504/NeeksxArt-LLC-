@@ -10,8 +10,8 @@ export const revalidate = 600;
 
 export const metadata = {
   title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV",
-  description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Free logo mockups, bulk pricing, ships nationwide.",
-  openGraph: { title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV", description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Free logo mockups, bulk pricing, ships nationwide.", images: [media("img/neeks-studio.jpg")] },
+  description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Live preview in the Merch Studio, bundle pricing, ships nationwide.",
+  openGraph: { title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV", description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Live preview in the Merch Studio, bundle pricing, ships nationwide.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/' },
 };
 
@@ -28,7 +28,7 @@ export default function HomePage() {
               <span className="script">beyond the screen</span>
             </h1>
             <p className="lead reveal d2">
-              Custom 2.5-inch photo magnets, buttons, keychains, mirrors and tap-to-connect smart merch, hand-pressed one by one in Reno. Email your idea, approve a free mockup, and we make it.
+              Custom 2.5-inch photo magnets, buttons, keychains, mirrors and tap-to-connect smart merch, hand-pressed one by one in Reno. Preview your photo or logo in the Merch Studio, order, and we make it.
             </p>
             <div className="hero-ctas reveal d3">
               <Link href="/studio" className="btn btn-orange">
@@ -45,12 +45,12 @@ export default function HomePage() {
             </div>
             <div className="hero-facts reveal d3">
               <div>
-                <strong>Tiered</strong>
-                Bulk pricing
+                <strong>Bundle</strong>
+                Pack pricing
               </div>
               <div>
-                <strong>Free</strong>
-                Logo mockups
+                <strong>Live</strong>
+                Design preview
               </div>
               <div>
                 <strong>No</strong>
@@ -94,7 +94,7 @@ export default function HomePage() {
       </section>
       <div className="marquee" aria-hidden="true">
         <div className="marquee-track">
-          <span>Free logo mockups</span>
+          <span>Live design preview</span>
           <span>Bulk pricing</span>
           <span>Mirror keychains</span>
           <span>Live pop-ups</span>
@@ -102,7 +102,7 @@ export default function HomePage() {
           <span>Ships nationwide</span>
           <span>Keep Reno rad</span>
           {" "}
-          <span>Free logo mockups</span>
+          <span>Live design preview</span>
           <span>Bulk pricing</span>
           <span>Mirror keychains</span>
           <span>Live pop-ups</span>
@@ -176,7 +176,7 @@ export default function HomePage() {
                       <path d="M4 12.5l5 5L20 6.5"></path>
                     </svg>
                   </span>
-                  {" "}No minimums, free mockups, tiered bulk pricing
+                  {" "}No minimums, live preview, bundle pack pricing
                 </li>
                 <li>
                   <span style={{ color: "var(--accent-text)" }}>
@@ -332,20 +332,20 @@ export default function HomePage() {
                 <span className="script" style={{ textTransform: "none" }}>in 3 steps</span>
               </h2>
             </div>
-            <a href="mailto:info@neeksxart.com?subject=Custom%20merchandise%20inquiry" className="btn btn-orange reveal d2">Request a free mockup</a>
+            <Link href="/studio" className="btn btn-orange reveal d2">Open the Merch Studio</Link>
           </div>
           <div className="steps steps-3 reveal d2">
             <div className="step">
-              <h3>Email your idea</h3>
-              <p>Send photos, artwork or your logo to info@neeksxart.com.</p>
+              <h3>Preview your design</h3>
+              <p>Drop your photo or logo into the Merch Studio and download the preview.</p>
             </div>
             <div className="step">
-              <h3>Review your mockup</h3>
-              <p>We send a free digital mockup so you can approve every detail.</p>
+              <h3>Order it</h3>
+              <p>Pick a single or a bundle pack and check out. Need artwork help? Ask about creative assistance.</p>
             </div>
             <div className="step">
               <h3>We make it</h3>
-              <p>Production starts once you approve, hand-pressed in Reno.</p>
+              <p>Printed exactly as uploaded and hand-pressed in Reno.</p>
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@ export default function HomePage() {
               <span className="script" style={{ textTransform: "none" }}>we press it</span>
             </h2>
             <p className="lead reveal d2">
-              Drop in your logo and preview it instantly on every product. Pick the size, hardware, tassel and packaging, flip it to see the back, then send it to us for a free, print-ready mockup.
+              Drop in your logo and preview it instantly on every product. Pick the size and hardware, flip it to see the back, then download your preview and order.
             </p>
             <div className="steps reveal d2" style={{ gridTemplateColumns: "1fr 1fr", margin: "34px 0" }}>
               <div className="step">
@@ -386,11 +386,11 @@ export default function HomePage() {
               </div>
               <div className="step">
                 <h3>Customize</h3>
-                <p>Product, size, hardware, tassel, packaging.</p>
+                <p>Product, size, hardware, tassel.</p>
               </div>
               <div className="step">
-                <h3>Mockup</h3>
-                <p>We send a free proof you can approve.</p>
+                <h3>Download</h3>
+                <p>Save your preview, then order.</p>
               </div>
               <div className="step">
                 <h3>Press & ship</h3>
@@ -616,7 +616,7 @@ export default function HomePage() {
                 <span className="script" style={{ textTransform: "none" }}>but make it merch.</span>
               </h2>
               <p>
-                Send us your logo and get a free custom mockup. Ordering 25 or 2,500? Ask about bulk pricing and nationwide shipping.
+                Preview your logo in the Merch Studio, then order a single or a bundle pack. Need a custom quantity? Email or DM us.
               </p>
             </div>
             <div className="ctas">

@@ -46,7 +46,7 @@ export default function StoryPage() {
               Pens run dry. Stickers peel. Tote bags pile up in closets. Meanwhile, the one thing everybody carries every single day is their keys. So Neeks built a lineup around the things people actually hold onto: keychains, pocket mirrors, fridge magnets, buttons, and smart tap-to-connect keychains that open a business's page with one tap of a phone.
             </p>
             <p>
-              Every piece is printed, pressed and packed by hand right here in Reno, "The Biggest Little City." Small batch or bulk run, each order gets the same attention to detail, from a free logo mockup to custom backer cards that make the merch feel like a gift.
+              Every piece is printed, pressed and packed by hand right here in Reno, "The Biggest Little City." Small batch or bulk run, each order gets the same attention to detail, from your live preview to custom backer cards that make the merch feel like a gift.
             </p>
             <p>
               Today NeeksxArt makes merch for tattoo shops, car audio crews, hair stylists and lash artists, DJs, coffee spots, nonprofits, schools, weddings and birthday parties, and a community of more than{" "}

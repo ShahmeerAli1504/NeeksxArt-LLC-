@@ -8,8 +8,8 @@ import PrintAsIs from '@/components/notes/PrintAsIs';
 
 export const metadata = {
   title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet",
-  description: "Estimate your NeeksxArt order: tiered pricing for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.",
-  openGraph: { title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet", description: "Estimate your NeeksxArt order: tiered pricing for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.", images: [media("img/neeks-studio.jpg")] },
+  description: "Estimate your NeeksxArt order: single prices and bundle packs for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.",
+  openGraph: { title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet", description: "Estimate your NeeksxArt order: single prices and bundle packs for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.", images: [media("img/neeks-studio.jpg")] },
   alternates: { canonical: '/pricing' },
 };
 
@@ -24,7 +24,7 @@ export default function PricingPage() {
             <span className="script">the less each.</span>
           </h1>
           <p className="lead reveal d2">
-            Pick a product and quantity to see your estimated subtotal. Every product has tiered pricing, and you never pay more than the next tier would cost.
+            Pick a product, then a single quantity or a bundle pack. All prices are + tax; your exact total with tax shows at checkout once you enter your ZIP.
           </p>
         </div>
       </section>
@@ -49,11 +49,11 @@ export default function PricingPage() {
               <span className="eyebrow reveal">Price sheet</span>
               <h2 className="reveal d1" style={{ marginTop: "14px" }}>
                 Every product,{" "}
-                <span className="script" style={{ textTransform: "none" }}>every tier</span>
+                <span className="script" style={{ textTransform: "none" }}>every bundle</span>
               </h2>
             </div>
             <p className="lead reveal d2">
-              Per-item prices before applicable tax and shipping. Online photo magnet packages and live pop-up packages are priced separately, and event bundles get a personalized quote.
+              Single prices, then bundle packs, all + tax and shipping. Online photo magnet packages and live pop-up packages are priced separately, and event bundles get a personalized quote.
             </p>
           </div>
           <PriceTables className="price-groups" />
@@ -88,7 +88,7 @@ export default function PricingPage() {
                 <span className="script" style={{ textTransform: "none" }}>Let's make it.</span>
               </h2>
               <p>
-                Email us your photos, logo or artwork. We'll send a free digital mockup, and production starts only after you approve it.
+                Preview your photo or logo in the Merch Studio, download it and order. Need a custom quantity, or help creating artwork? Email or DM us (creative assistance is $40–$60).
               </p>
             </div>
             <div className="ctas">

@@ -194,7 +194,7 @@ export default function WorkPage() {
                 Your brand{" "}
                 <span className="script" style={{ textTransform: "none" }}>is next.</span>
               </h2>
-              <p>Upload your logo, preview it on any product and send it over for a free mockup.</p>
+              <p>Upload your logo, preview it on any product and download it and order.</p>
             </div>
             <div className="ctas">
               <Link href="/studio" className="btn btn-ink">

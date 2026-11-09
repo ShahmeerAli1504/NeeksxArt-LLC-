@@ -87,7 +87,8 @@ for (const f of shopifyFiles) {
   const big = `catalog/${name}`, small = `catalog/thumbs/${name}`;
   if (!FORCE && existing.has(big) && existing.has(small)) { skipped += 2; continue; }
   try {
-    const res = await fetch(SHOPIFY_CDN + f);
+    // iPhone .heic photos can't be decoded here or shown in most browsers: ask Shopify's CDN for a JPG
+    const res = await fetch(SHOPIFY_CDN + f + (/\.heic/i.test(f) ? (f.includes('?') ? '&' : '?') + 'width=1400&format=jpg' : ''));
     if (!res.ok) throw new Error(`HTTP ${res.status} from Shopify`);
     const src = Buffer.from(await res.arrayBuffer());
     if (sharp) {

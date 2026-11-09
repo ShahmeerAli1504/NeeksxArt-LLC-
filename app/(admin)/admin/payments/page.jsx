@@ -71,7 +71,7 @@ export default async function PaymentsPage({ searchParams }) {
           <summary>How checkout calculates delivery, tax and fees</summary>
           <ul>
             <li><b>Free local delivery:</b> Reno &amp; Sparks ZIP codes. If we can&apos;t deliver (weather, emergency), the order ships under the normal terms.</li>
-            <li><b>Shipping:</b> {fmt(CHECKOUT.shipping.flatCents)} flat rate under {fmt(CHECKOUT.shipping.freeOverCents)} · free on out-of-state orders of {fmt(CHECKOUT.shipping.freeOverCents)}+ (merchandise subtotal before tax; {CHECKOUT.shipping.noFreeStates.join(' & ')} excluded).</li>
+            <li><b>Shipping:</b> {fmt(CHECKOUT.shipping.flatCents)} flat rate under {fmt(CHECKOUT.shipping.freeOverCents)} · free on out-of-state orders of {fmt(CHECKOUT.shipping.freeOverCents)} and over (merchandise subtotal before tax; {CHECKOUT.shipping.noFreeStates.join(' & ')} excluded).</li>
             <li><b>Sales tax</b> on products only: {CHECKOUT.tax.zones.map(z => `${z.label} ${pct(z.rate)}`).join(' · ')} · other NV {pct(CHECKOUT.tax.nevadaDefault.rate)} · out of state 0%.</li>
             <li><b>Deposit:</b> orders {fmt(CHECKOUT.deposit.thresholdCents)}+ can pay {CHECKOUT.deposit.share * 100}% now, the rest before delivery.</li>
             <li><b>Square fee:</b> {pct(CHECKOUT.square.pct)} + {fmt(CHECKOUT.square.fixedCents)} on each card payment, paid by NeeksxArt.</li>

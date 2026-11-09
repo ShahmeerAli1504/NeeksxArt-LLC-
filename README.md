@@ -144,7 +144,7 @@ sheet**, which fill a whole sheet with the logo inside the safe area. Built by `
 Customers can **Add to cart** on the catalog and the price estimator, then check out at `/checkout`:
 
 1. **Products** are priced by the same tiers as the price sheet (`lib/catalog.js`).
-2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead for the standard $8 fee) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders over $150 (merchandise subtotal before tax; Alaska and Hawaii excluded).
+2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead for the standard $8 fee) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders of $150 and over (merchandise subtotal before tax; Alaska and Hawaii excluded).
 3. **Sales tax** on products only, by ZIP (Washoe 8.265%, Carson City 7.6%, other NV 6.85%, out of state 0%).
 4. **Payment:** orders $150+ can pay a 50% deposit; the balance is collected from the dashboard.
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { pics, thumbs, money, mailto } from '@/lib/catalog';
+import { pics, thumbs, money, mailto, bundlesFor } from '@/lib/catalog';
 import { Arrow } from '@/components/icons';
 import TierTable from './TierTable';
 import AddToCart from '@/components/shop/AddToCart';
@@ -31,23 +31,23 @@ export default function ShopCard({ product: p, photos }) {
         <small className="shop-group">{p.group} · {p.short}</small>
         <h3>{p.name}</h3>
         <p className="shop-from">
-          From <strong>{money(p.tiers[0][1])}</strong> <span>each · lower prices in bulk</span>
+          From <strong>{money(p.tiers[0][1])}</strong> <span>each + tax · bundle packs save more</span>
         </p>
         <p>{p.desc}</p>
         <details>
-          <summary>Quantity pricing</summary>
+          <summary>Single &amp; bundle pricing</summary>
           <TierTable product={p} />
         </details>
-        {!p.special && <AddToCart id={p.id} defaultQty={p.tiers[1]?.[0] || 10} />}
+        {!p.special && <AddToCart id={p.id} defaultQty={bundlesFor(p)[0]?.qty || 1} />}
         <div className="shop-ctas">
           {p.special ? (
             <>
               <a className="btn btn-orange" href={mailto(p)}>Email to order <Arrow /></a>
-              <Link className="link-arrow" href={`/studio?product=${p.studio}`}>Preview it</Link>
+              <Link className="link-arrow" href={`/studio?item=${p.id}`}>Preview it</Link>
             </>
           ) : (
             <>
-              <Link className="btn btn-orange" href={`/studio?product=${p.studio}`}>Design yours <Arrow /></Link>
+              <Link className="btn btn-orange" href={`/studio?item=${p.id}`}>Design yours <Arrow /></Link>
               <Link className="link-arrow" href={`/pricing?p=${p.id}#estimate`}>Estimate</Link>
             </>
           )}
