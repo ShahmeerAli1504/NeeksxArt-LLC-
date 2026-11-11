@@ -29,7 +29,7 @@ export async function POST(req) {
   };
   if (!address.line1 || !address.city || !address.zip) return bad('Please complete your address.');
 
-  const q = quote({ items, method, zip: address.zip, state: address.state, plan: b.plan });
+  const q = quote({ items, method, zip: address.zip, state: address.state });
   if (q.errors.length) return bad(q.errors[0]);
   if (b.expectedTotal != null && Number(b.expectedTotal) !== q.total) return bad('Prices changed — please review your order and try again.');
 

@@ -296,7 +296,7 @@ export default function ContactPage() {
             <details>
               <summary>How does payment work?</summary>
               <p>
-                Orders under $150 are paid in full before production. Orders of $150 or more need a 50% deposit, with the balance due before shipping or delivery. See our{" "}
+                Orders are paid in full at checkout, before production. For orders of $1,000 or more, email us at info@neeksxart.com before you order and we&apos;ll work out the details with you. See our{" "}
                 <Link href="/policy" style={{ color: "var(--accent-text)", fontWeight: 800 }}>orders & returns policy</Link>
                 {" "}for details.
               </p>

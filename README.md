@@ -146,14 +146,14 @@ Customers can **Add to cart** on the catalog and the price estimator, then check
 1. **Products** are priced by the same tiers as the price sheet (`lib/catalog.js`).
 2. **Fulfillment:** free local delivery to Reno/Sparks ZIP codes (if weather or an emergency stops delivery, the order ships instead for the standard $8 fee) · $8 flat-rate shipping under $150 · free shipping on out-of-state orders of $150 and over (merchandise subtotal before tax; Alaska and Hawaii excluded).
 3. **Sales tax** on products only, by ZIP (Washoe 8.265%, Carson City 7.6%, other NV 6.85%, out of state 0%).
-4. **Payment:** orders $150+ can pay a 50% deposit; the balance is collected from the dashboard.
+4. **Payment:** every order is paid in full at checkout. Orders of $1,000+ are asked to email first (invoice them through Square).
 
 Every number is in `lib/checkout.js` — edit it there and the checkout, the server and the dashboard all follow.
 The server re-prices every order, so a customer can't change prices in their browser.
 
 **Dashboard → Payments** (`/admin/payments`) lists each order with the full money breakdown (products, delivery and
 exactly how it was calculated, tax, total, collected, balance due, Square fee, net), transactions, and buttons to move
-the order along, collect a deposit balance or refund. "Delete demo orders" clears test orders before a client demo.
+the order along or refund it (older deposit orders still show "Collect balance"). "Delete demo orders" clears test orders before a client demo.
 
 **Demo mode (now):** `PAYMENTS_MODE` unset or `demo` → any card number is accepted and nothing is charged; orders and
 the dashboard are marked *Demo*. Run `supabase/shop-orders.sql` once in Supabase → SQL Editor so orders are saved

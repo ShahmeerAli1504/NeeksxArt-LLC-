@@ -201,7 +201,7 @@ export default function SheetMaker() {
       }
       setBusy('Writing PDF…');
       const pieces = run.map(({ it }) => ({ img: prepared.get(it.id), key: `p${it.id}`, kind }));
-      const bytes = await renderPrintPdf({ pieces, fit, title: title.trim(), frames, deflate });
+      const bytes = await renderPrintPdf({ pieces, fit, title: title.trim(), frames, deflate, label: title.trim() ? { main: title.trim() } : null });
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
       const a = document.createElement('a');
       const slug = (title.trim() || 'neeksxart').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);

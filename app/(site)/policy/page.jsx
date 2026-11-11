@@ -47,9 +47,11 @@ export default function PolicyPage() {
           </ul>
           <h3>Payment</h3>
           <ul>
-            <li>Orders under $150 are paid in full before production.</li>
+            <li>Orders are paid in full at checkout, before production.</li>
             <li>
-              Orders of $150 or more need at least a 50% deposit, with the balance due before shipping or delivery.
+              Ordering $1,000 or more? Email us at{" "}
+              <a href="mailto:info@neeksxart.com?subject=Large%20order%20inquiry" style={{ color: "var(--accent-text)", fontWeight: 800 }}>info@neeksxart.com</a>
+              {" "}before you order and we&apos;ll work out the details and payment with you.
             </li>
             <li>
               Sales tax and shipping are shown at checkout (see Shipping &amp; local delivery below). Production time depends on order size, complexity and materials.

@@ -1,13 +1,13 @@
 'use client';
 // Checkout (DEMO payments). Shows exactly how the total is built: tiered product pricing,
-// delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state at $150 and over), Nevada sales tax and the
-// optional 50% deposit. The card form mimics Square's: any card is accepted and nothing is charged.
+// delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state at $150 and over) and Nevada sales tax.
+// Every order is paid in full. The card form mimics Square's: any card is accepted and nothing is charged.
 // Going live = swap DemoCardForm for Square's Web Payments SDK `card.tokenize()` (see README).
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
-import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById } from '@/lib/checkout';
+import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById, LARGE_ORDER } from '@/lib/checkout';
 import { pics, isOrderableQty, bundlesFor, singleTier } from '@/lib/catalog';
 import QtyPicker from './QtyPicker';
 
@@ -33,7 +33,6 @@ export default function Checkout() {
   const router = useRouter();
   const { items, ready } = useCart();
   const [method, setMethod] = useState('delivery');
-  const [plan, setPlan] = useState('full');
   const [c, setC] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', state: 'NV', zip: '', note: '' });
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', zip: '' });
   const [busy, setBusy] = useState(false);
@@ -52,7 +51,8 @@ export default function Checkout() {
     });
   }, [items, ready]);
 
-  const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state, plan }), [items, method, c.zip, c.state, plan]);
+  const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state }), [items, method, c.zip, c.state]);
+  const bigEmail = CHECKOUT.largeOrder.email;
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
   const digits = card.number.replace(/\D/g, '');
 
@@ -71,7 +71,7 @@ export default function Checkout() {
       const res = await fetch('/api/checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items, method, plan,
+          items, method,
           customer: { name: c.name, email: c.email, phone: c.phone },
           address: { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
           note: c.note,
@@ -149,17 +149,12 @@ export default function Checkout() {
 
         <fieldset className="co-step">
           <legend><span>3</span> Payment</legend>
-          {q.depositAllowed && (
-            <div className="co-plans">
-              <label className={plan === 'full' ? 'on' : ''}>
-                <input type="radio" name="plan" checked={plan === 'full'} onChange={() => setPlan('full')} />
-                <b>Pay in full</b><small>{fmt(q.total)} today</small>
-              </label>
-              <label className={plan === 'deposit' ? 'on' : ''}>
-                <input type="radio" name="plan" checked={plan === 'deposit'} onChange={() => setPlan('deposit')} />
-                <b>Pay 50% deposit</b><small>{fmt(Math.round(q.total * CHECKOUT.deposit.share))} today · rest before {method === 'delivery' ? 'delivery' : 'shipping'}</small>
-              </label>
-            </div>
+          {q.largeOrder && (
+            <p className="co-hint co-note">
+              <b>Ordering {LARGE_ORDER} or more?</b> Email us at{' '}
+              <a href={`mailto:${bigEmail}?subject=${encodeURIComponent('Large order inquiry')}`}>{bigEmail}</a>{' '}
+              before you pay and we&apos;ll work out the order and payment with you.
+            </p>
           )}
           <div className="sq-card">
             <div className="sq-card-head"><span>Card</span><span className="sq-mark">▣ Square <i>demo</i></span></div>
@@ -214,12 +209,8 @@ export default function Checkout() {
             <dt>Sales tax<small>{q.tax.rate ? (q.tax.rate * 100).toFixed(3).replace(/0+$/, '') + '%' : ''}</small></dt><dd>{fmt(q.tax.amount)}</dd>
             <dd className="co-x"><Explain lines={[q.tax.explain, 'Tax is charged on products only, not on delivery or shipping']} /></dd>
             <dt className="co-grand">Total</dt><dd className="co-grand">{fmt(q.total)}</dd>
-            {q.plan === 'deposit' && (<>
-              <dt>Due today (50%)</dt><dd>{fmt(q.dueNow)}</dd>
-              <dt>Balance later</dt><dd>{fmt(q.balance)}</dd>
-            </>)}
           </dl>
-          {!q.depositAllowed && <small className="co-fine">Orders of {fmt(CHECKOUT.deposit.thresholdCents)}+ can pay a 50% deposit.</small>}
+          <small className="co-fine">Orders are paid in full at checkout. Ordering {LARGE_ORDER} or more? Email <a href={`mailto:${bigEmail}?subject=${encodeURIComponent('Large order inquiry')}`}>{bigEmail}</a>.</small>
         </div>
       </aside>
     </form>

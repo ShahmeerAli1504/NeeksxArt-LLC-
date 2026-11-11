@@ -1,5 +1,5 @@
 // Print-ready PDF sheets with the customer's images already placed on the press templates.
-//   /api/admin/print-sheet?order=<event_orders.id>                 → pop-up order: every photo in its slot, in order #1, #2… (order number = file name)
+//   /api/admin/print-sheet?order=<event_orders.id>                 → pop-up order: every photo in its slot, in order #1, #2… (order number in the margin + file name)
 //   /api/admin/print-sheet?inquiry=<inquiries.id>&kind=round|magnet → the uploaded logo repeated across a full sheet
 // Staff only.
 import { isAdmin } from '@/lib/admin-auth';
@@ -42,7 +42,10 @@ export async function GET(req) {
       const pieces = images.map((image, i) => ({
         image, kind: pieceKind((o.items || [])[i], o.shape)
       }));
-      pdf = await buildPrintSheet({ pieces, fit: 'photo', title: `${o.order_id} · ${o.name || ''} · ${o.bundle || ''}` });
+      pdf = await buildPrintSheet({
+        pieces, fit: 'photo', title: `${o.order_id} · ${o.name || ''} · ${o.bundle || ''}`,
+        label: { main: o.order_id, sub: [o.name, o.bundle].filter(Boolean).join(' · ') }
+      });
       filename = `${safeName(o.order_id)}-${safeName(o.name)}-print-sheet.pdf`;
     } else if (inquiryId) {
       if (!UUID_RE.test(inquiryId)) return fail('Bad inquiry id');
@@ -54,7 +57,7 @@ export async function GET(req) {
       const image = await download(sb, BUCKETS.uploads, r.logo_path);
       const who = r.business || r.name || '';
       const pieces = Array.from({ length: SHEETS[kind].perSheet }, () => ({ image, kind, key: 'logo' }));
-      pdf = await buildPrintSheet({ pieces, fit: 'logo', title: `${who} · logo` });
+      pdf = await buildPrintSheet({ pieces, fit: 'logo', title: `${who} · logo`, label: who ? { main: who } : null });
       filename = `${safeName(who)}-logo-${kind === 'magnet' ? 'magnets' : 'keychains'}.pdf`;
     } else {
       return fail('Pass ?order= or ?inquiry=');
