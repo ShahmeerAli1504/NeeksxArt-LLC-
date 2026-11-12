@@ -5,6 +5,12 @@ import { setShopStatus, collectBalance, refundOrder, deleteDemoOrders } from '@/
 import { fmt, CHECKOUT, LARGE_ORDER } from '@/lib/checkout';
 import { paymentsMode } from '@/lib/payments';
 import AdminNav from '@/components/admin/AdminNav';
+import { signedUrls, BUCKETS } from '@/lib/supabase/admin';
+import { photoSpec } from '@/lib/shop-photos';
+
+/** pieces that go on the print sheet (lines with a template) */
+const sheetPieces = o => (o.items || []).filter(l => photoSpec(l.id)?.sheet)
+  .reduce((a, l) => a + (l.photos || []).reduce((b, p) => b + p.count, 0), 0);
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +49,12 @@ export default async function PaymentsPage({ searchParams }) {
     ['Net to NeeksxArt', fmt(sum(live, 'net') + sum(orders.filter(o => o.payment_status === 'refunded'), 'net')), 'collected − fees']
   ];
   const shown = orders.filter(VIEWS[view].test);
+  // customer photos on the orders shown: thumbnails + one-click downloads (links last an hour)
+  const photoPaths = shown.flatMap(o => (o.items || []).flatMap(l => (l.photos || []).map(p => p.path)));
+  const [viewUrls, downloadUrls] = await Promise.all([
+    signedUrls(BUCKETS.uploads, photoPaths, 60 * 60),
+    signedUrls(BUCKETS.uploads, photoPaths, 60 * 60, { download: true })
+  ]);
   const demoCount = orders.filter(o => o.demo).length;
 
   return (
@@ -119,6 +131,26 @@ export default async function PaymentsPage({ searchParams }) {
                       </tbody>
                     </table>
 
+                    {(o.items || []).some(l => l.photos?.length) && (
+                      <>
+                        <h4>Customer photos</h4>
+                        {(o.items || []).filter(l => l.photos?.length).map(l => (
+                          <div key={l.id} className="pay-photos">
+                            <small>{l.qty} × {l.name}</small>
+                            <div className="pay-photo-grid">
+                              {l.photos.map((p, i) => (
+                                <a key={p.path} href={downloadUrls[p.path] || viewUrls[p.path] || '#'} title={`Download photo ${i + 1}`}
+                                  className={photoSpec(l.id)?.shape === 'round' ? 'round' : ''}>
+                                  {viewUrls[p.path] ? <img src={viewUrls[p.path]} alt={`Photo ${i + 1}`} loading="lazy" /> : <span>Photo {i + 1}</span>}
+                                  <b>× {p.count}</b>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
                     <h4>{METHOD[f.method] || 'Fulfillment'}</h4>
                     <p className="pay-ful"><b>{f.label}</b>
                       {f.address && <><br />{f.address.line1}{f.address.line2 ? `, ${f.address.line2}` : ''}<br />{f.address.city}, {f.address.state} {f.address.zip}</>}
@@ -173,6 +205,15 @@ export default async function PaymentsPage({ searchParams }) {
                 </div>
 
                 <div className="adm-actions">
+                  {(o.items || []).some(l => l.photos?.length && photoSpec(l.id)?.sheet) && (
+                    <a className="adm-print" href={`/api/admin/print-sheet?shop=${o.id}`} download>
+                      <span>Download print sheet</span>
+                      <small>PDF · {sheetPieces(o)} piece{sheetPieces(o) === 1 ? '' : 's'} placed on the template, exact size</small>
+                    </a>
+                  )}
+                  {(o.items || []).some(l => l.photos?.length && !photoSpec(l.id)?.sheet) && (
+                    <small className="pay-muted">No print template yet for {(o.items || []).filter(l => l.photos?.length && !photoSpec(l.id)?.sheet).map(l => l.name).join(', ')}. Download those photos above.</small>
+                  )}
                   {NEXT[o.status] && o.payment_status !== 'refunded' && (
                     <form action={setShopStatus}>
                       <input type="hidden" name="id" value={o.id} /><input type="hidden" name="status" value={NEXT[o.status]} />

@@ -55,16 +55,16 @@ export default function MagnetsPage() {
           </h2>
           <div className="steps steps-3 light-steps reveal d2">
             <div className="step">
-              <h3>Send your idea</h3>
-              <p>Email your photos, logo or artwork and tell us what you want made.</p>
+              <h3>Pick your pack</h3>
+              <p>Choose your magnets in the catalog and add them to your cart.</p>
             </div>
             <div className="step">
-              <h3>Free mockup</h3>
-              <p>We design a free digital mockup so you see it before anything prints.</p>
+              <h3>Upload &amp; crop</h3>
+              <p>Add your photos at checkout and crop each one. What you see is exactly what prints.</p>
             </div>
             <div className="step">
               <h3>We make it</h3>
-              <p>Once you approve it, we press every piece by hand in Reno.</p>
+              <p>We press every piece by hand in Reno, then deliver or ship it to you.</p>
             </div>
           </div>
         </div>

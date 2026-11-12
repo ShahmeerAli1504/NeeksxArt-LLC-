@@ -30,14 +30,19 @@ export default function PolicyPage() {
           <p>
             This covers custom magnets, keychains, mirror keychains, buttons, promotional items, event favors and other personalized products ordered directly from NeeksxArt.
           </p>
-          <h3>Design approval</h3>
+          <h3>Your photos &amp; design</h3>
           <ul>
             <li>
-              You provide the logos, photos, text and other design elements. We create a free digital mockup for you.
+              <strong>Online orders:</strong>
+              {" "}you upload and crop your photos at checkout. There&apos;s no proof step: we print exactly what you crop, so check every photo before you pay.
+            </li>
+            <li>
+              <strong>Custom &amp; bulk orders</strong>
+              {" "}(logos, event favors, orders of $1,000 or more): you send us your logos, photos and text, and we create a free digital mockup for you to approve before production.
             </li>
             <li>Please check everything carefully: spelling, colors, contact info and QR codes.</li>
             <li>
-              Production starts only after you approve the design and payment is received. Changes after production starts may not be possible and may cost extra.
+              Changes after production starts may not be possible and may cost extra.
             </li>
             <li>
               <strong>We print as-is.</strong>

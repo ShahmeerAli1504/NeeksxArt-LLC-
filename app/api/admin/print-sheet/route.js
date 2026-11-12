@@ -1,10 +1,12 @@
 // Print-ready PDF sheets with the customer's images already placed on the press templates.
-//   /api/admin/print-sheet?order=<event_orders.id>                 → pop-up order: every photo in its slot, in order #1, #2… (order number in the margin + file name)
+//   /api/admin/print-sheet?shop=<shop_orders.id>[&line=<productId>] → online order: each photo × its piece count
+//   /api/admin/print-sheet?order=<event_orders.id>                → pop-up order: every photo in its slot, in order #1, #2… (order number in the margin + file name)
 //   /api/admin/print-sheet?inquiry=<inquiries.id>&kind=round|magnet → the uploaded logo repeated across a full sheet
 // Staff only.
 import { isAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
 import { buildPrintSheet, pieceKind, SHEETS } from '@/lib/print-sheet';
+import { photoSpec } from '@/lib/shop-photos';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,11 +28,32 @@ export async function GET(req) {
   if (!sb) return fail('Supabase is not connected', 503);
 
   const q = new URL(req.url).searchParams;
-  const orderId = q.get('order'), inquiryId = q.get('inquiry');
+  const orderId = q.get('order'), inquiryId = q.get('inquiry'), shopId = q.get('shop');
   let pdf, filename;
 
   try {
-    if (orderId) {
+    if (shopId) {
+      // online order: each photo repeated as many times as the customer asked, line by line
+      if (!UUID_RE.test(shopId)) return fail('Bad order id');
+      const { data: o, error } = await sb.from('shop_orders').select('order_no, customer, items').eq('id', shopId).maybeSingle();
+      if (error || !o) return fail('Order not found', 404);
+      const only = q.get('line');
+      const lines = (o.items || []).filter(l => l.photos?.length && photoSpec(l.id)?.sheet && (!only || l.id === only));
+      if (!lines.length) return fail('This order has no photos on a size we have a print template for', 404);
+
+      const pieces = [];
+      for (const l of lines) {
+        const kind = photoSpec(l.id).sheet;
+        const images = await Promise.all(l.photos.map(p => download(sb, BUCKETS.uploads, p.path)));
+        l.photos.forEach((p, i) => { for (let n = 0; n < p.count; n++) pieces.push({ image: images[i], kind, key: p.path }); });
+      }
+      const who = o.customer?.name || '';
+      pdf = await buildPrintSheet({
+        pieces, fit: 'photo', title: `${o.order_no} · ${who}`,
+        label: { main: o.order_no, sub: [who, lines.map(l => `${l.qty} × ${l.name}`).join(', ')].filter(Boolean).join(' · ') }
+      });
+      filename = `${safeName(o.order_no)}-${safeName(who)}${only ? '-' + safeName(only) : ''}-print-sheet.pdf`;
+    } else if (orderId) {
       if (!UUID_RE.test(orderId)) return fail('Bad order id');
       const { data: o, error } = await sb.from('event_orders')
         .select('order_id, name, bundle, items, shape, photo_paths, event_name').eq('id', orderId).maybeSingle();
@@ -60,7 +83,7 @@ export async function GET(req) {
       pdf = await buildPrintSheet({ pieces, fit: 'logo', title: `${who} · logo`, label: who ? { main: who } : null });
       filename = `${safeName(who)}-logo-${kind === 'magnet' ? 'magnets' : 'keychains'}.pdf`;
     } else {
-      return fail('Pass ?order= or ?inquiry=');
+      return fail('Pass ?shop=, ?order= or ?inquiry=');
     }
   } catch (e) {
     console.error('print sheet', e);

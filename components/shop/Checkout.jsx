@@ -10,6 +10,8 @@ import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
 import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById, LARGE_ORDER } from '@/lib/checkout';
 import { pics, isOrderableQty, bundlesFor, singleTier } from '@/lib/catalog';
 import QtyPicker from './QtyPicker';
+import PhotoStep, { exportPhoto, assigned } from './PhotoStep';
+import { photoSpec } from '@/lib/shop-photos';
 
 const METHODS = [
   { id: 'delivery', title: 'Free local delivery', sub: 'Reno & Sparks addresses' },
@@ -36,7 +38,9 @@ export default function Checkout() {
   const [c, setC] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', state: 'NV', zip: '', note: '' });
   const [card, setCard] = useState({ number: '', exp: '', cvc: '', zip: '' });
   const [busy, setBusy] = useState(false);
+  const [busyText, setBusyText] = useState('');
   const [err, setErr] = useState('');
+  const [photos, setPhotos] = useState({}); // { [productId]: [{ id, img, zoom, ox, oy, count }] }
 
   // carts saved before bundle-only pricing may hold a quantity that isn't orderable now: snap it to the
   // closest single quantity / bundle below it, and drop special-order items (those are email-only)
@@ -64,8 +68,41 @@ export default function Checkout() {
     if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
     if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
     if (!/^\d{3,4}$/.test(card.cvc)) return setErr('Enter the 3 or 4 digit security code.');
+    const photoLines = q.lines.filter(l => photoSpec(l.id));
+    const short = photoLines.find(l => assigned(photos[l.id]) !== l.qty);
+    if (short) {
+      const n = assigned(photos[short.id]);
+      return setErr(n < short.qty ? `Add photos for all ${short.qty} ${short.name} (${n} so far).` : `${short.name}: you have photos for ${n} pieces but ordered ${short.qty}. Lower a count.`);
+    }
     setBusy(true);
     try {
+      // 1. upload the cropped photos straight to storage (before the card is charged)
+      let photoPayload = null;
+      const all = photoLines.flatMap(l => photos[l.id].map(p => ({ lineId: l.id, p })));
+      if (all.length) {
+        setBusyText('Preparing photos…');
+        const pre = await fetch('/api/checkout/photos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count: all.length }) })
+          .then(r => r.json()).catch(() => ({}));
+        if (!pre.ok) throw new Error(pre.error || 'Could not upload your photos. Please try again.');
+        if (pre.mode === 'storage') {
+          const { uploadToSignedUrl } = await import('@/lib/supabase/browser');
+          let done = 0;
+          const queue = all.map((x, i) => ({ ...x, u: pre.uploads[i] }));
+          const work = queue.slice();
+          const worker = async () => {
+            while (work.length) {
+              const { p, u } = work.shift();
+              await uploadToSignedUrl(pre.bucket, u.path, u.token, await exportPhoto(p));
+              setBusyText(`Uploading photos ${++done} of ${all.length}…`);
+            }
+          };
+          await Promise.all([worker(), worker(), worker()]);
+          const lines = {};
+          queue.forEach(({ lineId, p, u }) => (lines[lineId] ||= []).push({ path: u.path, count: p.count }));
+          photoPayload = { uploadId: pre.uploadId, lines };
+        }
+      }
+      setBusyText('Processing payment…');
       // Square would return a one-time token ("nonce") here. The full card number never leaves the browser.
       const sourceId = 'cnon:demo-' + Math.random().toString(36).slice(2, 12);
       const res = await fetch('/api/checkout', {
@@ -76,7 +113,8 @@ export default function Checkout() {
           address: { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
           note: c.note,
           payment: { sourceId, brand: brandOf(digits), last4: digits.slice(-4), exp: card.exp.replace(/\s/g, ''), postal: card.zip },
-          expectedTotal: q.total
+          expectedTotal: q.total,
+          photos: photoPayload
         })
       });
       const data = await res.json().catch(() => ({}));
@@ -85,8 +123,9 @@ export default function Checkout() {
       clearCart();
       router.push('/checkout/success?order=' + encodeURIComponent(data.order.order_no));
     } catch (e2) {
-      setErr(e2.message);
+      setErr(e2.message === 'Failed to fetch' ? 'Connection problem. Check your connection and try again.' : e2.message);
       setBusy(false);
+      setBusyText('');
     }
   }
 
@@ -147,8 +186,10 @@ export default function Checkout() {
           <div className="field"><label htmlFor="coNote">Order note</label><input id="coNote" value={c.note} onChange={set('note')} placeholder="Deadline, colors, anything we should know" /></div>
         </fieldset>
 
+        <PhotoStep lines={q.lines} value={photos} onChange={setPhotos} step={3} />
+
         <fieldset className="co-step">
-          <legend><span>3</span> Payment</legend>
+          <legend><span>{q.lines.some(l => photoSpec(l.id)) ? 4 : 3}</span> Payment</legend>
           {q.largeOrder && (
             <p className="co-hint co-note">
               <b>Ordering {LARGE_ORDER} or more?</b> Email us at{' '}
@@ -172,9 +213,9 @@ export default function Checkout() {
           </div>
           {err && <p className="co-err" role="alert">{err}</p>}
           <button className="btn btn-orange co-pay" type="submit" disabled={busy || !ready}>
-            {busy ? 'Processing…' : `Pay ${fmt(q.dueNow)}`}
+            {busy ? (busyText || 'Processing…') : `Pay ${fmt(q.dueNow)}`}
           </button>
-          <small className="co-fine">Payments are processed securely by Square. We confirm your design with you before anything is printed. See our <Link href="/policy">policy</Link>.</small>
+          <small className="co-fine">Payments are processed securely by Square. We print exactly the photos you upload and crop, with no proof step. See our <Link href="/policy">policy</Link>.</small>
         </fieldset>
       </div>
 

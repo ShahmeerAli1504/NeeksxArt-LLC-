@@ -60,7 +60,7 @@ export default function StudioPage() {
               </div>
             </div>
             <p className="stage-note">
-              Preview is a digital mockup for planning. Neeks sends a print-ready proof before anything is pressed.
+              Preview is a digital mockup for planning. Online orders print exactly the photos you upload and crop at checkout.
             </p>
           </div>
           <form className="panel" id="studioForm">

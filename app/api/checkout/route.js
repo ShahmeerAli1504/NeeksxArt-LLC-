@@ -4,7 +4,11 @@ import { NextResponse } from 'next/server';
 import { quote, fmt } from '@/lib/checkout';
 import { chargeCard, paymentsMode } from '@/lib/payments';
 import { insertOrder, updateOrder, newOrderNo } from '@/lib/shop-orders';
-import { sendEmail, table, esc } from '@/lib/email';
+import { sendEmail, table, esc, siteUrl } from '@/lib/email';
+import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
+import { needsPhotos } from '@/lib/shop-photos';
+
+const UUID_RE = /^[0-9a-f-]{36}$/i;
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,6 +21,39 @@ const mailStatus = r => {
 };
 
 const clean = (s, n = 200) => String(s ?? '').trim().slice(0, n);
+
+/**
+ * b.photos = { uploadId, lines: { [productId]: [{ path, count }] } }
+ * → { byLine: { [productId]: [{ path, count }] }, total } or { error }
+ * Paths must sit in this checkout's upload folder and really exist in Storage.
+ */
+async function checkPhotos(input, lines) {
+  const want = lines.filter(l => needsPhotos(l.id));
+  if (!want.length) return { byLine: {}, total: 0 };
+  const sb = supabaseAdmin();
+  if (!sb) return { byLine: {}, total: 0 }; // local demo without Supabase: nothing to upload to
+
+  const uploadId = String(input?.uploadId || '');
+  if (!UUID_RE.test(uploadId)) return { error: 'Please add your photos before paying.' };
+  const folder = `shop/${uploadId}`;
+  const { data: files, error } = await sb.storage.from(BUCKETS.uploads).list(folder, { limit: 100 });
+  if (error) { console.error('list checkout photos', error); return { error: 'Could not check your photos. Please try again.' }; }
+  const have = new Set((files || []).map(f => `${folder}/${f.name}`));
+
+  const byLine = {};
+  let total = 0;
+  for (const l of want) {
+    const list = (Array.isArray(input?.lines?.[l.id]) ? input.lines[l.id] : []).slice(0, 100)
+      .map(p => ({ path: String(p?.path || ''), count: parseInt(p?.count, 10) || 0 }))
+      .filter(p => p.count > 0);
+    if (list.some(p => !p.path.startsWith(folder + '/') || !have.has(p.path))) return { error: 'Some photos did not finish uploading. Please try again.' };
+    const pieces = list.reduce((a, p) => a + p.count, 0);
+    if (pieces !== l.qty) return { error: `${l.name}: add photos for all ${l.qty} pieces (${pieces} so far).` };
+    byLine[l.id] = list;
+    total += list.length;
+  }
+  return { byLine, total };
+}
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const bad = msg => NextResponse.json({ error: msg }, { status: 400 });
 
@@ -41,6 +78,10 @@ export async function POST(req) {
   if (q.errors.length) return bad(q.errors[0]);
   if (b.expectedTotal != null && Number(b.expectedTotal) !== q.total) return bad('Prices changed — please review your order and try again.');
 
+  // every photo product needs one uploaded photo per piece (checked before the card is charged)
+  const photos = await checkPhotos(b.photos, q.lines);
+  if (photos.error) return bad(photos.error);
+
   const pay = b.payment || {};
   if (!pay.sourceId) return bad('Missing card details.');
   const orderNo = newOrderNo();
@@ -59,7 +100,8 @@ export async function POST(req) {
     demo: !!charge.demo,
     customer,
     fulfillment: { method, label: q.delivery.label, address, explain: q.delivery.explain },
-    items: q.lines,
+    // photos ride on their line: [{ path, count }] in the private customer-uploads bucket
+    items: q.lines.map(l => (photos.byLine[l.id] ? { ...l, photos: photos.byLine[l.id] } : l)),
     tax_label: q.tax.label,
     amounts: {
       subtotal: q.subtotal, delivery: q.delivery.amount, tax: q.tax.amount, tax_rate: q.tax.rate, tax_explain: q.tax.explain,
@@ -90,12 +132,13 @@ export async function POST(req) {
       replyTo: customer.email,
       html: `${demoNote}<h2>${esc(orderNo)}</h2><p>${esc(customer.name)} · ${esc(customer.email)} ${esc(customer.phone)}</p>${table(rows)}
              <p><b>${esc(q.delivery.label)}</b>${address ? `<br>${esc(address.line1)} ${esc(address.line2)}<br>${esc(address.city)}, ${esc(address.state)} ${esc(address.zip)}` : ''}</p>
-             <p>Square fee ${fmt(q.fee.amount)} · Net ${fmt(q.net)}</p>${row.note ? `<p>Note: ${esc(row.note)}</p>` : ''}`
+             <p>Square fee ${fmt(q.fee.amount)} · Net ${fmt(q.net)}</p>${row.note ? `<p>Note: ${esc(row.note)}</p>` : ''}
+             ${photos.total ? `<p><b>${photos.total} photo${photos.total === 1 ? '' : 's'} uploaded.</b> <a href="${siteUrl()}/admin/payments">Open Dashboard → Payments</a> to see them and download the print sheet.</p>` : ''}`
     }),
     sendEmail({
       to: customer.email, fromName: 'NeeksxArt',
       subject: `Your NeeksxArt order ${orderNo}`,
-      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! We'll email you to confirm your design before anything is printed.</p>${table(rows)}`
+      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! ${photos.total ? 'We print exactly the photos you uploaded and cropped, and we' : 'We'}'ll let you know when it's on the way.</p>${table(rows)}`
     })
   ]);
 
