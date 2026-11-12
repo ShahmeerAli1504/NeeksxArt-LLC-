@@ -18,6 +18,7 @@ const VIEWS = {
 const STATUS = { new: 'New', in_production: 'In production', ready: 'Ready', completed: 'Completed', cancelled: 'Cancelled' };
 const NEXT = { new: 'in_production', in_production: 'ready', ready: 'completed' };
 const PAY = { paid: 'Paid in full', deposit: 'Deposit paid', refunded: 'Refunded' };
+const MAIL = { sent: '✓ Sent', failed: '✕ Failed', not_configured: 'Not sent (email not set up)' };
 const METHOD = { pickup: 'Pickup', delivery: 'Local delivery', shipping: 'Shipping' }; // pickup: older demo orders
 const time = d => d ? new Date(d).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const pct = r => r ? (r * 100).toFixed(3).replace(/\.?0+$/, '') + '%' : '0%';
@@ -127,6 +128,21 @@ export default async function PaymentsPage({ searchParams }) {
                     <h4>Customer</h4>
                     <p className="pay-ful"><a href={`mailto:${c.email}`}>{c.email}</a>{c.phone && <> · <a href={`tel:${c.phone}`}>{c.phone}</a></>}</p>
                     {o.note && <p className="pay-ful"><b>Note:</b> {o.note}</p>}
+
+                    <h4>Emails</h4>
+                    {o.emails ? (
+                      <ul className="pay-mail">
+                        {[['To you', o.emails.owner], [`To customer${o.emails.customer?.to ? ` (${o.emails.customer.to})` : ''}`, o.emails.customer]].map(([who, m]) => (
+                          <li key={who} className={`pm-${m?.status || 'unknown'}`}>
+                            <span>{who}</span>
+                            <b>{MAIL[m?.status] || 'Unknown'}</b>
+                            {m?.at && <small>{time(m.at)}</small>}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="pay-ful pay-muted">Not recorded for this order.</p>
+                    )}
                   </div>
 
                   <div>

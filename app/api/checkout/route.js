@@ -3,17 +3,25 @@
 import { NextResponse } from 'next/server';
 import { quote, fmt } from '@/lib/checkout';
 import { chargeCard, paymentsMode } from '@/lib/payments';
-import { insertOrder, newOrderNo } from '@/lib/shop-orders';
+import { insertOrder, updateOrder, newOrderNo } from '@/lib/shop-orders';
 import { sendEmail, table, esc } from '@/lib/email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+/** sendEmail result → 'sent' | 'failed' | 'not_configured' */
+const mailStatus = r => {
+  const v = r.status === 'fulfilled' ? r.value : null;
+  return v?.sent ? 'sent' : v?.skipped ? 'not_configured' : 'failed';
+};
 
 const clean = (s, n = 200) => String(s ?? '').trim().slice(0, n);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const bad = msg => NextResponse.json({ error: msg }, { status: 400 });
 
 export async function POST(req) {
+  const started = Date.now();
   let b;
   try { b = await req.json(); } catch { return bad('Bad request'); }
 
@@ -76,7 +84,7 @@ export async function POST(req) {
     ...(q.balance ? [['Balance due', fmt(q.balance)]] : [])
   ];
   const demoNote = charge.demo ? '<p style="color:#c9521b"><b>DEMO ORDER — no card was charged.</b></p>' : '';
-  await Promise.allSettled([
+  const [ownerMail, customerMail] = await Promise.allSettled([
     sendEmail({
       subject: `${charge.demo ? '[DEMO] ' : ''}New online order ${orderNo} — ${fmt(q.dueNow)} paid`,
       replyTo: customer.email,
@@ -90,6 +98,17 @@ export async function POST(req) {
       html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! We'll email you to confirm your design before anything is printed.</p>${table(rows)}`
     })
   ]);
+
+  // record on the order whether each email actually went out (shown on Dashboard → Payments)
+  const at = new Date().toISOString();
+  const emails = {
+    owner: { status: mailStatus(ownerMail), at },
+    customer: { status: mailStatus(customerMail), to: customer.email, at }
+  };
+  saved.order.emails = emails;
+  try { await updateOrder(saved.order.id, { emails }); }
+  catch (e) { console.error('save email status', orderNo, e?.message || e); }
+  console.log('checkout', orderNo, `saved=${saved.storage}`, `owner_email=${emails.owner.status}`, `customer_email=${emails.customer.status}`, `${Date.now() - started}ms`);
 
   return NextResponse.json({ ok: true, mode: paymentsMode(), storage: saved.storage, order: saved.order });
 }

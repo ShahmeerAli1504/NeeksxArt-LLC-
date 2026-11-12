@@ -160,6 +160,12 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .pay-tx li{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;background:var(--ink-3);border-radius:10px;padding:8px 12px}
 .pay-tx small{grid-column:1/-1;color:var(--cream-soft);font-size:.72rem;word-break:break-all}
 .pay-tx span:nth-child(2){color:var(--cream-soft)}
+.pay-mail{list-style:none;display:grid;gap:6px;font-size:.85rem}
+.pay-mail li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:var(--ink-3);border-radius:10px;padding:8px 12px}
+.pay-mail span{overflow-wrap:anywhere}
+.pay-mail small{grid-column:1/-1;color:var(--cream-soft);font-size:.72rem}
+.pay-mail .pm-sent b{color:#4ade80}
+.pay-mail .pm-failed b,.pay-mail .pm-not_configured b{color:#f87171}
 .pay-collect{padding:12px 18px;font-size:.8rem;color:#f59e0b}
 @media (max-width:760px){.pay-cols{grid-template-columns:1fr}}
 .pay-money dt{text-transform:none;letter-spacing:0;font-size:.9rem;font-weight:600;color:var(--cream-soft)}

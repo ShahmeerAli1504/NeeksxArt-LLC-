@@ -19,5 +19,7 @@ create table if not exists public.shop_orders (
   payments       jsonb not null default '[]',                -- [{ kind: charge|balance|refund, id, amount, fee, brand, last4, at }]
   note           text
 );
+-- { owner: { status: sent|failed|not_configured, at }, customer: { status, to, at } }
+alter table public.shop_orders add column if not exists emails jsonb;
 create index if not exists shop_orders_created_idx on public.shop_orders (created_at desc);
 alter table public.shop_orders enable row level security;
