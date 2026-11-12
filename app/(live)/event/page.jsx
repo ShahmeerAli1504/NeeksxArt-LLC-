@@ -3,14 +3,14 @@ import { media } from '@/lib/media';
 import LegacyMount from '@/components/LegacyMount';
 import { getPopup } from '@/lib/popup';
 import { isAdmin } from '@/lib/admin-auth';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "NeeksxArt Live Pop-Up | Upload Your Photos",
   description: "Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.",
-  openGraph: { title: "NeeksxArt Live Pop-Up | Upload Your Photos", description: "Pick a bundle pack, upload your photos, and pick up your custom merch at the NeeksxArt booth in 10–15 minutes.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/event' },
-  robots: { index: false }
-};
+  path: '/event',
+  noindex: true
+});
 
 export const dynamic = 'force-dynamic';
 

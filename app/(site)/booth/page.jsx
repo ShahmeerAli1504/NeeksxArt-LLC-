@@ -1,14 +1,14 @@
 import { media } from '@/lib/media';
 import { PosterPacks } from '@/components/popup/BundleCards';
 import LegacyMount from '@/components/LegacyMount';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Booth QR Poster | NeeksxArt Live",
   description: "Generate the QR code poster for a NeeksxArt pop-up booth.",
-  robots: { index: false, follow: false },
-  openGraph: { title: "Booth QR Poster | NeeksxArt Live", description: "Generate the QR code poster for a NeeksxArt pop-up booth.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/booth' },
-};
+  path: '/booth',
+  noindex: true
+});
 
 export default function BoothPage() {
   return (

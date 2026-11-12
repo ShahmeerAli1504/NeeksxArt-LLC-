@@ -1,17 +1,19 @@
 import { media } from '@/lib/media';
 import PrintAsIs from '@/components/notes/PrintAsIs';
 import LegacyMount from '@/components/LegacyMount';
+import { pageMeta, webPage, breadcrumbs } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Merch Studio | Design Your Custom Keychain, Magnet or Button — NeeksxArt",
   description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, download your preview and order.",
-  openGraph: { title: "Merch Studio | Design Your Custom Keychain, Magnet or Button — NeeksxArt", description: "Upload your logo and preview it live as a keychain, mirror keychain, magnet, button or tap-to-connect NFC keychain. Pick the size and hardware, download your preview and order.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/studio' },
-};
+  path: '/studio'
+});
 
 export default function StudioPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/studio' }), breadcrumbs([['Merch Studio', '/studio']])]} />
       <section className="studio-top dark grain">
         <div className="wrap">
           <span className="eyebrow">The Merch Studio</span>

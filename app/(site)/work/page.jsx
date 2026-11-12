@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
+import { pageMeta, webPage, breadcrumbs } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Our Work | Custom Merch Portfolio — NeeksxArt LLC",
   description: "Keychains, mirror keychains, buttons, magnets and tap-to-connect merch made for Reno businesses, creators and events.",
-  openGraph: { title: "Our Work | Custom Merch Portfolio — NeeksxArt LLC", description: "Keychains, mirror keychains, buttons, magnets and tap-to-connect merch made for Reno businesses, creators and events.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/work' },
-};
+  path: '/work'
+});
 
 export default function WorkPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'CollectionPage', name: metadata.title.absolute, description: metadata.description, path: '/work' }), breadcrumbs([['Our Work', '/work']])]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">Portfolio</span>

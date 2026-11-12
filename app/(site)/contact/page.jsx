@@ -1,17 +1,31 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
 import LegacyMount from '@/components/LegacyMount';
+import { pageMeta, webPage, breadcrumbs, faqPage } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Contact & Bulk Orders | NeeksxArt LLC",
   description: "Ask about bulk orders, shipping, events, Tap-to-Connect and creative assistance. Reno-based and shipping nationwide.",
-  openGraph: { title: "Contact & Bulk Orders | NeeksxArt LLC", description: "Ask about bulk orders, shipping, events, Tap-to-Connect and creative assistance. Reno-based and shipping nationwide.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/contact' },
-};
+  path: '/contact'
+});
+
+// plain-text copy of the FAQ below, for FAQPage structured data (keep in sync with the <details> list)
+const FAQS = [
+  { q: 'Is there a minimum order?', a: "No strict minimums. Order a few pieces at the single price, or pick one of our bundle packs for a better price per piece. Need a quantity that isn't a bundle? Email or DM us and we'll sort it out." },
+  { q: 'Do I need a mockup before I order?', a: 'Not for a simple photo or an established logo. Drop it into the Merch Studio at neeksxart.com/studio, download the preview and go straight to ordering. Your design prints exactly as uploaded.' },
+  { q: 'Can you help me design my artwork?', a: "We aren't graphic designers, but creative assistance is available for custom logos and artwork for a small fee of $40–$60, depending on the complexity. Email or DM us to ask about it." },
+  { q: 'How does payment work?', a: "Orders are paid in full at checkout, before production. For orders of $1,000 or more, email us at info@neeksxart.com before you order and we'll work out the details with you." },
+  { q: 'Do you ship outside of Reno?', a: "Yes. Local delivery is free in Reno and Sparks. Shipping is a flat $8 on orders under $150, and free on out-of-state orders of $150 and over (merchandise subtotal before tax; Alaska and Hawaii excluded). If weather or an emergency means we can't deliver locally, we ship instead under the same terms." },
+  { q: 'How long does an order take?', a: "It depends on the product, quantity and what's in the queue. Tell us your event date in the contact form and we'll let you know right away whether we can hit it." },
+  { q: 'How does Tap-to-Connect work?', a: 'Each Tap-to-Connect keychain has an NFC chip inside. We program it with your link (Instagram, website, booking page, menu, anything) and any modern smartphone opens it with a tap. No app required.' },
+  { q: 'What file should I send?', a: 'A high-resolution PNG with a transparent background is ideal. SVG, PDF, AI or a clear JPG work too. Your design prints exactly as uploaded, so send the original, highest-quality file you have. Creative assistance is $40–$60 depending on complexity.' }
+];
 
 export default function ContactPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'ContactPage', name: metadata.title.absolute, description: metadata.description, path: '/contact' }), breadcrumbs([['Contact', '/contact']]), faqPage(FAQS)]} />
       <section className="page-hero dark grain" style={{ paddingBottom: "60px" }}>
         <div className="wrap">
           <span className="eyebrow reveal">Contact & bulk orders</span>

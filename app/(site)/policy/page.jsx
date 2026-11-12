@@ -1,16 +1,18 @@
 import { media } from '@/lib/media';
 import { CHECKOUT } from '@/lib/checkout';
+import { pageMeta, webPage, breadcrumbs } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Custom Orders, Shipping, Live Magnets & Returns Policy | NeeksxArt",
   description: "NeeksxArt LLC policy for custom and bulk orders, live photo magnets, returns, cancellations, artwork rights and social media permission.",
-  openGraph: { title: "Custom Orders, Shipping, Live Magnets & Returns Policy | NeeksxArt", description: "NeeksxArt LLC policy for custom and bulk orders, live photo magnets, returns, cancellations, artwork rights and social media permission.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/policy' },
-};
+  path: '/policy'
+});
 
 export default function PolicyPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/policy' }), breadcrumbs([['Policy', '/policy']])]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">Policies</span>

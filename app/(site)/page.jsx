@@ -4,20 +4,22 @@ import { BUNDLES } from '@/lib/bundles';
 import { media } from '@/lib/media';
 import { startingPrice } from '@/lib/catalog';
 import ReviewsSection from '@/components/reviews/ReviewsSection';
+import { pageMeta, webPage, productList } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
 // reviews update from the dashboard; refreshed on approval and every 10 minutes
 export const revalidate = 600;
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV",
   description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Live preview in the Merch Studio, bundle pricing, ships nationwide.",
-  openGraph: { title: "NeeksxArt LLC | Custom Keychains, Mirrors, Magnets & Buttons — Reno, NV", description: "Merch people actually keep. Custom keychains, mirror keychains, magnets, buttons and tap-to-connect NFC merch, hand-pressed in Reno, NV. Live preview in the Merch Studio, bundle pricing, ships nationwide.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/' },
-};
+  path: '/'
+});
 
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/' }), productList()]} />
       <section className="hero dark grain">
         <div className="hero-bg-word" aria-hidden="true">Neeks</div>
         <div className="wrap hero-grid">

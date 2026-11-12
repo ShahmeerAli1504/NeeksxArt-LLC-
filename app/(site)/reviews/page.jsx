@@ -1,17 +1,20 @@
 import ReviewsSection from '@/components/reviews/ReviewsSection';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import { PRODUCTS } from '@/lib/catalog';
+import { pageMeta, webPage, breadcrumbs } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
-  title: 'Reviews | NeeksxArt — Custom Merch in Reno, NV',
-  description: 'What customers say about NeeksxArt custom magnets, keychains, mirrors and buttons. Leave a review of your order right here.',
-  alternates: { canonical: '/reviews' }
-};
+export const metadata = pageMeta({
+  title: "Reviews | NeeksxArt — Custom Merch in Reno, NV",
+  description: "What customers say about NeeksxArt custom magnets, keychains, mirrors and buttons. Leave a review of your order right here.",
+  path: '/reviews'
+});
 export const revalidate = 600;
 
 export default function ReviewsPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/reviews' }), breadcrumbs([['Reviews', '/reviews']])]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow">Reviews</span>

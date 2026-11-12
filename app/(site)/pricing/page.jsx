@@ -5,17 +5,19 @@ import LiveCards from '@/components/catalog/LiveCards';
 import PriceTables from '@/components/catalog/PriceTables';
 import ShippingNote from '@/components/notes/ShippingNote';
 import PrintAsIs from '@/components/notes/PrintAsIs';
+import { pageMeta, webPage, breadcrumbs, productList } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet",
   description: "Estimate your NeeksxArt order: single prices and bundle packs for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.",
-  openGraph: { title: "Estimate Pricing | NeeksxArt Custom Merch Price Sheet", description: "Estimate your NeeksxArt order: single prices and bundle packs for custom magnets, buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/pricing' },
-};
+  path: '/pricing'
+});
 
 export default function PricingPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/pricing' }), breadcrumbs([['Pricing', '/pricing']]), productList(undefined, 'NeeksxArt custom merch price sheet')]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">Estimate pricing</span>

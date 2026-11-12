@@ -3,20 +3,22 @@ import { media } from '@/lib/media';
 import { BundleCards } from '@/components/popup/BundleCards';
 import TryQr from '@/components/popup/TryQr';
 import LiveOrderLink, { LiveOnly } from '@/components/popup/LiveOrderLink';
+import { pageMeta, webPage, breadcrumbs, service } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
 // the live-order button and QR only show while Live ordering is switched on in the dashboard
 export const revalidate = 300;
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Live Pop-Ups | Custom Photo Magnets Made On-Site — NeeksxArt",
   description: "NeeksxArt Live: scan a QR code at our pop-up, upload your photos and pick up custom magnets and keychains in 10–15 minutes. Book us for your event.",
-  openGraph: { title: "Live Pop-Ups | Custom Photo Magnets Made On-Site — NeeksxArt", description: "NeeksxArt Live: scan a QR code at our pop-up, upload your photos and pick up custom magnets and keychains in 10–15 minutes. Book us for your event.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/events' },
-};
+  path: '/events'
+});
 
 export default function EventsPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/events' }), breadcrumbs([['Live Pop-Ups', '/events']]), service({ name: 'NeeksxArt Live pop-up: custom photo magnets and keychains made on-site', description: metadata.description, path: '/events', serviceType: 'Event photo magnet and keychain pop-up' })]} />
       <section className="page-hero dark grain">
         <div className="wrap pop-hero">
           <div>

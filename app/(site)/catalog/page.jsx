@@ -3,20 +3,22 @@ import { media } from '@/lib/media';
 import ShopGrid from '@/components/catalog/ShopGrid';
 import ShippingNote from '@/components/notes/ShippingNote';
 import PrintAsIs from '@/components/notes/PrintAsIs';
+import { pageMeta, webPage, breadcrumbs, productList } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
 // product photos can change from the dashboard; refreshed on upload and at least hourly
 export const revalidate = 3600;
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Catalog | NeeksxArt — Custom Magnets, Keychains, Mirrors & Buttons",
   description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Buttons from $1.50, keychains from $4.00, magnets from $5.00.",
-  openGraph: { title: "Catalog | NeeksxArt — Custom Magnets, Keychains, Mirrors & Buttons", description: "The full NeeksxArt catalog: custom magnets, pin buttons, keychains, mirror keychains, Tap-to-Connect NFC keychains and pocket mirrors. Buttons from $1.50, keychains from $4.00, magnets from $5.00.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/catalog' },
-};
+  path: '/catalog'
+});
 
 export default function CatalogPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'CollectionPage', name: metadata.title.absolute, description: metadata.description, path: '/catalog' }), breadcrumbs([['Catalog', '/catalog']]), productList()]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">The full catalog</span>

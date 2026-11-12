@@ -3,20 +3,22 @@ import { media } from '@/lib/media';
 import ShopGrid from '@/components/catalog/ShopGrid';
 import ShippingNote from '@/components/notes/ShippingNote';
 import PrintAsIs from '@/components/notes/PrintAsIs';
+import { pageMeta, webPage, breadcrumbs, productList } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
 // product photos can change from the dashboard; refreshed on upload and at least hourly
 export const revalidate = 3600;
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Standard Custom Magnets | NeeksxArt — Reno, NV",
   description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, live design preview, bundle pricing.",
-  openGraph: { title: "Standard Custom Magnets | NeeksxArt — Reno, NV", description: "Custom 2.5-inch square and 2.25-inch circular photo and logo magnets by NeeksxArt in Reno, NV. No minimums, live design preview, bundle pricing.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/magnets' },
-};
+  path: '/magnets'
+});
 
 export default function MagnetsPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'CollectionPage', name: metadata.title.absolute, description: metadata.description, path: '/magnets' }), breadcrumbs([['Catalog', '/catalog'], ['Custom Magnets', '/magnets']]), productList(['mag25', 'mag225'], 'NeeksxArt custom magnets')]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">Standard custom magnets</span>

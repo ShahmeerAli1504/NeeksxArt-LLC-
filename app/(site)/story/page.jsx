@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
+import { pageMeta, webPage, breadcrumbs } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "About Us | NeeksxArt LLC — Reno, NV",
-  description: "The story behind NeeksxArt: a Reno studio hand-pressing merch people actually keep.",
-  openGraph: { title: "About Us | NeeksxArt LLC — Reno, NV", description: "The story behind NeeksxArt: a Reno studio hand-pressing merch people actually keep.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/story' },
-};
+  description: "The story behind NeeksxArt LLC: a Reno, Nevada studio hand-pressing custom keychains, mirror keychains, magnets and buttons for local businesses, creators and events. Merch people actually keep.",
+  path: '/story'
+});
 
 export default function StoryPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'AboutPage', name: metadata.title.absolute, description: metadata.description, path: '/story' }), breadcrumbs([['About Us', '/story']])]} />
       <section className="page-hero dark grain">
         <div className="wrap story-split">
           <div>

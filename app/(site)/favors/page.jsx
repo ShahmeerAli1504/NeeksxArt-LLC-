@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import { media } from '@/lib/media';
 import LegacyMount from '@/components/LegacyMount';
+import { pageMeta, webPage, breadcrumbs, service } from '@/lib/seo';
+import JsonLd from '@/components/JsonLd';
 
-export const metadata = {
+export const metadata = pageMeta({
   title: "Events & Party Favors | NeeksxArt — Reno, NV",
   description: "Personalized party favors, keepsakes and matching merch for weddings, baby showers, quinceañeras, birthdays, graduations and company events. Free mockup and a personalized quote.",
-  openGraph: { title: "Events & Party Favors | NeeksxArt — Reno, NV", description: "Personalized party favors, keepsakes and matching merch for weddings, baby showers, quinceañeras, birthdays, graduations and company events. Free mockup and a personalized quote.", images: [media("img/neeks-studio.jpg")] },
-  alternates: { canonical: '/favors' },
-};
+  path: '/favors'
+});
 
 export default function FavorsPage() {
   return (
     <>
+      <JsonLd data={[webPage({ type: 'WebPage', name: metadata.title.absolute, description: metadata.description, path: '/favors' }), breadcrumbs([['Events & Party Favors', '/favors']]), service({ name: 'Personalized party favors and event merch', description: metadata.description, path: '/favors', serviceType: 'Custom party favors' })]} />
       <section className="page-hero dark grain">
         <div className="wrap">
           <span className="eyebrow reveal">Events & party favors</span>
