@@ -1,19 +1,17 @@
 import Link from 'next/link';
 import { logout } from '@/lib/admin-actions';
 import LiveStatus from '@/components/admin/LiveStatus';
+import AdminTabs from '@/components/admin/AdminTabs';
+import { adminCounts } from '@/lib/admin-counts';
 
-export default function AdminNav({ active }) {
+export default async function AdminNav({ active }) {
+  const counts = await adminCounts();
   return (
     <header className="adm-top">
       <Link href="/admin" className="adm-brand"><img src="/brand/neeksxart-logo-white.png" alt="Neeks Art" /> Dashboard</Link>
       <LiveStatus />
       <nav>
-        <Link href="/admin" className={active === 'orders' ? 'on' : ''}>Pop-up orders</Link>
-        <Link href="/admin/inquiries" className={active === 'inquiries' ? 'on' : ''}>Inquiries</Link>
-        <Link href="/admin/products" className={active === 'products' ? 'on' : ''}>Product photos</Link>
-        <Link href="/admin/reviews" className={active === 'reviews' ? 'on' : ''}>Reviews</Link>
-        <Link href="/admin/payments" className={active === 'payments' ? 'on' : ''}>Payments</Link>
-        <Link href="/admin/templates" className={active === 'templates' ? 'on' : ''}>Templates</Link>
+        <AdminTabs active={active} initial={counts} />
         <Link href="/booth" target="_blank">Booth poster ↗</Link>
         <Link href="/" target="_blank">View site ↗</Link>
         <form action={logout}><button type="submit">Log out</button></form>

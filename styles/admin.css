@@ -8,6 +8,8 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .adm-top nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .adm-top nav a,.adm-top nav button{padding:8px 14px;border-radius:999px;font-weight:700;font-size:.85rem;text-decoration:none;color:var(--cream-soft);background:none;border:0;cursor:pointer;font-family:inherit}
 .adm-top nav a.on,.adm-top nav a:hover,.adm-top nav button:hover{background:var(--ink-3);color:var(--paper)}
+.adm-top nav a{display:inline-flex;align-items:center;gap:6px}
+.adm-badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:800;line-height:20px;text-align:center;box-shadow:0 0 0 2px var(--ink)}
 .adm-wrap{padding:28px clamp(16px,3vw,32px) 80px;max-width:1500px;margin:0 auto}
 .adm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:20px}
 .adm-head h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:.02em}
