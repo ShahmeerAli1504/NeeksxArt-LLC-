@@ -129,6 +129,14 @@ export default async function EventPage() {
                 </label>
                 <input id="evEmail" type="email" autoComplete="email" placeholder={"For your receipt & future drops"} />
               </div>
+              <div className="field" id="tapField" hidden>
+                <label htmlFor="evTap">
+                  Tap link{" "}
+                  <em>*</em>
+                </label>
+                <input id="evTap" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck="false" maxLength="300" placeholder="https://instagram.com/yourname" />
+                <p className="ev-sub" id="tapHint">We program the NFC chip in every keychain in your pack so any phone opens this link with a tap. No app needed.</p>
+              </div>
               <div className="field">
                 <label htmlFor="evNote">
                   Notes for Neeks{" "}
@@ -167,6 +175,8 @@ export default async function EventPage() {
                 <dd id="tName"></dd>
                 <dt>Pack</dt>
                 <dd id="tBundle"></dd>
+                <dt id="tTapLabel" hidden>Tap link</dt>
+                <dd id="tTap" hidden style={{ overflowWrap: 'anywhere' }}></dd>
                 <dt>Event</dt>
                 <dd id="tEvent"></dd>
                 <dt>Pay</dt>

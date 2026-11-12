@@ -8,7 +8,7 @@ import { supabaseAdmin, BUCKETS, decodeDataUrl } from '@/lib/supabase/admin';
 import { sendEmail, emailConfigured, siteUrl } from '@/lib/email';
 import { orderEmail, receivedAt } from '@/lib/email-templates';
 import { getPopup } from '@/lib/popup';
-import { BUNDLES } from '@/lib/bundles';
+import { BUNDLES, cleanTapUrl } from '@/lib/bundles';
 import { withTax } from '@/lib/popup-tax';
 import { isAdmin } from '@/lib/admin-auth';
 
@@ -30,6 +30,11 @@ export async function POST(req) {
   if (!popup.live && !(await isAdmin())) return NextResponse.json({ ok: false, error: 'Live ordering is closed. It opens during NeeksxArt pop-up events.' }, { status: 403 });
 
   const items = (Array.isArray(b.items) ? b.items : []).slice(0, 12).map(x => clean(x, 20));
+  const pack = BUNDLES.find(x => x.id === clean(b.bundleId, 30));
+  // Tap-to-Connect packs: the link to program into the NFC chips is required
+  const tapUrl = pack?.tap ? cleanTapUrl(b.tapUrl) : '';
+  if (pack?.tap && !tapUrl) return NextResponse.json({ ok: false, error: 'Add a valid tap link (the website or profile the keychains should open).' }, { status: 400 });
+  const note = clean(b.note, 500);
   const details = {
     event_name: popup.live ? popup.name : 'Preview',
     event_slug: popup.live ? popup.slug : 'preview',
@@ -38,11 +43,12 @@ export async function POST(req) {
     items,
     shape: clean(b.shape, 20),
     // priced here from the pack list + this pop-up's tax rate, never from the phone
-    price: withTax(BUNDLES.find(x => x.id === clean(b.bundleId, 30))?.price, popup.taxRate)?.line || null,
+    price: withTax(pack?.price, popup.taxRate)?.line || null,
     name,
     phone: clean(b.phone, 40) || null,
     email: clean(b.email, 120) || null,
-    note: clean(b.note, 500) || null
+    // the tap link rides in the note so it shows on the order board without a schema change
+    note: (tapUrl ? `Tap link: ${tapUrl}${note ? ' | ' + note : ''}` : note) || null
   };
 
   const sb = supabaseAdmin();
@@ -56,7 +62,7 @@ export async function POST(req) {
     const photos = (Array.isArray(b.photoData) ? b.photoData : []).slice(0, 12).map(decodeDataUrl);
     if (!photos.length || photos.some(p => !p)) return NextResponse.json({ ok: false, error: 'Missing photos' }, { status: 400 });
     const sheet = decodeDataUrl(b.sheetData);
-    const mail = await emailOrder({ orderId, details, photos: photos.map(p => p.buffer), sheet: sheet?.buffer, boardLink: false });
+    const mail = await emailOrder({ orderId, details, photos: photos.map(p => p.buffer), sheet: sheet?.buffer, boardLink: false, tapUrl });
     if (!mail.sent) return NextResponse.json({ ok: false, error: 'Could not email the order' }, { status: 502 });
     return NextResponse.json({ ok: true, emailed: true });
   }
@@ -103,7 +109,7 @@ export async function POST(req) {
       return Buffer.from(await data.arrayBuffer());
     };
     const [sheet, ...photos] = await Promise.all([download(update.sheet_path), ...photoPaths.map(download)]);
-    const mail = await emailOrder({ orderId, details: { ...details, event_slug: order.event_slug }, photos, sheet, boardLink: true });
+    const mail = await emailOrder({ orderId, details: { ...details, event_slug: order.event_slug }, photos, sheet, boardLink: true, tapUrl });
     if (!mail.sent) console.error('order saved but the email failed', orderId);
   }
 
@@ -111,7 +117,7 @@ export async function POST(req) {
 }
 
 /** One email per order: photos shown inside the email + attached full-size as print files. */
-async function emailOrder({ orderId, details: d, photos, sheet, boardLink }) {
+async function emailOrder({ orderId, details: d, photos, sheet, boardLink, tapUrl }) {
   const present = photos.map((p, i) => ({ p, i })).filter(x => x.p);
   const attachments = [];
   // shown inside the email
@@ -123,7 +129,7 @@ async function emailOrder({ orderId, details: d, photos, sheet, boardLink }) {
   }));
 
   const { subject, html } = orderEmail(
-    { orderId, event: d.event_name, bundle: d.bundle, price: d.price, name: d.name, phone: d.phone, email: d.email,
+    { orderId, event: d.event_name, bundle: d.bundle, price: d.price, tapUrl, name: d.name, phone: d.phone, email: d.email,
       note: d.note, items: present.map(x => d.items[x.i] || 'photo'), shape: d.shape, receivedAt: receivedAt() },
     { photoCount: present.length, hasSheet: !!sheet, boardUrl: boardLink ? `${siteUrl()}/admin?event=${encodeURIComponent(d.event_slug)}` : null }
   );
