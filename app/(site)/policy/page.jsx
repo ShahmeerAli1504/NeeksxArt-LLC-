@@ -79,7 +79,7 @@ export default function PolicyPage() {
           </ul>
           <h2>3. Live photo magnets (event orders)</h2>
           <p>
-            Live magnets are 2.5-inch square magnets and 2.25-inch tap-to-connect keychains made on-site at participating events. You pick a bundle, upload your photos and pay before production.
+            Live magnets are 2.5-inch square magnets and 2.25-inch keychains made on-site at participating events. You pick a bundle, upload your photos and pay before production.
           </p>
           <ul>
             <li>
