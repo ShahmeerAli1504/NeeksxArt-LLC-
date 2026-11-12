@@ -185,6 +185,9 @@ export default async function EventPage() {
                 <dd id="tStatus" className="t-status">Received</dd>
               </dl>
               <p className="ticket-note">
+                <strong>Keep this page open, or reopen it anytime on this phone, to check your order status.</strong>
+              </p>
+              <p className="ticket-note">
                 Show this screen at the NeeksxArt booth. We'll call your name and number when your pack comes off the press.
               </p>
               <p className="ticket-demo" id="tDemo" hidden>Demo mode: this order wasn't saved because the site isn't connected to Supabase yet.</p>
