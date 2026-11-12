@@ -61,10 +61,11 @@ export async function GET(req) {
       const paths = o.photo_paths || [];
       if (!paths.length) return fail('This order has no photos', 404);
 
-      const images = await Promise.all(paths.map(p => download(sb, BUCKETS.events, p)));
-      const pieces = images.map((image, i) => ({
-        image, kind: pieceKind((o.items || [])[i], o.shape)
-      }));
+      // only the photos whose size has a press template (1.5" keychains don't yet)
+      const slots = paths.map((p, i) => ({ p, kind: pieceKind((o.items || [])[i], o.shape) })).filter(s => s.kind);
+      if (!slots.length) return fail('No print template yet for this size. Download the photos one by one.', 404);
+      const images = await Promise.all(slots.map(s => download(sb, BUCKETS.events, s.p)));
+      const pieces = images.map((image, i) => ({ image, kind: slots[i].kind }));
       pdf = await buildPrintSheet({
         pieces, fit: 'photo', title: `${o.order_id} · ${o.name || ''} · ${o.bundle || ''}`,
         label: { main: o.order_id, sub: [o.name, o.bundle].filter(Boolean).join(' · ') }

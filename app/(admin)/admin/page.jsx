@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin, signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { setOrderStatus } from '@/lib/admin-actions';
 import { STATUS_LABEL } from '@/lib/bundles';
+import { pieceKind } from '@/lib/print-sheet-core';
 import AdminNav from '@/components/admin/AdminNav';
 import AutoRefresh from '@/components/admin/AutoRefresh';
 import PopupControl from '@/components/admin/PopupControl';
@@ -122,11 +123,14 @@ export default async function OrdersPage({ searchParams }) {
                   </a>
                 ))}
               </div>
-              {(o.photo_paths || []).length > 0 && (
+              {(n => n > 0 && (
                 <a className="adm-print" href={`/api/admin/print-sheet?order=${o.id}`} download>
                   <span>Download print sheet</span>
-                  <small>PDF · {(o.photo_paths || []).length} photo{(o.photo_paths || []).length === 1 ? '' : 's'} placed on the template, exact size</small>
+                  <small>PDF · {n} photo{n === 1 ? '' : 's'} placed on the template, exact size</small>
                 </a>
+              ))((o.photo_paths || []).filter((_, i) => pieceKind((o.items || [])[i], o.shape)).length)}
+              {(o.photo_paths || []).some((_, i) => !pieceKind((o.items || [])[i], o.shape)) && (
+                <small className="pay-muted">No print template yet for 1.5&quot; keychains. Download those photos above.</small>
               )}
               <div className="adm-actions">
                 {NEXT_STEP[o.status] && (

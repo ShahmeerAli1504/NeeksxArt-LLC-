@@ -44,7 +44,7 @@ body:has(.ev-shell){background:var(--ink);color:var(--paper)}
 .slot canvas{position:absolute;inset:0;width:100%;height:100%}
 .slot.filled::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:radial-gradient(120% 80% at 28% 10%,rgba(255,255,255,.42) 0,rgba(255,255,255,.08) 30%,transparent 48%),radial-gradient(100% 100% at 50% 50%,transparent 64%,rgba(0,0,0,.3) 100%)}
-.slot.keychain::before,.slot.mirror::before{content:"";position:absolute;top:4px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;border:3px solid #9a9a9a;z-index:2;background:transparent}
+.slot.keychain::before,.slot.keychain15::before,.slot.mirror::before{content:"";position:absolute;top:4px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;border:3px solid #9a9a9a;z-index:2;background:transparent}
 .slot.mirror::before{border-color:#f0f0f0}
 .slot .kind{position:absolute;top:8px;right:8px;z-index:3;font-size:.55rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.6);color:#fff;padding:3px 6px;border-radius:6px}
 .slot.round .kind{top:auto;bottom:16%;right:50%;transform:translateX(50%)}
