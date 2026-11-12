@@ -149,8 +149,14 @@ export async function POST(req) {
     customer: { status: mailStatus(customerMail), to: customer.email, at }
   };
   saved.order.emails = emails;
+  // own column first; if the database can't take it (column missing / API schema cache not reloaded),
+  // keep it inside the fulfillment record, which every order already has
   try { await updateOrder(saved.order.id, { emails }); }
-  catch (e) { console.error('save email status', orderNo, e?.message || e); }
+  catch (e) {
+    console.error('save email status (emails column)', orderNo, e?.code || '', e?.message || e);
+    try { await updateOrder(saved.order.id, { fulfillment: { ...row.fulfillment, emails } }); }
+    catch (e2) { console.error('save email status (fulfillment)', orderNo, e2?.code || '', e2?.message || e2); }
+  }
   console.log('checkout', orderNo, `saved=${saved.storage}`, `owner_email=${emails.owner.status}`, `customer_email=${emails.customer.status}`, `${Date.now() - started}ms`);
 
   return NextResponse.json({ ok: true, mode: paymentsMode(), storage: saved.storage, order: saved.order });

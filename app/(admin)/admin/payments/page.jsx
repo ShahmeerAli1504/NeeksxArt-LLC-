@@ -162,9 +162,9 @@ export default async function PaymentsPage({ searchParams }) {
                     {o.note && <p className="pay-ful"><b>Note:</b> {o.note}</p>}
 
                     <h4>Emails</h4>
-                    {o.emails ? (
+                    {(o.emails || f.emails) ? (
                       <ul className="pay-mail">
-                        {[['To you', o.emails.owner], [`To customer${o.emails.customer?.to ? ` (${o.emails.customer.to})` : ''}`, o.emails.customer]].map(([who, m]) => (
+                        {(m => [['To you', m.owner], [`To customer${m.customer?.to ? ` (${m.customer.to})` : ''}`, m.customer]])(o.emails || f.emails).map(([who, m]) => (
                           <li key={who} className={`pm-${m?.status || 'unknown'}`}>
                             <span>{who}</span>
                             <b>{MAIL[m?.status] || 'Unknown'}</b>
