@@ -79,7 +79,7 @@ export default function PolicyPage() {
           </ul>
           <h2>3. Live photo magnets (event orders)</h2>
           <p>
-            Live magnets are 2.5-inch square magnets made on-site at participating events. You pick a bundle, upload your photos and pay before production.
+            Live magnets are 2.5-inch square magnets and 2.25-inch tap-to-connect keychains made on-site at participating events. You pick a bundle, upload your photos and pay before production.
           </p>
           <ul>
             <li>
@@ -88,7 +88,7 @@ export default function PolicyPage() {
             </li>
             <li>
               <strong>Returns:</strong>
-              {" "}sales are final for photo quality, photo choice and cropping, for changes of mind after production starts, and for small screen-to-print color differences. If we make a verified error, like the wrong photo, wrong quantity or a defective magnet, we'll correct, replace or refund it.
+              {" "}no refunds once production starts. All sales are final for photo quality, photo choice and cropping, changes of mind and small screen-to-print color differences. If we make a verified error, like the wrong photo, wrong quantity or a defective magnet or keychain, we&apos;ll correct or replace it.
             </li>
             <li>
               <strong>Event-only, pickup only:</strong>
