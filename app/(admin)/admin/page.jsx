@@ -7,6 +7,8 @@ import { pieceKind } from '@/lib/print-sheet-core';
 import AdminNav from '@/components/admin/AdminNav';
 import AutoRefresh from '@/components/admin/AutoRefresh';
 import PopupControl from '@/components/admin/PopupControl';
+import FilterBar from '@/components/admin/FilterBar';
+import { readFilters, inRange, textMatch, dbBounds, hrefWith, filterNote } from '@/lib/admin-filters';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +26,8 @@ export default async function OrdersPage({ searchParams }) {
   const sp = await searchParams;
   const view = VIEWS[sp?.view] ? sp.view : 'active';
   const event = sp?.event || '';
+  const filt = readFilters(sp);
+  const filtered = filt.period !== 'all' || !!filt.q;
   const sb = supabaseAdmin();
 
   if (!sb) {
@@ -35,13 +39,18 @@ export default async function OrdersPage({ searchParams }) {
     );
   }
 
-  let q = sb.from('event_orders').select('*').in('status', VIEWS[view]).order('submitted_at', { ascending: view !== 'active' ? false : true }).limit(200);
+  let q = sb.from('event_orders').select('*').in('status', VIEWS[view]).order('submitted_at', { ascending: view !== 'active' ? false : true }).limit(filtered ? 1000 : 200);
   if (event) q = q.eq('event_slug', event);
-  const [{ data: orders = [], error }, { data: recent = [] }] = await Promise.all([
+  const bounds = dbBounds(filt);
+  if (bounds.gte) q = q.gte('submitted_at', bounds.gte);
+  if (bounds.lte) q = q.lte('submitted_at', bounds.lte);
+  const [{ data: fetched = [], error }, { data: recent = [] }] = await Promise.all([
     q,
     sb.from('event_orders').select('event_slug, event_name, status').neq('status', 'uploading').order('created_at', { ascending: false }).limit(1000)
   ]);
   if (error) console.error(error);
+  const orders = (fetched || []).filter(o => inRange(o.submitted_at, filt) &&
+    textMatch(filt.q, [o.order_id, o.name, o.email, o.bundle, o.note, o.event_name, o.event_slug, o.price], [o.phone]));
 
   const events = [];
   const counts = { new: 0, printing: 0, ready: 0 };
@@ -51,12 +60,8 @@ export default async function OrdersPage({ searchParams }) {
   });
 
   const urls = await signedUrls(BUCKETS.events, (orders || []).flatMap(o => [o.sheet_path, ...(o.photo_paths || [])]));
-  const link = (patch) => {
-    const p = new URLSearchParams({ ...(event ? { event } : {}), ...(view !== 'active' ? { view } : {}), ...patch });
-    [...p.keys()].forEach(k => !p.get(k) && p.delete(k));
-    const s = p.toString();
-    return '/admin' + (s ? '?' + s : '');
-  };
+  const cur = { event, view: view !== 'active' ? view : '', ...filt };
+  const link = patch => hrefWith('/admin', cur, patch, { view: 'active' });
 
   return (
     <>
@@ -77,6 +82,14 @@ export default async function OrdersPage({ searchParams }) {
 
         <PopupControl />
 
+        <FilterBar
+          action="/admin" hidden={{ view: cur.view, event }} filt={filt}
+          periodHref={k => link({ period: k })}
+          placeholder="Order #, name, phone, email, bundle"
+          clearHref={hrefWith('/admin', { event, view: cur.view }, {}, { view: 'active' })} active={filtered}
+          note={filterNote(filt, orders.length, (fetched || []).length, 'order', [{ active: 'in progress', done: 'picked up', cancelled: 'cancelled', all: '' }[view]])}
+        />
+
         <div className="adm-filters">
           <div className="adm-tabs">
             {Object.keys(VIEWS).map(v => (
@@ -93,7 +106,9 @@ export default async function OrdersPage({ searchParams }) {
           </div>
         </div>
 
-        {!orders?.length && <p className="adm-empty">No orders here yet.</p>}
+        {!orders.length && (filtered
+          ? <p className="adm-empty">No orders match these filters. <Link href={hrefWith('/admin', { event, view: cur.view }, {}, { view: 'active' })}>Clear filters</Link></p>
+          : <p className="adm-empty">No orders here yet.</p>)}
 
         <div className="adm-orders">
           {(orders || []).map(o => (

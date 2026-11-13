@@ -8,6 +8,8 @@ import AdminNav from '@/components/admin/AdminNav';
 import { signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { photoSpec } from '@/lib/shop-photos';
 import { canPost } from '@/lib/consent';
+import { readFilters, inRange, textMatch, hrefWith, filterNote } from '@/lib/admin-filters';
+import FilterBar from '@/components/admin/FilterBar';
 
 /** pieces that go on the print sheet (lines with a template) */
 const sheetPieces = o => (o.items || []).filter(l => photoSpec(l.id)?.sheet)
@@ -30,66 +32,26 @@ const METHOD = { pickup: 'Pickup', delivery: 'Local delivery', shipping: 'Shippi
 const time = d => d ? new Date(d).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const pct = r => r ? (r * 100).toFixed(3).replace(/\.?0+$/, '') + '%' : '0%';
 
-// ---- filters (date range, real vs test, search) — they narrow the totals and the list together ----
-const TZ = 'America/Los_Angeles';
-const dayOf = d => new Date(d).toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD in Reno time
-const addDays = (ymd, n) => { const t = new Date(ymd + 'T12:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
-const YMD = /^\d{4}-\d{2}-\d{2}$/;
-const PERIODS = { all: 'All time', today: 'Today', '7d': 'Last 7 days', '30d': 'Last 30 days', month: 'This month', custom: 'Custom' };
+// filters (date range, real vs test, search) narrow the totals and the list together
 const KINDS = { all: 'Real + test', real: 'Real only', test: 'Test only' };
+const DEFAULTS = { view: 'all', kind: 'all' };
+const BASE = '/admin/payments';
 
-function readFilters(sp = {}) {
-  const today = dayOf(Date.now());
-  let period = PERIODS[sp.period] ? sp.period : 'all';
-  let from = YMD.test(sp.from || '') ? sp.from : '', to = YMD.test(sp.to || '') ? sp.to : '';
-  if ((from || to) && !sp.period) period = 'custom';
-  if (period === 'today') from = to = today;
-  else if (period === '7d') { from = addDays(today, -6); to = today; }
-  else if (period === '30d') { from = addDays(today, -29); to = today; }
-  else if (period === 'month') { from = today.slice(0, 8) + '01'; to = today; }
-  else if (period === 'all') from = to = '';
-  if (from && to && from > to) [from, to] = [to, from];
-  return { period, from, to, kind: KINDS[sp.kind] ? sp.kind : 'all', q: String(sp.q || '').trim().slice(0, 80) };
-}
-
-function matches(o, f) {
-  if (f.kind === 'real' && o.demo) return false;
-  if (f.kind === 'test' && !o.demo) return false;
-  if (f.from || f.to) {
-    const d = dayOf(o.created_at);
-    if (f.from && d < f.from) return false;
-    if (f.to && d > f.to) return false;
-  }
-  if (f.q) {
-    const c = o.customer || {}, needle = f.q.toLowerCase(), digits = f.q.replace(/\D/g, '');
-    const hay = [o.order_no, c.name, c.email, o.note, ...(o.items || []).map(l => l.name), ...(o.payments || []).map(p => p.id)].join(' ').toLowerCase();
-    if (!hay.includes(needle) && !(digits.length >= 4 && String(c.phone || '').replace(/\D/g, '').includes(digits))) return false;
-  }
-  return true;
-}
-
-/** /admin/payments?… keeping the current filters, with `patch` applied (defaults left out of the URL) */
-function hrefWith(cur, patch) {
-  const v = { ...cur, ...patch }, p = new URLSearchParams();
-  if (v.view && v.view !== 'all') p.set('view', v.view);
-  if (v.period && v.period !== 'all') p.set('period', v.period);
-  if (v.period === 'custom') { if (v.from) p.set('from', v.from); if (v.to) p.set('to', v.to); }
-  if (v.kind && v.kind !== 'all') p.set('kind', v.kind);
-  if (v.q) p.set('q', v.q);
-  const s = p.toString();
-  return '/admin/payments' + (s ? '?' + s : '');
-}
+const matches = (o, f, kind) =>
+  (kind !== 'real' || !o.demo) && (kind !== 'test' || o.demo) && inRange(o.created_at, f) &&
+  textMatch(f.q, [o.order_no, o.customer?.name, o.customer?.email, o.note, ...(o.items || []).map(l => l.name), ...(o.payments || []).map(p => p.id)], [o.customer?.phone]);
 
 export default async function PaymentsPage({ searchParams }) {
   await requireAdmin();
   const sp = await searchParams;
   const view = VIEWS[sp?.view] ? sp.view : 'all';
   const filt = readFilters(sp);
-  const cur = { view, ...filt };
-  const filtered = filt.period !== 'all' || filt.kind !== 'all' || !!filt.q;
+  const kind = KINDS[sp?.kind] ? sp.kind : 'all';
+  const cur = { view, kind, ...filt };
+  const filtered = filt.period !== 'all' || kind !== 'all' || !!filt.q;
   let allOrders = [], storage = 'memory', loadError = '';
   try { ({ orders: allOrders, storage } = await listOrders()); } catch (e) { loadError = e.message; }
-  const orders = allOrders.filter(o => matches(o, filt));
+  const orders = allOrders.filter(o => matches(o, filt, kind));
 
   const live = orders.filter(o => o.payment_status !== 'refunded');
   const sum = (list, k) => list.reduce((a, o) => a + (o.amounts?.[k] || 0), 0);
@@ -133,33 +95,14 @@ export default async function PaymentsPage({ searchParams }) {
         )}
         {loadError && <p className="pay-warn">Couldn&apos;t load orders: {loadError}</p>}
 
-        <form className="pay-filter" action="/admin/payments" method="get">
-          {view !== 'all' && <input type="hidden" name="view" value={view} />}
-          <div className="adm-tabs">
-            {Object.entries(PERIODS).filter(([k]) => k !== 'custom').map(([k, label]) => (
-              <Link key={k} href={hrefWith(cur, { period: k })} className={filt.period === k ? 'on' : ''}>{label}</Link>
-            ))}
-          </div>
-          <div className="pay-filter-row">
-            <label className={filt.period === 'custom' ? 'on' : ''}><span>From</span><input type="date" name="from" defaultValue={filt.from} /></label>
-            <label className={filt.period === 'custom' ? 'on' : ''}><span>To</span><input type="date" name="to" defaultValue={filt.to} /></label>
-            <label><span>Orders</span>
-              <select name="kind" defaultValue={filt.kind}>
-                {Object.entries(KINDS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
-              </select>
-            </label>
-            <label className="pay-filter-q"><span>Search</span><input type="search" name="q" defaultValue={filt.q} placeholder="Name, email, phone, order #" /></label>
-            <button className="btn btn-orange" type="submit">Apply</button>
-            {filtered && <Link className="adm-link" href={hrefWith({ view }, {})}>Clear filters</Link>}
-          </div>
-          {filtered && (
-            <p className="pay-muted pay-filter-note">
-              Showing {orders.length} of {allOrders.length} order{allOrders.length === 1 ? '' : 's'}
-              {filt.from ? ` · ${filt.from === filt.to ? filt.from : `${filt.from} → ${filt.to || 'today'}`}` : filt.to ? ` · up to ${filt.to}` : ''}
-              {filt.kind !== 'all' ? ` · ${KINDS[filt.kind].toLowerCase()}` : ''}{filt.q ? ` · “${filt.q}”` : ''}. Totals below follow these filters.
-            </p>
-          )}
-        </form>
+        <FilterBar
+          action={BASE} hidden={{ view: view !== 'all' ? view : '' }} filt={filt}
+          periodHref={k => hrefWith(BASE, cur, { period: k }, DEFAULTS)}
+          selects={[{ name: 'kind', label: 'Orders', value: kind, options: KINDS }]}
+          placeholder="Name, email, phone, order #"
+          clearHref={hrefWith(BASE, { view }, {}, DEFAULTS)} active={filtered}
+          note={filterNote(filt, orders.length, allOrders.length, 'order', kind !== 'all' ? [KINDS[kind].toLowerCase()] : []) + ' Totals below follow these filters.'}
+        />
 
         <div className="pay-stats">
           {stats.map(([k, v, s]) => <div key={k}><small>{k}</small><b>{v}</b><span>{s}</span></div>)}
@@ -180,7 +123,7 @@ export default async function PaymentsPage({ searchParams }) {
         <div className="adm-filters">
           <div className="adm-tabs">
             {Object.entries(VIEWS).map(([k, v]) => (
-              <Link key={k} href={hrefWith(cur, { view: k })} className={k === view ? 'on' : ''}>
+              <Link key={k} href={hrefWith(BASE, cur, { view: k }, DEFAULTS)} className={k === view ? 'on' : ''}>
                 {v.label} <span className="pay-n">{orders.filter(v.test).length}</span>
               </Link>
             ))}
@@ -188,7 +131,7 @@ export default async function PaymentsPage({ searchParams }) {
         </div>
 
         {!shown.length && (filtered
-          ? <p className="adm-empty">No orders match these filters. <Link href={hrefWith({ view }, {})}>Clear filters</Link></p>
+          ? <p className="adm-empty">No orders match these filters. <Link href={hrefWith(BASE, { view }, {}, DEFAULTS)}>Clear filters</Link></p>
           : <p className="adm-empty">No orders here yet. Place a test order at <Link href="/catalog" target="_blank">the catalog</Link> → Add to cart → Checkout.</p>)}
 
         <div className="pay-list">

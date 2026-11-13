@@ -4,8 +4,11 @@ import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin, signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { setInquiryStatus } from '@/lib/admin-actions';
 import AdminNav from '@/components/admin/AdminNav';
+import FilterBar from '@/components/admin/FilterBar';
+import { readFilters, inRange, textMatch, dbBounds, hrefWith, filterNote } from '@/lib/admin-filters';
 
 export const dynamic = 'force-dynamic';
+const BASE = '/admin/inquiries';
 
 const STATUSES = { new: 'New', replied: 'Replied', won: 'Won', archived: 'Archived' };
 const time = d => new Date(d).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -14,16 +17,27 @@ export default async function InquiriesPage({ searchParams }) {
   await requireAdmin();
   const sp = await searchParams;
   const status = STATUSES[sp?.status] ? sp.status : '';
+  const filt = readFilters(sp);
+  const topic = String(sp?.topic || '').slice(0, 80);
+  const filtered = filt.period !== 'all' || !!filt.q || !!topic;
   const sb = supabaseAdmin();
 
-  let rows = [];
+  let fetched = [];
   if (sb) {
-    let q = sb.from('inquiries').select('*').order('created_at', { ascending: false }).limit(200);
+    let q = sb.from('inquiries').select('*').order('created_at', { ascending: false }).limit(filtered ? 1000 : 200);
     q = status ? q.eq('status', status) : q.neq('status', 'archived');
+    const bounds = dbBounds(filt);
+    if (bounds.gte) q = q.gte('created_at', bounds.gte);
+    if (bounds.lte) q = q.lte('created_at', bounds.lte);
     const { data, error } = await q;
     if (error) console.error(error);
-    rows = data || [];
+    fetched = data || [];
   }
+  const topics = Object.fromEntries([['', 'All types'], ...[...new Set(fetched.map(r => r.topic).filter(Boolean)), ...(topic ? [topic] : [])].sort().map(t => [t, t])]);
+  const rows = fetched.filter(r => inRange(r.created_at, filt) && (!topic || r.topic === topic) &&
+    textMatch(filt.q, [r.name, r.business, r.email, r.topic, r.product, r.quantity, r.deadline, r.ship_to, r.message], [r.phone]));
+  const cur = { status, topic, ...filt };
+  const clearHref = hrefWith(BASE, { status }, {});
   const urls = await signedUrls(BUCKETS.uploads, rows.flatMap(r => [r.mockup_path, r.logo_path]), 60 * 60);
 
   return (
@@ -36,16 +50,26 @@ export default async function InquiriesPage({ searchParams }) {
             <p>Contact form, bulk orders, event quotes and Merch Studio mockups.</p>
           </div>
         </div>
+        <FilterBar
+          action={BASE} hidden={{ status }} filt={filt}
+          periodHref={k => hrefWith(BASE, cur, { period: k })}
+          selects={[{ name: 'topic', label: 'Type', value: topic, options: topics }]}
+          placeholder="Name, business, email, phone, message"
+          clearHref={clearHref} active={filtered}
+          note={filterNote(filt, rows.length, fetched.length, 'inquir' + (fetched.length === 1 ? 'y' : 'ie'), [topic])}
+        />
         <div className="adm-filters">
           <div className="adm-tabs">
-            <Link href="/admin/inquiries" className={!status ? 'on' : ''}>Open</Link>
+            <Link href={hrefWith(BASE, cur, { status: '' })} className={!status ? 'on' : ''}>Open</Link>
             {Object.entries(STATUSES).map(([k, v]) => (
-              <Link key={k} href={`/admin/inquiries?status=${k}`} className={k === status ? 'on' : ''}>{v}</Link>
+              <Link key={k} href={hrefWith(BASE, cur, { status: k })} className={k === status ? 'on' : ''}>{v}</Link>
             ))}
           </div>
         </div>
         {!sb && <p className="adm-empty">Supabase isn&apos;t connected yet. Add the keys from README → Supabase setup.</p>}
-        {sb && !rows.length && <p className="adm-empty">Nothing here yet.</p>}
+        {sb && !rows.length && (filtered
+          ? <p className="adm-empty">No inquiries match these filters. <Link href={clearHref}>Clear filters</Link></p>
+          : <p className="adm-empty">Nothing here yet.</p>)}
         <div className="adm-inq">
           {rows.map(r => (
             <article key={r.id} className={`adm-card ist-${r.status}`}>
