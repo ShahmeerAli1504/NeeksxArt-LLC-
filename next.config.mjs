@@ -11,7 +11,7 @@ const nextConfig = {
     '/media/[...path]': ['./supabase/seed-media/**/*'],
     '/api/admin/templates/[file]': ['./print-templates/**/*'],
     '/api/admin/print-sheet': ['./print-templates/keychain-2.25in-round-12up-letter.png', './print-templates/keychain-1.5in-round-15up-letter.png',
-      './print-templates/button-1in-round-35up-letter.png', './print-templates/magnet-2.5in-square-6up-letter*.png']
+      './print-templates/button-1in-round-35up-letter.png', './print-templates/magnet-2.5in-square-6up-letter.png']
   },
   async redirects() {
     return [

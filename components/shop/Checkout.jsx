@@ -61,6 +61,7 @@ export default function Checkout() {
   const [err, setErr] = useState('');
   const [photos, setPhotos] = useState({}); // { [productId]: [{ id, img, zoom, ox, oy, count }] }
   const [tapLinks, setTapLinks] = useState({}); // { [productId]: 'https://…' } for Tap-to-Connect lines
+  const [tapChecked, setTapChecked] = useState({}); // { [productId]: true } once the customer confirms the link opens the right page
   const [consent, setConsent] = useState({ social: '', minor: '' }); // 'yes' | 'no'
 
   // carts saved before bundle-only pricing may hold a quantity that isn't orderable now: snap it to the
@@ -98,6 +99,8 @@ export default function Checkout() {
     }
     const noLink = tapLines.find(l => !cleanTapUrl(tapLinks[l.id]));
     if (noLink) return setErr(tapLinks[noLink.id] ? `Check the tap link for ${noLink.name}.` : `Add the tap link for ${noLink.name}.`);
+    const unchecked = tapLines.find(l => !tapChecked[l.id]);
+    if (unchecked) return setErr(`Open your tap link for ${unchecked.name} and tick the box to confirm it goes to the right page.`);
     if (hasPhotos && !cleanConsent(consent)) return setErr('Please answer both photo permission questions.');
     if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
     if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
@@ -222,14 +225,23 @@ export default function Checkout() {
           <fieldset className="co-step">
             <legend><span>{hasPhotos ? 4 : 3}</span> {tapLines.length ? 'Tap link & permissions' : 'Photo permissions'}</legend>
             {tapLines.map(l => {
-              const raw = tapLinks[l.id] || '', bad = !!raw.trim() && !cleanTapUrl(raw);
+              const raw = tapLinks[l.id] || '', url = cleanTapUrl(raw), bad = !!raw.trim() && !url;
               return (
                 <div className="field" key={l.id}>
                   <label htmlFor={`coTap-${l.id}`}>Tap link for {l.qty} × {l.name} <em>*</em></label>
                   <input id={`coTap-${l.id}`} type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck="false" maxLength={300}
                     placeholder="https://instagram.com/yourname" aria-invalid={bad} value={raw}
-                    onChange={e => setTapLinks(v => ({ ...v, [l.id]: e.target.value }))} />
-                  <small className="co-hint co-tap-hint">{bad ? 'That doesn’t look like a web link. Try something like instagram.com/yourname.' : 'We program the NFC chip in every keychain so any phone opens this link with a tap. No app needed.'}</small>
+                    onChange={e => { const v = e.target.value; setTapLinks(x => ({ ...x, [l.id]: v })); setTapChecked(x => ({ ...x, [l.id]: false })); }} />
+                  <small className="co-hint co-tap-hint">{bad ? 'That doesn’t look like a web link. Check for typos, like a double dot or a missing .com. Example: instagram.com/yourname' : 'We program the NFC chip in every keychain so any phone opens this link with a tap. No app needed.'}</small>
+                  {url && (
+                    <div className="co-tap-check">
+                      <p>Your keychains will open: <b>{url}</b> <a href={url} target="_blank" rel="noopener noreferrer">Test my link ↗</a></p>
+                      <label>
+                        <input type="checkbox" checked={!!tapChecked[l.id]} onChange={e => setTapChecked(x => ({ ...x, [l.id]: e.target.checked }))} />
+                        <span>I opened my link and it goes to the right page <em>*</em></span>
+                      </label>
+                    </div>
+                  )}
                 </div>
               );
             })}

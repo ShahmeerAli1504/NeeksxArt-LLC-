@@ -181,6 +181,12 @@
 .co-ask-q em{color:#b91c1c;font-style:normal}
 .co-ask .co-methods{margin-bottom:14px}
 .co-tap-hint{display:block;margin:6px 0 0}
+.co-tap-check{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.co-tap-check p{font-size:.85rem;margin:0 0 8px;word-break:break-all}
+.co-tap-check a{color:var(--accent-text);font-weight:800;white-space:nowrap;margin-left:4px}
+.co-tap-check label{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0}
+.co-tap-check label input{width:18px;height:18px;margin-top:1px;flex:0 0 auto}
+.co-tap-check em{color:#b91c1c;font-style:normal}
 input[aria-invalid="true"]{border-color:#b91c1c}
 .co-pay{width:100%;margin-top:16px;font-size:1rem;padding:18px}
 .co-pay:disabled{opacity:.6;cursor:wait;transform:none}

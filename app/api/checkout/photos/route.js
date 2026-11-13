@@ -16,7 +16,14 @@ export async function POST(req) {
   if (!(count >= 1 && count <= MAX_PHOTOS)) return NextResponse.json({ ok: false, error: 'Bad photo count' }, { status: 400 });
 
   const sb = supabaseAdmin();
-  if (!sb) return NextResponse.json({ ok: true, mode: 'none' }); // local demo without Supabase: no uploads
+  if (!sb) {
+    // local demo without Supabase: no uploads. A live server must never skip them (the photos would be lost)
+    if (process.env.NODE_ENV === 'production' && process.env.SHOP_MEMORY_FALLBACK !== '1') {
+      console.error('checkout photos refused: this server has no database connection (check its environment variables)');
+      return NextResponse.json({ ok: false, error: 'Online ordering is down for a moment, and nothing was charged. Please try again shortly or email us.' }, { status: 503 });
+    }
+    return NextResponse.json({ ok: true, mode: 'none' });
+  }
 
   const uploadId = randomUUID();
   const folder = `shop/${uploadId}`;

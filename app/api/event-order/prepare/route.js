@@ -31,7 +31,11 @@ export async function POST(req) {
   if (!sb) {
     // No Supabase yet: photos go straight into the owner's email instead of Storage
     if (emailConfigured()) return NextResponse.json({ ok: true, mode: 'email', orderId, reservation: null });
-    if (process.env.EVENT_REQUIRE_LIVE === '1') return NextResponse.json({ ok: false, error: 'Ordering is not configured' }, { status: 500 });
+    // a live server must never fake a "received" ticket: nothing would be saved or sent
+    if (process.env.EVENT_REQUIRE_LIVE === '1' || process.env.NODE_ENV === 'production') {
+      console.error('pop-up order refused: this server has no database or email connection (check its environment variables)');
+      return NextResponse.json({ ok: false, error: 'Ordering is not configured' }, { status: 500 });
+    }
     return NextResponse.json({ ok: true, mode: 'demo', demo: true, orderId, reservation: null }); // demo mode for showing the flow
   }
 

@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import { quote, fmt, needsTapLink } from '@/lib/checkout';
 import { chargeCard, paymentsMode } from '@/lib/payments';
-import { insertOrder, updateOrder, newOrderNo, getOrderByNo } from '@/lib/shop-orders';
+import { insertOrder, updateOrder, newOrderNo, getOrderByNo, canSaveOrders } from '@/lib/shop-orders';
 import { sendEmail, table, esc, siteUrl } from '@/lib/email';
 import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
 import { needsPhotos } from '@/lib/shop-photos';
@@ -63,6 +63,11 @@ export async function POST(req) {
   const started = Date.now();
   let b;
   try { b = await req.json(); } catch { return bad('Bad request'); }
+  // a live server that can't save orders must not take payments (it would charge and lose the order)
+  if (!canSaveOrders()) {
+    console.error('checkout refused: this server has no database connection (check its environment variables)');
+    return NextResponse.json({ error: 'Online ordering is down for a moment, and nothing was charged. Please try again shortly or email us.' }, { status: 503 });
+  }
 
   const items = (Array.isArray(b.items) ? b.items : []).slice(0, 50).map(i => ({ id: clean(i.id, 40), qty: parseInt(i.qty, 10) || 0 })).filter(i => i.qty > 0);
   if (!items.length) return bad('Your cart is empty.');

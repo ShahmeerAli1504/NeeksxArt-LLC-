@@ -137,6 +137,10 @@ export default async function EventPage() {
                 </label>
                 <input id="evTap" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck="false" maxLength="300" placeholder="https://instagram.com/yourname" />
                 <p className="ev-sub" id="tapHint">We program the NFC chip in every keychain in your pack so any phone opens this link with a tap. No app needed.</p>
+                <div className="ev-tap-check" id="tapCheck" hidden>
+                  <p>Your keychains will open: <b id="tapShow"></b> <a id="tapTest" href="#" target="_blank" rel="noopener noreferrer">Test my link ↗</a></p>
+                  <label><input type="checkbox" id="tapConfirm" /><span>I opened my link and it goes to the right page <em>*</em></span></label>
+                </div>
               </div>
               {[['evSocial', CONSENT.social], ['evMinor', CONSENT.minor]].map(([name, d]) => (
                 <fieldset key={name} className="ev-ask">
@@ -159,7 +163,7 @@ export default async function EventPage() {
           </section>
           <div className="ev-bar">
             <div className="ev-bar-info">
-              <strong id="barBundle">The Nine Pack</strong>
+              <strong id="barBundle">2.5" Photo Magnets - 9 Pack</strong>
               <span id="barPrice">Pay at the booth</span>
             </div>
             <button type="button" className="btn btn-orange" id="submitBtn" disabled>Send to the press</button>

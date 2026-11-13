@@ -87,7 +87,14 @@ body:has(.ev-shell){background:var(--ink);color:var(--paper)}
 /* editor */
 .editor{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px}
 .editor[hidden]{display:none}
-#tapField[hidden],.ticket dl [hidden],#minorNote[hidden]{display:none}
+#tapField[hidden],.ticket dl [hidden],#minorNote[hidden],#tapCheck[hidden]{display:none}
+.ev-tap-check{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--ink-2);border:1px solid var(--line-dark)}
+.ev-tap-check p{font-size:.84rem;color:var(--cream-soft);margin:0 0 8px;word-break:break-all}
+.ev-tap-check b{color:var(--paper)}
+.ev-tap-check a{color:var(--accent-text);font-weight:800;white-space:nowrap;margin-left:4px;text-decoration:underline}
+#detailsForm .ev-tap-check label{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;font-weight:700;color:var(--paper);cursor:pointer;text-transform:none;letter-spacing:0}
+.ev-tap-check input{width:20px;height:20px;margin-top:1px;flex:0 0 auto;accent-color:var(--orange)}
+.ev-tap-check em{color:var(--accent-text);font-style:normal}
 .ev-ask{border:0;padding:0;margin:0 0 16px}
 .ev-ask legend{color:var(--cream-soft);font-weight:700;font-size:.9rem;margin-bottom:8px;padding:0}
 .ev-ask legend em{color:var(--accent-text);font-style:normal}

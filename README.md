@@ -113,15 +113,15 @@ Logos are in `public/brand/` (`neeksxart-logo-black.png` on light backgrounds, `
 
 ## Print templates
 
-Every print sheet is built on the client's **own press templates**, used exactly as they are:
-`Template/2.25in Keychains Latest.png` (MPRO Round 2.25", 12 per sheet, NeeksxArt rim, MPRO strip on the right) and
-`Template/2.5_ S MAGS latest.png` (2.5" magnets, 6 per sheet, flap text), plus the vector PDFs
-`Template/1.5 - inch template2.pdf` (MPRO Round 1.5", 15 per sheet, punch — 1.5" keychains) and
-`Template/1 - inch template2.pdf` (MPRO Round 1", 35 per sheet, die cut — 1" buttons). The blank template goes down
-first and each photo is drawn on top, clipped to that template's exact window (measured from the file: 2.25" window
-2.251", cut 2.625"; 1.5" window 1.54", cut 1.84"; 1" window 1.02", cut 1.32"; magnet square ≈2.55", octagon 3.345").
-Unused spots are left blank. The order number/name goes in a blank margin (on the 1.5" sheet it also fills the
-template's `####` boxes) and in the file name.
+Every print sheet is built on the client's **own press templates**, used exactly as they are. The round sizes are
+MPRO vector PDFs: `Template/2.25 - inch tempate pdf.pdf` (Round 2.25", 12 per sheet, die cut),
+`Template/1.5 - inch template pdf.pdf` (Round 1.5", 15 per sheet, punch) and `Template/1 - inch template2.pdf`
+(Round 1", 35 per sheet, die cut); the magnet is `Template/2.5_ S MAGS latest.png` (2.5", 6 per sheet, flap text).
+The blank template goes down first and each photo is drawn on top, clipped to that template's exact window (measured
+from the file: 2.25" window 2.251", cut 2.64"; 1.5" window 1.54", cut 1.84"; 1" window 1.02", cut 1.32"; magnet square
+≈2.55", octagon 3.345"). Unused spots are left blank. The **order number is printed at the start of every row** (on the
+1.5" sheet it fills the template's own `####` boxes), and order number · name · pack runs up the blank margin / MPRO
+strip; it's also in the file name.
 
 Which sheet a piece goes on: pop-up `keychain15` → 1.5"; online `kc15` → 1.5", `btn1` → 1" (`lib/shop-photos.js`).
 
@@ -129,7 +129,8 @@ Staff dashboard → **Templates** (`/admin/templates`, login required) has the b
 PNG) and single-piece artboards. Print with the same settings you use for the original template (100% / Actual size).
 
 When a template changes: replace the file in `Template/`, run `python3 scripts/build-print-templates.py`
-(needs Pillow, numpy, reportlab, pymupdf; rsvg-convert only for the 2.25"/2.5" single artboards). It re-measures every window into `lib/print-frames.js` and rebuilds the
+(needs Pillow, numpy, reportlab, pymupdf; rsvg-convert only for the magnet single artboard). For a round size, point
+`PDF_ROUNDS` in the script at the new PDF. It re-measures every window into `lib/print-frames.js` and rebuilds the
 blank sheets in `print-templates/` — downloads, order sheets and the Sheet maker all follow.
 
 **Sheet maker (bulk):** Templates → *Sheet maker* — pick 2.25" / 1.5" keychain, 1" button or magnet, select/drop any number of photos at once

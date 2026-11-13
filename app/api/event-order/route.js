@@ -41,7 +41,8 @@ export async function POST(req) {
   const details = {
     event_name: popup.live ? popup.name : 'Preview',
     event_slug: popup.live ? popup.slug : 'preview',
-    bundle: clean(b.bundle, 80),
+    // the pack's current title from the pack list (a phone with an older page may still send an old name)
+    bundle: pack?.name || clean(b.bundle, 80),
     bundle_id: clean(b.bundleId, 30),
     items,
     shape: clean(b.shape, 20),
@@ -59,7 +60,7 @@ export async function POST(req) {
   /* ---------------- email-only mode (no Supabase) ---------------- */
   if (!sb) {
     if (b.mode !== 'email' || !emailConfigured()) {
-      if (process.env.EVENT_REQUIRE_LIVE === '1') return NextResponse.json({ ok: false, error: 'Ordering is not configured' }, { status: 500 });
+      if (process.env.EVENT_REQUIRE_LIVE === '1' || process.env.NODE_ENV === 'production') return NextResponse.json({ ok: false, error: 'Ordering is not configured' }, { status: 500 });
       return NextResponse.json({ ok: true, demo: true });
     }
     const photos = (Array.isArray(b.photoData) ? b.photoData : []).slice(0, 12).map(decodeDataUrl);

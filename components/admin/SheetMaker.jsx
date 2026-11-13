@@ -8,11 +8,10 @@ import { renderPrintPdf, jpegInfo, SHEETS, isRound, photoWindowInches, frameFile
 
 const ringUrl = kind => `/api/admin/templates/${SHEETS[kind].ring}?inline=1`;
 const TEMPLATES = {
-  round: { label: '2.25" Keychain / Button', kind: 'round', flaps: true, file: 'keychains' },
-  round15: { label: '1.5" Keychain', kind: 'round15', flaps: true, file: '1.5in-keychains' },
-  round1: { label: '1" Button', kind: 'round1', flaps: true, file: '1in-buttons' },
-  magnet: { label: '2.5" Magnet', kind: 'magnet', flaps: true, file: 'magnets' },
-  magnetBlank: { label: '2.5" Magnet — blank flaps', kind: 'magnet', flaps: false, file: 'magnets' }
+  round: { label: '2.25" Keychain / Button', kind: 'round', file: 'keychains' },
+  round15: { label: '1.5" Keychain', kind: 'round15', file: '1.5in-keychains' },
+  round1: { label: '1" Button', kind: 'round1', file: '1in-buttons' },
+  magnet: { label: '2.5" Magnet', kind: 'magnet', file: 'magnets' }
 };
 const PRINT_PPI = 450;          // crop resolution sent to the PDF (prints sharp at 300)
 const THUMB = 480;              // preview size kept in memory per photo
@@ -55,9 +54,9 @@ async function deflate(u8) {
   return new Uint8Array(await new Response(s).arrayBuffer());
 }
 /** the client's template for this sheet, with see-through photo windows */
-async function loadFrame(kind, flaps) {
+async function loadFrame(kind) {
   const img = new Image();
-  img.src = `/api/admin/templates/${frameFile(kind, flaps)}?inline=1`;
+  img.src = `/api/admin/templates/${frameFile(kind)}?inline=1`;
   await img.decode();
   const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
   const x = c.getContext('2d'); x.drawImage(img, 0, 0);
@@ -185,7 +184,7 @@ export default function SheetMaker() {
     setBusy('Building sheets…'); setNote('');
     try {
       const kind = tpl.kind;
-      const frames = { [kind]: await loadFrame(kind, tpl.flaps) };
+      const frames = { [kind]: await loadFrame(kind) };
       const winIn = photoWindowInches(kind), px = Math.round(winIn * PRINT_PPI);
       const prepared = new Map();
       for (const [i, it] of items.entries()) {
