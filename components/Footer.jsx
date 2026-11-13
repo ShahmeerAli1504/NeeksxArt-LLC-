@@ -55,7 +55,11 @@ export default function Footer() {
         <div className="foot-word" aria-hidden="true">Merch people keep</div>
         <div className="foot-bottom">
           <span>© {new Date().getFullYear()} NeeksxArt LLC. All rights reserved.</span>
-          <span>Website by <a href="https://www.nexoradigital.live" target="_blank" rel="noopener">Nexora Digital</a></span>
+          <a className="foot-credit" href="https://www.nexoradigital.live" target="_blank" rel="noopener">
+            <span>Website by</span>
+            <img src="/brand/nexora-logo.png" alt="" width="22" height="22" loading="lazy" />
+            <b>Nexora Digital</b>
+          </a>
         </div>
       </div>
     </footer>

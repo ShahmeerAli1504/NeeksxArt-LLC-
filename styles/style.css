@@ -283,7 +283,11 @@ section{position:relative}
 .socials a:hover{background:var(--orange);transform:translateY(-3px) rotate(-6deg);color:var(--ink)}
 .socials svg{width:20px;height:20px}
 .foot-word{font-family:var(--display);text-transform:uppercase;font-size:clamp(3rem,11vw,10.5rem);line-height:.8;color:var(--ink-3);margin-top:70px;white-space:nowrap;text-align:center;letter-spacing:.01em}
-.foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.82rem;border-top:1px solid var(--line-dark);padding-top:22px;margin-top:20px}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.82rem;border-top:1px solid var(--line-dark);padding-top:22px;margin-top:20px}
+.foot-credit{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none}
+.foot-credit img{width:22px;height:22px;display:block;transition:transform .25s ease}
+.foot-credit b{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.foot-credit:hover img{transform:rotate(-8deg) scale(1.08)}
 @media (max-width:860px){.foot-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:520px){.foot-grid{grid-template-columns:1fr}}
 
