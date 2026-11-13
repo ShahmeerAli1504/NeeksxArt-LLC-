@@ -85,6 +85,12 @@ export default async function InquiriesPage({ searchParams }) {
                   <a className="adm-print" href={`/api/admin/print-sheet?inquiry=${r.id}&kind=magnet`} download>
                     <span>Logo on magnet sheet</span><small>PDF · 6 × 2.5&quot; square</small>
                   </a>
+                  <a className="adm-print" href={`/api/admin/print-sheet?inquiry=${r.id}&kind=round15`} download>
+                    <span>Logo on 1.5&quot; keychain sheet</span><small>PDF · 15 × 1.5&quot; round</small>
+                  </a>
+                  <a className="adm-print" href={`/api/admin/print-sheet?inquiry=${r.id}&kind=round1`} download>
+                    <span>Logo on 1&quot; button sheet</span><small>PDF · 35 × 1&quot; round</small>
+                  </a>
                 </div>
               )}
               <div className="adm-actions">

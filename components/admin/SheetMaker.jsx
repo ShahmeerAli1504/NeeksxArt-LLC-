@@ -4,14 +4,15 @@
 // spilling onto as many sheets as needed. Drag a tile to reposition, use the slider to zoom,
 // then download one exact-size PDF. Everything happens in the browser: nothing is uploaded.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { renderPrintPdf, jpegInfo, SHEETS, FRAMES, photoWindowInches, frameFile, frameFromPixels } from '@/lib/print-sheet-core';
+import { renderPrintPdf, jpegInfo, SHEETS, isRound, photoWindowInches, frameFile, frameFromPixels } from '@/lib/print-sheet-core';
 
-const RING_URL = '/api/admin/templates/keychain-ring-2.625in.png?inline=1';
-const ROUND_CUT = 2 * FRAMES.round.slots.reduce((a, s) => a + s.cutR, 0) / FRAMES.round.slots.length; // 2.625" in points
+const ringUrl = kind => `/api/admin/templates/${SHEETS[kind].ring}?inline=1`;
 const TEMPLATES = {
-  round: { label: '2.25" Keychain / Button', kind: 'round', flaps: true },
-  magnet: { label: '2.5" Magnet', kind: 'magnet', flaps: true },
-  magnetBlank: { label: '2.5" Magnet — blank flaps', kind: 'magnet', flaps: false }
+  round: { label: '2.25" Keychain / Button', kind: 'round', flaps: true, file: 'keychains' },
+  round15: { label: '1.5" Keychain', kind: 'round15', flaps: true, file: '1.5in-keychains' },
+  round1: { label: '1" Button', kind: 'round1', flaps: true, file: '1in-buttons' },
+  magnet: { label: '2.5" Magnet', kind: 'magnet', flaps: true, file: 'magnets' },
+  magnetBlank: { label: '2.5" Magnet — blank flaps', kind: 'magnet', flaps: false, file: 'magnets' }
 };
 const PRINT_PPI = 450;          // crop resolution sent to the PDF (prints sharp at 300)
 const THUMB = 480;              // preview size kept in memory per photo
@@ -66,8 +67,8 @@ async function loadFrame(kind, flaps) {
 /* ---------- one preview tile ---------- */
 function Tile({ item, index, tpl, fit, ring, onChange, onRemove, onMove, total }) {
   const ref = useRef(null), drag = useRef(null);
-  const round = tpl.kind === 'round';
-  const inner = round ? photoWindowInches('round') * 72 / ROUND_CUT : 1; // photo window as share of the tile
+  const round = isRound(tpl.kind), cut = round ? SHEETS[tpl.kind].cut : 0;
+  const inner = round ? photoWindowInches(tpl.kind) * 72 / cut : 1; // photo window as share of the tile
 
   useEffect(() => {
     const c = ref.current; if (!c) return;
@@ -79,7 +80,7 @@ function Tile({ item, index, tpl, fit, ring, onChange, onRemove, onMove, total }
     if (round) { x.beginPath(); x.arc(S / 2, S / 2, win / 2, 0, Math.PI * 2); x.clip(); }
     if (fit === 'photo') drawCover(x, item.thumb, item, win, o, o);
     else {
-      const safe = round ? SHEETS.round.safe / ROUND_CUT * S : SHEETS.magnet.safe / SHEETS.magnet.art * S;
+      const safe = round ? SHEETS[tpl.kind].safe / cut * S : SHEETS.magnet.safe / SHEETS.magnet.art * S;
       if (round) { const { w, h } = dims(item.thumb), a = w / h, bw = safe * a / Math.hypot(a, 1), bh = safe / Math.hypot(a, 1), k = Math.min(bw / w, bh / h); x.drawImage(item.thumb, (S - w * k) / 2, (S - h * k) / 2, w * k, h * k); }
       else drawContain(x, item.thumb, safe, (S - safe) / 2, (S - safe) / 2);
     }
@@ -135,10 +136,15 @@ export default function SheetMaker() {
   const inputRef = useRef(null);
   const tpl = TEMPLATES[tplKey], per = SHEETS[tpl.kind].perSheet;
 
+  // the rim drawn over each preview tile, for the size picked
   useEffect(() => {
-    const img = new Image(); img.src = RING_URL;
-    img.decode().then(() => setRingImg(img)).catch(() => setRingImg(null));
-  }, []);
+    setRingImg(null);
+    if (!isRound(tpl.kind)) return;
+    let live = true;
+    const img = new Image(); img.src = ringUrl(tpl.kind);
+    img.decode().then(() => live && setRingImg(img)).catch(() => live && setRingImg(null));
+    return () => { live = false; };
+  }, [tpl.kind]);
 
   // the final run of pieces: each photo × copies, optionally repeated to fill the last sheet
   const run = useMemo(() => {
@@ -178,7 +184,7 @@ export default function SheetMaker() {
     if (!run.length) return;
     setBusy('Building sheets…'); setNote('');
     try {
-      const kind = tpl.kind, round = kind === 'round';
+      const kind = tpl.kind;
       const frames = { [kind]: await loadFrame(kind, tpl.flaps) };
       const winIn = photoWindowInches(kind), px = Math.round(winIn * PRINT_PPI);
       const prepared = new Map();
@@ -205,7 +211,7 @@ export default function SheetMaker() {
       const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
       const a = document.createElement('a');
       const slug = (title.trim() || 'neeksxart').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
-      a.href = url; a.download = `${slug}-${round ? 'keychains' : 'magnets'}-${sheets}-sheet${sheets > 1 ? 's' : ''}.pdf`;
+      a.href = url; a.download = `${slug}-${tpl.file}-${sheets}-sheet${sheets > 1 ? 's' : ''}.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
       setNote(`Downloaded ${sheets} sheet${sheets > 1 ? 's' : ''} · ${run.length} piece${run.length > 1 ? 's' : ''}. Print at 100% / Actual size.`);

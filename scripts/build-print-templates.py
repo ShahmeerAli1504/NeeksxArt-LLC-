@@ -10,7 +10,10 @@ Outputs (print-templates/):
   *.svg  editable source          *.pdf  vector, exact 8.5 x 11 in
   *.png  300 DPI (2550 x 3300 px, DPI tag set)    preview-*.png  small thumbnails for the dashboard
 
-Needs: rsvg-convert (librsvg) and Pillow.  Run:  python3 scripts/build-print-templates.py
+The 1.5" (15-up) and 1" (35-up) MPRO sheets come in as vector PDFs and are read with PyMuPDF.
+
+Needs: Pillow, numpy, reportlab, pymupdf (+ rsvg-convert for the 2.25"/2.5" single artboards).
+Run:  python3 scripts/build-print-templates.py
 """
 import os, re, subprocess, sys
 from PIL import Image, ImageFont
@@ -337,6 +340,83 @@ def save_sheet(name, arr, dpi):
     t = im.copy(); t.thumbnail((935, 1210)); t.save(os.path.join(OUT, 'preview-' + name + '.png'), optimize=True)
 
 
+# Smaller MPRO round sheets, supplied as vector PDFs (exported by MPRO at 3.125x, i.e. 26.5625 x 34.375 "in").
+# (FRAMES key, source PDF, blank sheet name, rim-only PNG for the Sheet maker tiles / single artboard)
+PDF_ROUNDS = [
+    ('round15', os.path.join(ROOT, 'Template', '1.5 - inch template2.pdf'), 'keychain-1.5in-round-15up-letter', 'keychain-ring-1.5in.png'),
+    ('round1', os.path.join(ROOT, 'Template', '1 - inch template2.pdf'), 'button-1in-round-35up-letter', 'button-ring-1in.png'),
+]
+
+
+def build_pdf_round_frame(src, ring_name):
+    """Rasterise the MPRO PDF at 300 DPI (2550 x 3300), find every rim + photo window, blank the placeholder photos.
+    Also returns the '####' order-number spots and the free stretch of MPRO's right-hand strip (for the order label)."""
+    import numpy as np
+    import pymupdf
+    page = pymupdf.open(src)[0]
+    k = 612 / page.rect.width                       # page units → Letter points
+    z = 2550 / page.rect.width
+    pix = page.get_pixmap(matrix=pymupdf.Matrix(z, z), alpha=False)
+    W, H = pix.width, pix.height
+    img = np.frombuffer(pix.samples, np.uint8).reshape(H, pix.stride)[:, :W * 3].reshape(H, W, 3).copy()
+    L = img.astype(float).mean(2)
+    px = 2550 / 612                                 # points → pixels
+    frame = img.copy()
+    yy, xx = np.mgrid[0:H, 0:W] + 0.5
+
+    rims = sorted([d['rect'] * k for d in page.get_drawings()
+                   if d.get('fill') == (0.0, 0.0, 0.0) and len(d['items']) > 200],   # the black rim rings
+                  key=lambda r: (round(r.y0), r.x0))
+    slots = []
+    for rect in rims:
+        cx0, cy0, R = (rect.x0 + rect.x1) / 2 * px, (rect.y0 + rect.y1) / 2 * px, rect.width / 2 * px
+        inner, outer = [], []
+        rs = np.arange(0.3 * R, 1.08 * R, 0.25)
+        for ang in np.linspace(0, 2 * np.pi, 180, endpoint=False):
+            dx, dy = np.cos(ang), np.sin(ang)
+            xi = np.clip(np.round(cx0 + rs * dx).astype(int), 0, W - 1)
+            yi = np.clip(np.round(cy0 + rs * dy).astype(int), 0, H - 1)
+            dark = L[yi, xi] < 60
+            i = np.argmax(dark); j = len(dark) - 1 - np.argmax(dark[::-1])
+            inner.append((cx0 + rs[i] * dx, cy0 + rs[i] * dy)); outer.append((cx0 + rs[j] * dx, cy0 + rs[j] * dy))
+        wx, wy, wr = _fit_circle(np.array(inner))
+        ox, oy, orr = _fit_circle(np.array(outer))
+        slots.append({'cx': wx, 'cy': wy, 'r': wr, 'cutR': orr})
+    # one window size for the whole sheet (the placeholder photo overlaps the rim by a hair on some pieces)
+    wr = float(np.median([s['r'] for s in slots]))
+    for s in slots:
+        s['r'] = wr
+        r = np.hypot(xx - s['cx'], yy - s['cy'])
+        frame[r < wr] = (255, 255, 255)                          # placeholder photo → blank window
+        frame[(r >= wr) & (r < wr + 2.5)] = (0, 0, 0)            # clean black inner edge of the rim
+
+    words = page.get_text('words')
+    spots = [pymupdf.Rect(w[:4]) * k for w in words if w[4] == '####']
+    # MPRO strip: right of the vertical line near the page edge; find its longest stretch with no text or logo
+    strip_x = max(d['rect'].x0 * k for d in page.get_drawings() if d.get('color') and d['rect'].width * k < 1 and d['rect'].height * k > 700)
+    busy = [(w[1] * k, w[3] * k) for w in words if (w[0] + w[2]) / 2 * k > strip_x]
+    busy += [(b[1], b[3]) for b in ((pymupdf.Rect(i['bbox']) * k) for i in page.get_image_info()) if (b.x0 + b.x1) / 2 > strip_x]
+    busy.sort()
+    gaps, y = [], 0.0
+    for a, b in busy:
+        if a > y: gaps.append((y, a))
+        y = max(y, b)
+    gaps.append((y, 792.0))
+    y0, y1 = max(gaps, key=lambda g: g[1] - g[0])
+    strip = {'cx': (strip_x + 612) / 2, 'y0': y0, 'y1': y1}
+
+    # rim-only PNG of the first piece (transparent window + outside), for the Sheet maker tiles / single artboard
+    s = slots[0]
+    S = int(np.ceil(2 * s['cutR'])) + 2
+    x0, y0p = int(round(s['cx'] - S / 2)), int(round(s['cy'] - S / 2))
+    crop = frame[y0p:y0p + S, x0:x0 + S].astype(float)
+    cy_, cx_ = s['cy'] - y0p, s['cx'] - x0
+    ry = np.hypot(np.mgrid[0:S, 0:S][1] + 0.5 - cx_, np.mgrid[0:S, 0:S][0] + 0.5 - cy_)
+    a = np.clip(ry - (s['r'] - 0.5), 0, 1) * np.clip((s['cutR'] + 0.5) - ry, 0, 1)
+    Image.fromarray(np.dstack([crop, a * 255]).round().astype(np.uint8), 'RGBA').save(os.path.join(OUT, ring_name), dpi=(300, 300), optimize=True)
+    return W, H, slots, frame, spots, strip
+
+
 def build_frames():
     kw, kh, kslots, kblank = build_keychain_frame()
     mw, mh, mslots, mblank, mblank_flaps = build_magnet_frames()
@@ -345,17 +425,27 @@ def build_frames():
     save_sheet('magnet-2.5in-square-6up-letter-blank', mblank_flaps, mw / 8.5)
     kp, mp, mpy = 612 / kw, 612 / mw, 792 / mh                   # pixels → PDF points (frame stretched to exactly 8.5 x 11)
     r3 = lambda v: round(float(v), 3)
-    js = ['// GENERATED by scripts/build-print-templates.py from Template/*Latest*.png — do not edit by hand.',
+    js = ['// GENERATED by scripts/build-print-templates.py from the press templates in Template/ — do not edit by hand.',
           '// Exact photo windows of the client\'s own press templates, in PDF points (72 = 1 inch) on a Letter page.',
-          '// `file` = the blank template sheet (print-templates/) that every printed sheet is built on.',
+          '// `file` = the blank template sheet (print-templates/) that every printed sheet is built on; `ring` = rim-only PNG.',
+          '// `spots` = the "####" order-number boxes on the template; `strip` = free stretch of MPRO\'s right-hand strip.',
           'export const FRAMES = {',
-          f"  round: {{ file: 'keychain-2.25in-round-12up-letter.png', w: {kw}, h: {kh}, slots: ["]
+          f"  round: {{ file: 'keychain-2.25in-round-12up-letter.png', ring: 'keychain-ring-2.625in.png', w: {kw}, h: {kh}, slots: ["]
     js += [f"    {{ cx: {r3(s['cx']*kp)}, cy: {r3(s['cy']*kp)}, r: {r3(s['r']*kp)}, cutR: {r3(s['cutR']*kp)} }}," for s in kslots]
-    js += ['  ] },',
-           f"  magnet: {{ file: 'magnet-2.5in-square-6up-letter.png', fileBlank: 'magnet-2.5in-square-6up-letter-blank.png', w: {mw}, h: {mh}, slots: ["]
+    js += ['  ] },']
+    for key, src, name, ring in PDF_ROUNDS:
+        w, h, slots, arr, spots, strip = build_pdf_round_frame(src, ring)
+        save_sheet(name, arr, 300)
+        p = 612 / w
+        js.append(f"  {key}: {{ file: '{name}.png', ring: '{ring}', w: {w}, h: {h}, "
+                  f"strip: {{ cx: {r3(strip['cx'])}, y0: {r3(strip['y0'])}, y1: {r3(strip['y1'])} }}, "
+                  f"spots: [{', '.join(f'{{ x: {r3(b.x0)}, y: {r3(b.y0)}, w: {r3(b.width)}, h: {r3(b.height)} }}' for b in spots)}], slots: [")
+        js += [f"    {{ cx: {r3(s['cx']*p)}, cy: {r3(s['cy']*p)}, r: {r3(s['r']*p)}, cutR: {r3(s['cutR']*p)} }}," for s in slots]
+        js.append('  ] },')
+    js += [f"  magnet: {{ file: 'magnet-2.5in-square-6up-letter.png', fileBlank: 'magnet-2.5in-square-6up-letter-blank.png', w: {mw}, h: {mh}, slots: ["]
     js += [f"    {{ x: {r3(s['x']*mp)}, y: {r3(s['y']*mpy)}, w: {r3(s['w']*mp)}, h: {r3(s['h']*mpy)}, ox: {r3(s['ox']*mp)}, oy: {r3(s['oy']*mpy)}, ow: {r3(s['ow']*mp)}, oh: {r3(s['oh']*mpy)} }}," for s in mslots]
     js += ['  ] }', '};', '']
-    with open(os.path.join(ROOT, 'lib', 'print-frames.js'), 'w') as fh:
+    with open(os.path.join(ROOT, 'lib', 'print-frames.js'), 'w', encoding='utf-8', newline='\n') as fh:
         fh.write('\n'.join(js))
     return kslots, mslots
 
@@ -364,8 +454,12 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     build_ring()
     build_frames()
-    render('keychain-2.25in-artboard-2.625in', keychain_artboard(), dpi=600, pdf=False, flatten=False)
-    render('magnet-2.5in-artboard-2.54in', magnet_artboard(), dpi=300, pdf=False, flatten=False)
+    import shutil
+    if shutil.which('rsvg-convert'):
+        render('keychain-2.25in-artboard-2.625in', keychain_artboard(), dpi=600, pdf=False, flatten=False)
+        render('magnet-2.5in-artboard-2.54in', magnet_artboard(), dpi=300, pdf=False, flatten=False)
+    else:
+        print('rsvg-convert not found: kept the existing single artboards')
     print('templates written to', OUT)
 
 

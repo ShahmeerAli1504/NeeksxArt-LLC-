@@ -1,7 +1,7 @@
 // Print-ready PDF sheets with the customer's images already placed on the press templates.
 //   /api/admin/print-sheet?shop=<shop_orders.id>[&line=<productId>] → online order: each photo × its piece count
 //   /api/admin/print-sheet?order=<event_orders.id>                → pop-up order: every photo in its slot, in order #1, #2… (order number in the margin + file name)
-//   /api/admin/print-sheet?inquiry=<inquiries.id>&kind=round|magnet → the uploaded logo repeated across a full sheet
+//   /api/admin/print-sheet?inquiry=<inquiries.id>&kind=round|round15|round1|magnet → the uploaded logo repeated across a full sheet
 // Staff only.
 import { isAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
@@ -61,7 +61,7 @@ export async function GET(req) {
       const paths = o.photo_paths || [];
       if (!paths.length) return fail('This order has no photos', 404);
 
-      // only the photos whose size has a press template (1.5" keychains don't yet)
+      // each photo goes on the press template for its size (2.25" / 1.5" round, or magnet)
       const slots = paths.map((p, i) => ({ p, kind: pieceKind((o.items || [])[i], o.shape) })).filter(s => s.kind);
       if (!slots.length) return fail('No print template yet for this size. Download the photos one by one.', 404);
       const images = await Promise.all(slots.map(s => download(sb, BUCKETS.events, s.p)));
@@ -73,7 +73,7 @@ export async function GET(req) {
       filename = `${safeName(o.order_id)}-${safeName(o.name)}-print-sheet.pdf`;
     } else if (inquiryId) {
       if (!UUID_RE.test(inquiryId)) return fail('Bad inquiry id');
-      const kind = q.get('kind') === 'magnet' ? 'magnet' : 'round';
+      const kind = Object.hasOwn(SHEETS, q.get('kind') || '') ? q.get('kind') : 'round';
       const { data: r, error } = await sb.from('inquiries').select('name, business, logo_path').eq('id', inquiryId).maybeSingle();
       if (error || !r) return fail('Inquiry not found', 404);
       if (!r.logo_path) return fail('This inquiry has no logo', 404);
@@ -82,7 +82,7 @@ export async function GET(req) {
       const who = r.business || r.name || '';
       const pieces = Array.from({ length: SHEETS[kind].perSheet }, () => ({ image, kind, key: 'logo' }));
       pdf = await buildPrintSheet({ pieces, fit: 'logo', title: `${who} · logo`, label: who ? { main: who } : null });
-      filename = `${safeName(who)}-logo-${kind === 'magnet' ? 'magnets' : 'keychains'}.pdf`;
+      filename = `${safeName(who)}-logo-${{ magnet: 'magnets', round: 'keychains', round15: '1.5in-keychains', round1: '1in-buttons' }[kind]}.pdf`;
     } else {
       return fail('Pass ?shop=, ?order= or ?inquiry=');
     }

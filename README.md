@@ -115,19 +115,24 @@ Logos are in `public/brand/` (`neeksxart-logo-black.png` on light backgrounds, `
 
 Every print sheet is built on the client's **own press templates**, used exactly as they are:
 `Template/2.25in Keychains Latest.png` (MPRO Round 2.25", 12 per sheet, NeeksxArt rim, MPRO strip on the right) and
-`Template/2.5_ S MAGS latest.png` (2.5" magnets, 6 per sheet, flap text). The blank template goes down first and each
-photo is drawn on top, clipped to that template's exact window (measured from the file: keychain window 2.251",
-cut 2.625"; magnet square ≈2.55", octagon 3.345"). Unused spots are left blank. Nothing else is printed on the
-sheet — the order number is in the file name.
+`Template/2.5_ S MAGS latest.png` (2.5" magnets, 6 per sheet, flap text), plus the vector PDFs
+`Template/1.5 - inch template2.pdf` (MPRO Round 1.5", 15 per sheet, punch — 1.5" keychains) and
+`Template/1 - inch template2.pdf` (MPRO Round 1", 35 per sheet, die cut — 1" buttons). The blank template goes down
+first and each photo is drawn on top, clipped to that template's exact window (measured from the file: 2.25" window
+2.251", cut 2.625"; 1.5" window 1.54", cut 1.84"; 1" window 1.02", cut 1.32"; magnet square ≈2.55", octagon 3.345").
+Unused spots are left blank. The order number/name goes in a blank margin (on the 1.5" sheet it also fills the
+template's `####` boxes) and in the file name.
+
+Which sheet a piece goes on: pop-up `keychain15` → 1.5"; online `kc15` → 1.5", `btn1` → 1" (`lib/shop-photos.js`).
 
 Staff dashboard → **Templates** (`/admin/templates`, login required) has the blank sheets (PDF exactly 8.5 × 11 in +
 PNG) and single-piece artboards. Print with the same settings you use for the original template (100% / Actual size).
 
 When a template changes: replace the file in `Template/`, run `python3 scripts/build-print-templates.py`
-(needs Pillow, numpy, scipy, reportlab). It re-measures every window into `lib/print-frames.js` and rebuilds the
+(needs Pillow, numpy, reportlab, pymupdf; rsvg-convert only for the 2.25"/2.5" single artboards). It re-measures every window into `lib/print-frames.js` and rebuilds the
 blank sheets in `print-templates/` — downloads, order sheets and the Sheet maker all follow.
 
-**Sheet maker (bulk):** Templates → *Sheet maker* — pick keychain or magnet, select/drop any number of photos at once
+**Sheet maker (bulk):** Templates → *Sheet maker* — pick 2.25" / 1.5" keychain, 1" button or magnet, select/drop any number of photos at once
 and they fill the slots in order, spilling onto extra sheets. Drag a tile to reposition, slider to zoom, ←/→ to reorder,
 "Copies of each" and "Repeat to fill the last sheet" for logos or multiples, then **Download PDF** (one file, all sheets).
 Runs entirely in the browser (`components/admin/SheetMaker.jsx` + `lib/print-sheet-core.js`) on the same templates — nothing is uploaded,
@@ -135,8 +140,8 @@ so there's no size limit.
 
 **Customer images on the templates:** every pop-up order card has **Download print sheet** — a PDF with all of
 that order's photos placed on the magnet / keychain templates in order (#1 top-left, then across; a 9-pack
-spills onto a second sheet). Inquiries with an uploaded logo get **Logo on keychain sheet** and **Logo on magnet
-sheet**, which fill a whole sheet with the logo inside the safe area. Built by `lib/print-sheet.js`
+spills onto a second sheet). Inquiries with an uploaded logo get **Logo on keychain sheet**, **Logo on magnet
+sheet**, **Logo on 1.5" keychain sheet** and **Logo on 1" button sheet**, which fill a whole sheet with the logo inside the safe area. Built by `lib/print-sheet.js`
 (route `/api/admin/print-sheet`). JPEG photos are embedded untouched; PNG/WebP/SVG logos go through `sharp`.
 
 ## Online checkout (demo payments → Square)

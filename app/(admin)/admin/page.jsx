@@ -130,7 +130,7 @@ export default async function OrdersPage({ searchParams }) {
                 </a>
               ))((o.photo_paths || []).filter((_, i) => pieceKind((o.items || [])[i], o.shape)).length)}
               {(o.photo_paths || []).some((_, i) => !pieceKind((o.items || [])[i], o.shape)) && (
-                <small className="pay-muted">No print template yet for 1.5&quot; keychains. Download those photos above.</small>
+                <small className="pay-muted">Some photos have no print template for their size. Download those photos above.</small>
               )}
               <div className="adm-actions">
                 {NEXT_STEP[o.status] && (
