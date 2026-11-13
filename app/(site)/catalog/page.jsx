@@ -47,7 +47,7 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Design yours in the Merch Studio or email your idea. Tap-to-Connect keychains ask for your link at checkout. All prices are + tax and shipping.
+              Add to cart and check out online, or design yours in the Merch Studio first. Tap-to-Connect keychains ask for your link at checkout. All prices are + tax and shipping.
             </p>
           </div>
           <div className="notes-row">
@@ -68,9 +68,8 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Custom mirror keychains, Tap-to-Connect mirror keychains and pocket mirrors need a quick design consultation before purchase. Email{" "}
-              <a href="mailto:info@neeksxart.com" style={{ color: "var(--accent-text)", fontWeight: 800 }}>info@neeksxart.com</a>
-              {" "}to start.
+              Mirror keychains, Tap-to-Connect mirror keychains and pocket mirrors need a quick design consultation before purchase. Tap{" "}
+              <b>Request to order</b> on any of them to send us your idea, and Neeks will confirm by email.
             </p>
           </div>
           <ShopGrid filter="special" className="shop-grid" />
@@ -89,7 +88,7 @@ export default function CatalogPage() {
               </p>
             </div>
             <div className="ctas">
-              <a href="mailto:info@neeksxart.com?subject=Custom%20order%20inquiry" className="btn btn-ink">
+              <a href="/contact#contactForm" className="btn btn-ink">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                   <path d="M3 7l9 6 9-6"></path>

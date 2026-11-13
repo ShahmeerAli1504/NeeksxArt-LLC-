@@ -84,7 +84,7 @@ export default function MagnetsPage() {
               </p>
             </div>
             <div className="ctas">
-              <a href="mailto:info@neeksxart.com?subject=Custom%20order%20inquiry" className="btn btn-ink">
+              <a href="/contact#contactForm" className="btn btn-ink">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                   <path d="M3 7l9 6 9-6"></path>

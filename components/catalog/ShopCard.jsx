@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { pics, thumbs, money, mailto, bundlesFor } from '@/lib/catalog';
+import { pics, thumbs, money, requestLink, bundlesFor } from '@/lib/catalog';
 import { Arrow } from '@/components/icons';
 import TierTable from './TierTable';
 import AddToCart from '@/components/shop/AddToCart';
@@ -42,7 +42,7 @@ export default function ShopCard({ product: p, photos }) {
         <div className="shop-ctas">
           {p.special ? (
             <>
-              <a className="btn btn-orange" href={mailto(p)}>Email to order <Arrow /></a>
+              <Link className="btn btn-orange" href={requestLink(p)}>Request to order <Arrow /></Link>
               <Link className="link-arrow" href={`/studio?item=${p.id}`}>Preview it</Link>
             </>
           ) : (

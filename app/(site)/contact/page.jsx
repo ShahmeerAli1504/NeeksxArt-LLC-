@@ -63,6 +63,11 @@ export default function ContactPage() {
                 </label>
                 {" "}
                 <label>
+                  <input type="radio" name="topic" value="Special order" />
+                  <span>Special order</span>
+                </label>
+                {" "}
+                <label>
                   <input type="radio" name="topic" value="Event or wedding" />
                   <span>Event or wedding</span>
                 </label>
@@ -228,8 +233,8 @@ export default function ContactPage() {
             </div>
             <div className="side-card">
               <h3>Email us</h3>
-              <p>Send your idea, photos or logo. For custom quantities, Tap-to-Connect or creative assistance, email is the fastest way.</p>
-              <a className="email-card" href="mailto:info@neeksxart.com?subject=Custom%20order%20inquiry">
+              <p>Send your idea, photos or logo with the form. It goes straight to our inbox. For custom quantities, Tap-to-Connect or creative assistance, it&apos;s the fastest way.</p>
+              <a className="email-card" href="#contactForm">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                   <path d="M3 7l9 6 9-6"></path>

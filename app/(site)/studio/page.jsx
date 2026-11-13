@@ -72,6 +72,10 @@ export default function StudioPage() {
                 {" "}Choose your product
               </legend>
               <div className="prod-grid" id="productGrid">
+                <p className="prod-head">
+                  <b>Ready to order</b>
+                  <small>Add to cart and check out online</small>
+                </p>
                 <label>
                   <input type="radio" name="product" value="keychain" defaultChecked />
                   <span>
@@ -80,16 +84,6 @@ export default function StudioPage() {
                     <small>Domed, ring + chain</small>
                   </span>
                 </label>
-                {" "}
-                <label>
-                  <input type="radio" name="product" value="mirror" />
-                  <span>
-                    <i className="pi pi-mirror"></i>
-                    Mirror Keychain
-                    <small>Logo front, mirror back</small>
-                  </span>
-                </label>
-                {" "}
                 <label>
                   <input type="radio" name="product" value="magnet" />
                   <span>
@@ -98,7 +92,6 @@ export default function StudioPage() {
                     <small>Logo or photo</small>
                   </span>
                 </label>
-                {" "}
                 <label>
                   <input type="radio" name="product" value="button" />
                   <span>
@@ -107,16 +100,6 @@ export default function StudioPage() {
                     <small>Pin-back</small>
                   </span>
                 </label>
-                {" "}
-                <label>
-                  <input type="radio" name="product" value="pocket" />
-                  <span>
-                    <i className="pi pi-mirror"></i>
-                    Pocket Mirror
-                    <small>3″ purse-size mirror</small>
-                  </span>
-                </label>
-                {" "}
                 <label>
                   <input type="radio" name="product" value="nfc" />
                   <span>
@@ -125,7 +108,26 @@ export default function StudioPage() {
                     <small>NFC keychain: tap to open your link</small>
                   </span>
                 </label>
-                {" "}
+                <p className="prod-head special">
+                  <b>Special order</b>
+                  <small>Send a request and Neeks confirms by email</small>
+                </p>
+                <label>
+                  <input type="radio" name="product" value="mirror" />
+                  <span>
+                    <i className="pi pi-mirror"></i>
+                    Mirror Keychain
+                    <small>Logo front, mirror back</small>
+                  </span>
+                </label>
+                <label>
+                  <input type="radio" name="product" value="pocket" />
+                  <span>
+                    <i className="pi pi-mirror"></i>
+                    Pocket Mirror
+                    <small>3″ purse-size mirror</small>
+                  </span>
+                </label>
                 <label className="wide">
                   <input type="radio" name="product" value="nfcmirror" />
                   <span>
@@ -329,7 +331,7 @@ export default function StudioPage() {
               </div>
               <p className="fine">
                 No minimums: order singles, or save with a bundle pack. Need a quantity that isn&apos;t a bundle?{" "}
-                <a id="qtyOther" href="mailto:info@neeksxart.com">Email</a> or DM us. Packaging is standard on every order.
+                <a id="qtyOther" href="/contact#contactForm">Send a request</a> or DM us. Packaging is standard on every order.
               </p>
             </fieldset>
             <div className="summary" id="summary" aria-live="polite"></div>

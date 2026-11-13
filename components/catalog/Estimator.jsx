@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { PRODUCTS, pics, money, totalFor, mailto, bundlesFor, bundleAt, qtyLabel } from '@/lib/catalog';
+import { PRODUCTS, pics, money, totalFor, requestLink, bundlesFor, bundleAt, qtyLabel } from '@/lib/catalog';
 import { Arrow } from '@/components/icons';
 import { addToCart } from '@/lib/cart';
 import QtyPicker from '@/components/shop/QtyPicker';
@@ -40,7 +40,7 @@ export default function Estimator({ className, ...rest }) {
           <div className="field">
             <label>Single or bundle pack</label>
             <QtyPicker product={p} value={qty} onChange={q => { setQty(q); setAdded(''); }} />
-            <small className="est-other">Need a quantity that isn&apos;t a bundle? <a href={mailto(p)}>Email</a> or DM us.</small>
+            <small className="est-other">Need a quantity that isn&apos;t a bundle? <Link href={requestLink(p)}>Send a request</Link> or DM us.</small>
           </div>
         </div>
         <div className="est-out">
@@ -52,7 +52,7 @@ export default function Estimator({ className, ...rest }) {
             {next ? `The ${next.qty}-pack brings it to ${money(next.each)} each.` : "You're at our best price per piece."}
           </p>
           {p.special ? (
-            <a className="btn btn-orange" href={mailto(p, qty)}>Email to order <Arrow /></a>
+            <Link className="btn btn-orange" href={requestLink(p, qty)}>Request to order <Arrow /></Link>
           ) : (
             <div className="est-btns">
               <button type="button" className="btn btn-orange" onClick={() => { addToCart(p.id, qty); setAdded(`${qtyLabel(p, qty)} added`); }}>Add to cart <Arrow /></button>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { addToCart } from '@/lib/cart';
 import { productById } from '@/lib/checkout';
-import { money, totalFor, qtyLabel, EMAIL } from '@/lib/catalog';
+import { money, totalFor, qtyLabel, requestLink } from '@/lib/catalog';
 import QtyPicker from './QtyPicker';
 
 /** single / bundle-pack picker + "Add to cart" for a catalog product; `compact` hides the live price line */
@@ -24,7 +24,7 @@ export default function AddToCart({ id, defaultQty = 1, compact = false }) {
         </button>
       </div>
       {added && <small className="atc-added">Added ✓ <Link href="/checkout">Go to checkout →</Link></small>}
-      <small className="atc-other">Need a different quantity? <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Custom quantity: ' + p.name)}`}>Email</a> or DM us.</small>
+      <small className="atc-other">Need a different quantity? <Link href={requestLink(p)}>Send a request</Link> or DM us.</small>
     </div>
   );
 }

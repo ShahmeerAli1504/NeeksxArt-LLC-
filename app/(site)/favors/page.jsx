@@ -217,7 +217,7 @@ export default function FavorsPage() {
                 <span className="script" style={{ textTransform: "none" }}>email?</span>
               </h3>
               <p>Send your event details, date and any photos straight to our inbox.</p>
-              <a className="email-card" href="mailto:info@neeksxart.com?subject=Event%20quote%20request">
+              <a className="email-card" href="#quoteForm">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                   <path d="M3 7l9 6 9-6"></path>
