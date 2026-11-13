@@ -26,6 +26,8 @@
 .shop-body summary{cursor:pointer;font-weight:800;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between}
 .shop-body summary::after{content:"+";color:var(--accent-text);font-family:var(--display);font-size:1.3rem;line-height:1}
 .shop-body details[open] summary::after{content:"–"}
+.shop-finish{display:grid;gap:8px;margin:2px 0 6px}
+.shop-finish>small{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft)}
 .shop-ctas{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
 .shop-ctas .btn{padding:13px 20px;font-size:.8rem}
 

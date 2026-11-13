@@ -315,6 +315,7 @@ section{position:relative}
 .field textarea{min-height:140px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink);background:#fff}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.finish-field:not(.on){display:none}
 .chips label{cursor:pointer;position:relative}
 .chips input{position:absolute;opacity:0;pointer-events:none}
 .chips span{display:inline-block;padding:10px 16px;border-radius:999px;border:1.5px solid var(--line);font-weight:700;font-size:.86rem;text-transform:none;letter-spacing:0;transition:all .2s;background:var(--paper)}

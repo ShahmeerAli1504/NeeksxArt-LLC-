@@ -150,6 +150,20 @@ export default function ContactPage() {
                 </select>
               </div>
             </div>
+            <div className="field finish-field" id="finishField">
+              <label>Mirror finish</label>
+              <div className="chips">
+                <label>
+                  <input type="radio" name="finish" value="Sandy Mylar" defaultChecked />
+                  <span>Sandy Mylar (standard)</span>
+                </label>
+                {" "}
+                <label>
+                  <input type="radio" name="finish" value="Glossy" />
+                  <span>Glossy</span>
+                </label>
+              </div>
+            </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="deadline">Need it by</label>
