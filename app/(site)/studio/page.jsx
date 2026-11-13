@@ -301,12 +301,6 @@ export default function StudioPage() {
               <div className="ctrl">
                 <input type="url" id="nfcUrl" placeholder="https://instagram.com/yourbusiness" />
               </div>
-              <div className="chips">
-                <label>
-                  <input type="checkbox" id="nfcIcon" defaultChecked />
-                  <span>Show tap icon on the front</span>
-                </label>
-              </div>
             </fieldset>
             <fieldset className="group" data-step="7">
               <legend>
