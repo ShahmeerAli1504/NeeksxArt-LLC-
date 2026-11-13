@@ -262,8 +262,9 @@ export default function StudioPage() {
               <div className="ctrl">
                 <label>Finish</label>
                 <p className="finish-readout" id="finishReadout">Standard glossy</p>
+                <div className="chips hidden" id="finishChips"></div>
               </div>
-              <p className="fine">These are the sizes we make. Buttons and keychains are standard glossy, mirror keychains are Sandy Mylar and pocket mirrors are cotton.</p>
+              <p className="fine">These are the sizes we make. Buttons and keychains are standard glossy, mirror keychains are Sandy Mylar or glossy, and pocket mirrors are cotton.</p>
             </fieldset>
             <fieldset className="group" data-step="5" id="hardwareGroup">
               <legend>
