@@ -4,7 +4,6 @@ import { supabaseAdmin, signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { setOrderStatus } from '@/lib/admin-actions';
 import { STATUS_LABEL } from '@/lib/bundles';
 import { pieceKind } from '@/lib/print-sheet-core';
-import AdminNav from '@/components/admin/AdminNav';
 import AutoRefresh from '@/components/admin/AutoRefresh';
 import PopupControl from '@/components/admin/PopupControl';
 import FilterBar from '@/components/admin/FilterBar';
@@ -33,7 +32,6 @@ export default async function OrdersPage({ searchParams }) {
   if (!sb) {
     return (
       <>
-        <AdminNav active="orders" />
         <div className="adm-wrap"><p className="adm-empty">Supabase isn&apos;t connected yet. Add the keys from README → Supabase setup.</p></div>
       </>
     );
@@ -65,7 +63,6 @@ export default async function OrdersPage({ searchParams }) {
 
   return (
     <>
-      <AdminNav active="orders" />
       {view === 'active' && <AutoRefresh seconds={15} />}
       <div className="adm-wrap">
         <div className="adm-head">

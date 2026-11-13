@@ -5,6 +5,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ['nodemailer'],
+  // switching back to a dashboard tab seen in the last 30s is instant (saving anything, the 30s badge check
+  // and the pop-up queue's auto-refresh all still fetch fresh data)
+  experimental: { staleTimes: { dynamic: 30 } },
   // lets the /media fallback route read the local photos when deployed without Supabase
   // /api/admin/templates reads the print templates from disk
   outputFileTracingIncludes: {

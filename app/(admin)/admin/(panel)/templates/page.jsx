@@ -1,7 +1,6 @@
 import { Fragment } from 'react';
 import { requireAdmin } from '@/lib/admin-auth';
 import { PRINT_TEMPLATES } from '@/lib/print-templates';
-import AdminNav from '@/components/admin/AdminNav';
 import SheetMaker from '@/components/admin/SheetMaker';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,6 @@ export default async function TemplatesPage() {
 
   return (
     <>
-      <AdminNav active="templates" />
       <div className="adm-wrap">
         <div className="adm-head">
           <div>

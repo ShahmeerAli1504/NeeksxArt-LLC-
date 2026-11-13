@@ -4,7 +4,6 @@ import { listOrders } from '@/lib/shop-orders';
 import { setShopStatus, collectBalance, refundOrder, deleteDemoOrders } from '@/lib/shop-actions';
 import { fmt, CHECKOUT, LARGE_ORDER } from '@/lib/checkout';
 import { paymentsMode, squareEnv } from '@/lib/payments';
-import AdminNav from '@/components/admin/AdminNav';
 import { signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { photoSpec } from '@/lib/shop-photos';
 import { canPost } from '@/lib/consent';
@@ -78,7 +77,6 @@ export default async function PaymentsPage({ searchParams }) {
 
   return (
     <>
-      <AdminNav active="payments" />
       <div className="adm-wrap">
         <div className="adm-head">
           <div>

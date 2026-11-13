@@ -2,7 +2,6 @@ import { requireAdmin } from '@/lib/admin-auth';
 import { PRODUCTS } from '@/lib/catalog';
 import { getProductPhotos, SLOTS } from '@/lib/product-photos';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import AdminNav from '@/components/admin/AdminNav';
 import PhotoSlot from '@/components/admin/PhotoSlot';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +14,6 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <AdminNav active="products" />
       <div className="adm-wrap">
         <div className="adm-head">
           <div>

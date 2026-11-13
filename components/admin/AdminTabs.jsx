@@ -3,7 +3,7 @@
 // Checks every 30 seconds, so a new order shows up without reloading; the browser tab title gets the total too.
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const TABS = [
   ['orders', '/admin', 'Pop-up orders'],
@@ -15,9 +15,11 @@ const TABS = [
 ];
 const LABEL = { orders: 'new pop-up orders', inquiries: 'new inquiries', reviews: 'reviews to approve', payments: 'new online orders' };
 
-export default function AdminTabs({ active, initial }) {
+export default function AdminTabs({ initial }) {
   const [counts, setCounts] = useState(initial || {});
   const router = useRouter();
+  const path = usePathname();
+  const active = (TABS.find(([, href]) => href !== '/admin' && path.startsWith(href)) || TABS[0])[0];
   const last = useRef(initial || {});
 
   useEffect(() => {

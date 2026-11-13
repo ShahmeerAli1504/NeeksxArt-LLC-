@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { setReviewStatus, deleteReview, addYelpReview } from '@/lib/review-actions';
-import AdminNav from '@/components/admin/AdminNav';
 import FilterBar from '@/components/admin/FilterBar';
 import { readFilters, inRange, textMatch, hrefWith, filterNote } from '@/lib/admin-filters';
 
@@ -44,7 +43,6 @@ export default async function ReviewsAdmin({ searchParams }) {
 
   return (
     <>
-      <AdminNav active="reviews" />
       <div className="adm-wrap">
         <div className="adm-head">
           <div>

@@ -22,6 +22,16 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .adm-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .adm-tabs a{padding:8px 14px;border:1px solid var(--line-dark);border-radius:999px;font-size:.85rem;font-weight:700;text-decoration:none;color:var(--cream-soft)}
 .adm-tabs a.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+/* loading skeleton shown while a dashboard tab's data loads */
+.adm-loading{display:grid;gap:16px}
+.sk{border-radius:14px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 75%);background-size:200% 100%;animation:sk-shine 1.1s linear infinite}
+.sk-title{height:52px;width:min(320px,70%)}
+.sk-line{height:16px;width:min(520px,90%);border-radius:8px}
+.sk-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sk-tile{height:104px}
+.sk-card{height:180px}
+@keyframes sk-shine{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
 .pay-filter{display:grid;gap:12px;margin-bottom:18px}
 .pay-filter-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
 .pay-filter-row label{display:grid;gap:4px;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-soft)}

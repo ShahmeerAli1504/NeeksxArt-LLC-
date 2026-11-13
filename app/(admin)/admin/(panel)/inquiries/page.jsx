@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin, signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { setInquiryStatus } from '@/lib/admin-actions';
-import AdminNav from '@/components/admin/AdminNav';
 import FilterBar from '@/components/admin/FilterBar';
 import { readFilters, inRange, textMatch, dbBounds, hrefWith, filterNote } from '@/lib/admin-filters';
 
@@ -42,7 +41,6 @@ export default async function InquiriesPage({ searchParams }) {
 
   return (
     <>
-      <AdminNav active="inquiries" />
       <div className="adm-wrap">
         <div className="adm-head">
           <div>
