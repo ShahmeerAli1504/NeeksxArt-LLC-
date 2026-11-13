@@ -161,15 +161,17 @@ The server re-prices every order, so a customer can't change prices in their bro
 exactly how it was calculated, tax, total, collected, balance due, Square fee, net), transactions, and buttons to move
 the order along or refund it (older deposit orders still show "Collect balance"). "Delete demo orders" clears test orders before a client demo.
 
-**Demo mode (now):** `PAYMENTS_MODE` unset or `demo` → any card number is accepted and nothing is charged; orders and
+**Demo mode:** no Square keys set (or `PAYMENTS_MODE=demo`) → any card number is accepted and nothing is charged; orders and
 the dashboard are marked *Demo*. Run `supabase/shop-orders.sql` once in Supabase → SQL Editor so orders are saved
 (until then they're kept in server memory on `npm run dev`).
 
-**Going live with Square:** create an app in the Square Developer Dashboard, set `PAYMENTS_MODE=square`,
-`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENV` (`sandbox` first, then `production`),
-`NEXT_PUBLIC_SQUARE_APP_ID`, `NEXT_PUBLIC_SQUARE_LOCATION_ID`, then swap the demo card inputs in
-`components/shop/Checkout.jsx` for Square's Web Payments SDK card field (`card.tokenize()` → `payment.sourceId`).
-`lib/payments.js` already has the Square Payments API call. Confirm tax rates before going live.
+**Square:** Square Developer Dashboard → your app → **Credentials**, then set two env vars (`.env.local` and Vercel):
+`SQUARE_APP_ID` (Application ID) and `SQUARE_ACCESS_TOKEN` (Access token). Restart the server. Checkout then shows
+Square's secure card field (Web Payments SDK, `components/shop/SquareCard.jsx`) and charges through the Payments API
+(`lib/payments.js`). Sandbox vs production follows the Application ID (sandbox IDs start with `sandbox-`), and the
+Location ID is looked up from the token (set `SQUARE_LOCATION_ID` to pin one). Sandbox orders are marked *Demo* since
+no real money moves; test with card `4111 1111 1111 1111`, any future date, CVV `111`. To go live, swap in the
+**Production** Application ID and Access token. Confirm tax rates before going live.
 
 ## Socials
 [Instagram](https://www.instagram.com/neeksxart/) · [Facebook](https://www.facebook.com/NEEKSxART/) · [TikTok](https://www.tiktok.com/@neeksxart)

@@ -1,9 +1,9 @@
 'use client';
-// Checkout (DEMO payments). Shows exactly how the total is built: tiered product pricing,
+// Checkout. Shows exactly how the total is built: tiered product pricing,
 // delivery: free Reno/Sparks local delivery, or $8 flat-rate shipping (free out of state at $150 and over) and Nevada sales tax.
-// Every order is paid in full. The card form mimics Square's: any card is accepted and nothing is charged.
-// Going live = swap DemoCardForm for Square's Web Payments SDK `card.tokenize()` (see README).
-import { useEffect, useMemo, useState } from 'react';
+// Every order is paid in full. With Square keys set (see lib/payments.js) the card is entered in Square's
+// own secure field and charged through Square; without them it's a demo form that accepts any card.
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
@@ -14,6 +14,7 @@ import { CONSENT, MINOR_NOTE, cleanConsent } from '@/lib/consent';
 import QtyPicker from './QtyPicker';
 import PhotoStep, { exportPhoto, assigned } from './PhotoStep';
 import { photoSpec } from '@/lib/shop-photos';
+import SquareCard from './SquareCard';
 
 /** Yes / No cards for one permission question */
 function Ask({ id, def, value, onChange }) {
@@ -63,6 +64,19 @@ export default function Checkout() {
   const [tapLinks, setTapLinks] = useState({}); // { [productId]: 'https://…' } for Tap-to-Connect lines
   const [tapChecked, setTapChecked] = useState({}); // { [productId]: true } once the customer confirms the link opens the right page
   const [consent, setConsent] = useState({ social: '', minor: '' }); // 'yes' | 'no'
+  const [payCfg, setPayCfg] = useState(null); // null while loading · { mode: 'demo' } · { mode: 'square', appId, locationId, env } · { mode, error }
+  const squareCard = useRef(null);
+
+  useEffect(() => {
+    let off = false;
+    fetch('/api/checkout/config', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(cfg => { if (!off) setPayCfg(cfg); })
+      .catch(() => { if (!off) setPayCfg({ mode: 'square', error: 'Could not load the payment form. Check your connection and reload the page.' }); });
+    return () => { off = true; };
+  }, []);
+  const isDemo = payCfg?.mode === 'demo';
+  const squareOk = payCfg?.mode === 'square' && !payCfg.error;
 
   // carts saved before bundle-only pricing may hold a quantity that isn't orderable now: snap it to the
   // closest single quantity / bundle below it, and drop special-order items (those are email-only)
@@ -102,11 +116,34 @@ export default function Checkout() {
     const unchecked = tapLines.find(l => !tapChecked[l.id]);
     if (unchecked) return setErr(`Open your tap link for ${unchecked.name} and tick the box to confirm it goes to the right page.`);
     if (hasPhotos && !cleanConsent(consent)) return setErr('Please answer both photo permission questions.');
-    if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
-    if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
-    if (!/^\d{3,4}$/.test(card.cvc)) return setErr('Enter the 3 or 4 digit security code.');
+    if (!payCfg) return setErr('The payment form is still loading. Please wait a moment.');
+    if (payCfg.error) return setErr(payCfg.error);
+    if (isDemo) {
+      if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
+      if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
+      if (!/^\d{3,4}$/.test(card.cvc)) return setErr('Enter the 3 or 4 digit security code.');
+    }
     setBusy(true);
     try {
+      // 0. card → one-time Square token (checks the card details before anything is uploaded)
+      let payment;
+      if (isDemo) {
+        payment = { sourceId: 'cnon:demo-' + Math.random().toString(36).slice(2, 12), brand: brandOf(digits), last4: digits.slice(-4), exp: card.exp.replace(/\s/g, ''), postal: card.zip };
+      } else {
+        setBusyText('Checking card…');
+        const [givenName, ...rest] = c.name.trim().split(/\s+/);
+        const t = await squareCard.current?.tokenize({
+          amount: (q.dueNow / 100).toFixed(2), currencyCode: 'USD', intent: 'CHARGE',
+          customerInitiated: true, sellerKeyedIn: false,
+          billingContact: {
+            givenName, familyName: rest.join(' ') || undefined, email: c.email || undefined, phone: c.phone || undefined,
+            addressLines: [c.line1, c.line2].filter(Boolean), city: c.city || undefined, state: c.state || undefined,
+            postalCode: c.zip || undefined, countryCode: 'US'
+          }
+        });
+        if (!t) throw new Error('The card form is still loading. Please wait a moment and try again.');
+        payment = { sourceId: t.token, brand: t.brand, last4: t.last4 };
+      }
       // 1. upload the cropped photos straight to storage (before the card is charged)
       let photoPayload = null;
       const all = photoLines.flatMap(l => photos[l.id].map(p => ({ lineId: l.id, p })));
@@ -134,8 +171,6 @@ export default function Checkout() {
         }
       }
       setBusyText('Processing payment…');
-      // Square would return a one-time token ("nonce") here. The full card number never leaves the browser.
-      const sourceId = 'cnon:demo-' + Math.random().toString(36).slice(2, 12);
       const res = await fetch('/api/checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +178,7 @@ export default function Checkout() {
           customer: { name: c.name, email: c.email, phone: c.phone },
           address: { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
           note: c.note,
-          payment: { sourceId, brand: brandOf(digits), last4: digits.slice(-4), exp: card.exp.replace(/\s/g, ''), postal: card.zip },
+          payment,
           expectedTotal: q.total,
           photos: photoPayload,
           tapLinks: Object.fromEntries(tapLines.map(l => [l.id, cleanTapUrl(tapLinks[l.id])])),
@@ -175,9 +210,16 @@ export default function Checkout() {
   return (
     <form className="co" onSubmit={pay} noValidate>
       <div className="co-main">
-        <div className="co-demo" role="note">
-          <b>Demo checkout</b> No real payment is taken. Any card number is accepted, e.g. <code>4111 1111 1111 1111</code>, any future date, any CVC.
-        </div>
+        {isDemo && (
+          <div className="co-demo" role="note">
+            <b>Demo checkout</b> No real payment is taken. Any card number is accepted, e.g. <code>4111 1111 1111 1111</code>, any future date, any CVC.
+          </div>
+        )}
+        {squareOk && payCfg.env === 'sandbox' && (
+          <div className="co-demo" role="note">
+            <b>Square sandbox</b> Test payments only, no real money moves. Use Square&apos;s test card <code>4111 1111 1111 1111</code>, any future date, CVV <code>111</code>, any ZIP.
+          </div>
+        )}
 
         <fieldset className="co-step">
           <legend><span>1</span> Your details</legend>
@@ -264,7 +306,10 @@ export default function Checkout() {
               before you pay and we&apos;ll work out the order and payment with you.
             </p>
           )}
-          <div className="sq-card">
+          {!payCfg && <div className="sq-card"><small className="sq-brand">Loading secure card form…</small></div>}
+          {payCfg?.error && <p className="co-err" role="alert">{payCfg.error} Nothing will be charged. Please try again shortly or email us.</p>}
+          {squareOk && <SquareCard ref={squareCard} config={payCfg} />}
+          {isDemo && <div className="sq-card">
             <div className="sq-card-head"><span>Card</span><span className="sq-mark">▣ Square <i>demo</i></span></div>
             <div className="sq-fields">
               <input className="sq-num" aria-label="Card number" placeholder="Card number" inputMode="numeric" autoComplete="cc-number"
@@ -277,9 +322,9 @@ export default function Checkout() {
                 value={card.zip} onChange={e => setCard(v => ({ ...v, zip: e.target.value.replace(/\D/g, '').slice(0, 5) }))} />
             </div>
             {digits.length >= 2 && <small className="sq-brand">{brandOf(digits)}</small>}
-          </div>
+          </div>}
           {err && <p className="co-err" role="alert">{err}</p>}
-          <button className="btn btn-orange co-pay" type="submit" disabled={busy || !ready}>
+          <button className="btn btn-orange co-pay" type="submit" disabled={busy || !ready || !payCfg || !!payCfg.error}>
             {busy ? (busyText || 'Processing…') : `Pay ${fmt(q.dueNow)}`}
           </button>
           <small className="co-fine">Payments are processed securely by Square. We print exactly the photos you upload and crop, with no proof step. See our <Link href="/policy">policy</Link>.</small>

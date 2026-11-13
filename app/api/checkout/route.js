@@ -104,7 +104,7 @@ export async function POST(req) {
   if (!pay.sourceId) return bad('Missing card details.');
   const orderNo = newOrderNo();
   const charge = await chargeCard({
-    sourceId: clean(pay.sourceId, 200), amountCents: q.dueNow, orderNo, email: customer.email,
+    sourceId: clean(pay.sourceId, 400), verificationToken: clean(pay.verificationToken, 2000) || undefined, amountCents: q.dueNow, orderNo, email: customer.email,
     note: `${orderNo} · ${q.lines.map(l => `${l.qty}x ${l.name}`).join(', ')}`,
     brand: clean(pay.brand, 30), last4: clean(pay.last4, 4).replace(/\D/g, '')
   });

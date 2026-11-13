@@ -178,6 +178,7 @@
 .sq-fields input:first-child{border-left:0}
 .sq-fields input:focus{outline:2px solid var(--ink);outline-offset:-2px}
 .sq-brand{display:block;padding:6px 14px 10px;color:var(--text-soft);font-weight:700}
+.sq-live-field{padding:14px 14px 0;min-height:60px}
 .co-err{margin-top:12px;color:#b91c1c;font-weight:700}
 .co-ask-q{font-weight:700;font-size:.95rem;margin:4px 0 8px}
 .co-ask-q em{color:#b91c1c;font-style:normal}
