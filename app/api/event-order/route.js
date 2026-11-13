@@ -9,6 +9,7 @@ import { sendEmail, emailConfigured, siteUrl } from '@/lib/email';
 import { orderEmail, receivedAt } from '@/lib/email-templates';
 import { getPopup } from '@/lib/popup';
 import { BUNDLES, cleanTapUrl } from '@/lib/bundles';
+import { cleanConsent, consentLine } from '@/lib/consent';
 import { withTax } from '@/lib/popup-tax';
 import { isAdmin } from '@/lib/admin-auth';
 
@@ -35,6 +36,8 @@ export async function POST(req) {
   const tapUrl = pack?.tap ? cleanTapUrl(b.tapUrl) : '';
   if (pack?.tap && !tapUrl) return NextResponse.json({ ok: false, error: 'Add a valid tap link (the website or profile the keychains should open).' }, { status: 400 });
   const note = clean(b.note, 500);
+  // photo permissions (the order page requires both answers; an old cached page may not send them → "not recorded", treated as do-not-post)
+  const consent = cleanConsent(b.consent);
   const details = {
     event_name: popup.live ? popup.name : 'Preview',
     event_slug: popup.live ? popup.slug : 'preview',
@@ -47,8 +50,8 @@ export async function POST(req) {
     name,
     phone: clean(b.phone, 40) || null,
     email: clean(b.email, 120) || null,
-    // the tap link rides in the note so it shows on the order board without a schema change
-    note: (tapUrl ? `Tap link: ${tapUrl}${note ? ' | ' + note : ''}` : note) || null
+    // the tap link and photo permissions ride in the note so they show on the order board without a schema change
+    note: [tapUrl && `Tap link: ${tapUrl}`, consentLine(consent), note].filter(Boolean).join(' | ')
   };
 
   const sb = supabaseAdmin();

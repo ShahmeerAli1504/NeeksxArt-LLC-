@@ -47,7 +47,7 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Design yours in the Merch Studio or email your idea. All prices are + tax and shipping.
+              Design yours in the Merch Studio or email your idea. Tap-to-Connect keychains ask for your link at checkout. All prices are + tax and shipping.
             </p>
           </div>
           <div className="notes-row">
@@ -68,7 +68,7 @@ export default function CatalogPage() {
               </h2>
             </div>
             <p className="lead reveal d2">
-              Custom mirror keychains, Tap-to-Connect keychains and pocket mirrors need a quick design consultation before purchase. Email{" "}
+              Custom mirror keychains, Tap-to-Connect mirror keychains and pocket mirrors need a quick design consultation before purchase. Email{" "}
               <a href="mailto:info@neeksxart.com" style={{ color: "var(--accent-text)", fontWeight: 800 }}>info@neeksxart.com</a>
               {" "}to start.
             </p>

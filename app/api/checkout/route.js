@@ -1,12 +1,14 @@
 // Online checkout. Re-prices the cart on the server (the browser's numbers are never trusted),
 // charges the card (demo mode approves everything), saves the order and emails both sides.
 import { NextResponse } from 'next/server';
-import { quote, fmt } from '@/lib/checkout';
+import { quote, fmt, needsTapLink } from '@/lib/checkout';
 import { chargeCard, paymentsMode } from '@/lib/payments';
-import { insertOrder, updateOrder, newOrderNo } from '@/lib/shop-orders';
+import { insertOrder, updateOrder, newOrderNo, getOrderByNo } from '@/lib/shop-orders';
 import { sendEmail, table, esc, siteUrl } from '@/lib/email';
 import { supabaseAdmin, BUCKETS } from '@/lib/supabase/admin';
 import { needsPhotos } from '@/lib/shop-photos';
+import { cleanTapUrl } from '@/lib/bundles';
+import { cleanConsent, consentLine } from '@/lib/consent';
 
 const UUID_RE = /^[0-9a-f-]{36}$/i;
 
@@ -82,6 +84,17 @@ export async function POST(req) {
   const photos = await checkPhotos(b.photos, q.lines);
   if (photos.error) return bad(photos.error);
 
+  // Tap-to-Connect lines need the link we program into their NFC chips
+  const tapLinks = {};
+  for (const l of q.lines.filter(l => needsTapLink(l.id))) {
+    const url = cleanTapUrl(b.tapLinks?.[l.id]);
+    if (!url) return bad(`Add a valid tap link for ${l.name}.`);
+    tapLinks[l.id] = url;
+  }
+  // photo permissions (social media + children in the photos), required whenever photos are printed
+  const consent = cleanConsent(b.consent);
+  if (q.lines.some(l => needsPhotos(l.id)) && !consent) return bad('Please answer both photo permission questions.');
+
   const pay = b.payment || {};
   if (!pay.sourceId) return bad('Missing card details.');
   const orderNo = newOrderNo();
@@ -98,10 +111,15 @@ export async function POST(req) {
     status: 'new',
     payment_status: q.balance > 0 ? 'deposit' : 'paid',
     demo: !!charge.demo,
-    customer,
+    // photo permissions ride with the customer: { social, minor } (no schema change)
+    customer: consent ? { ...customer, consent } : customer,
     fulfillment: { method, label: q.delivery.label, address, explain: q.delivery.explain },
-    // photos ride on their line: [{ path, count }] in the private customer-uploads bucket
-    items: q.lines.map(l => (photos.byLine[l.id] ? { ...l, photos: photos.byLine[l.id] } : l)),
+    // photos ride on their line: [{ path, count }] in the private customer-uploads bucket; TTC lines carry their tap link
+    items: q.lines.map(l => ({
+      ...l,
+      ...(photos.byLine[l.id] ? { photos: photos.byLine[l.id] } : {}),
+      ...(tapLinks[l.id] ? { tapUrl: tapLinks[l.id] } : {})
+    })),
     tax_label: q.tax.label,
     amounts: {
       subtotal: q.subtotal, delivery: q.delivery.amount, tax: q.tax.amount, tax_rate: q.tax.rate, tax_explain: q.tax.explain,
@@ -111,13 +129,6 @@ export async function POST(req) {
     note: clean(b.note, 500)
   };
 
-  let saved;
-  try { saved = await insertOrder(row); }
-  catch (e) {
-    console.error('save shop order', e);
-    return NextResponse.json({ error: 'Payment went through but we could not save the order. Please contact us with ' + orderNo }, { status: 500 });
-  }
-
   // emails (skipped quietly if SMTP isn't configured)
   const rows = [
     ...q.lines.map(l => [`${l.qty} × ${l.name}`, fmt(l.totalCents)]),
@@ -126,19 +137,60 @@ export async function POST(req) {
     ...(q.balance ? [['Balance due', fmt(q.balance)]] : [])
   ];
   const demoNote = charge.demo ? '<p style="color:#c9521b"><b>DEMO ORDER — no card was charged.</b></p>' : '';
+  const tapHtml = Object.keys(tapLinks).length
+    ? `<p><b>Tap links (program the NFC chips):</b><br>${q.lines.filter(l => tapLinks[l.id]).map(l => `${esc(l.name)}: <a href="${esc(tapLinks[l.id])}">${esc(tapLinks[l.id])}</a>`).join('<br>')}</p>` : '';
+  const consentHtml = consent ? `<p><b>${esc(consentLine(consent))}</b></p>` : '';
+  const ownerHtml = `${demoNote}<h2>${esc(orderNo)}</h2><p>${esc(customer.name)} · ${esc(customer.email)} ${esc(customer.phone)}</p>${table(rows)}
+             <p><b>${esc(q.delivery.label)}</b>${address ? `<br>${esc(address.line1)} ${esc(address.line2)}<br>${esc(address.city)}, ${esc(address.state)} ${esc(address.zip)}` : ''}</p>
+             ${tapHtml}${consentHtml}
+             <p>Square fee ${fmt(q.fee.amount)} · Net ${fmt(q.net)}</p>${row.note ? `<p>Note: ${esc(row.note)}</p>` : ''}`;
+
+  // save the order; a hiccup gets two more tries. The card is already charged at this point, so if it
+  // still fails the owner gets the whole order by email (photo paths included) and nothing is lost.
+  let saved, saveErr;
+  for (let attempt = 1; attempt <= 3 && !saved; attempt++) {
+    try { saved = await insertOrder(row); }
+    catch (e) {
+      saveErr = e;
+      // a retry that hits "duplicate order number" means an earlier try did save (only its reply was lost)
+      if (attempt > 1 && e?.code === '23505') {
+        const existing = await getOrderByNo(orderNo).catch(() => null);
+        if (existing) { saved = { order: existing, storage: 'supabase' }; break; }
+      }
+      console.error(`save shop order ${orderNo} (attempt ${attempt})`, e?.code || '', e?.message || e, e?.details || '', e?.hint || '');
+      if (attempt < 3) await new Promise(r => setTimeout(r, 400 * attempt));
+    }
+  }
+  if (!saved) {
+    const why = [saveErr?.code, saveErr?.message, saveErr?.details, saveErr?.hint].filter(Boolean).join(' · ') || String(saveErr);
+    const photoList = Object.values(photos.byLine).flat().map(p => `${esc(p.path)} × ${p.count}`).join('<br>');
+    const rescue = await sendEmail({
+      subject: `${charge.demo ? '[DEMO] ' : ''}ACTION NEEDED: online order ${orderNo} was paid but NOT saved`,
+      replyTo: customer.email,
+      html: `<p style="color:#b91c1c"><b>The card was charged (${esc(charge.id)}) but the order could not be saved to the dashboard.</b> Everything you need to make it is below.</p>
+             <p>Database error: <code>${esc(why)}</code></p>${ownerHtml}
+             ${photoList ? `<p><b>Photos</b> (Supabase → Storage → customer-uploads):<br>${photoList}</p>` : ''}`
+    }).catch(e => { console.error('rescue email', orderNo, e); return null; });
+    const told = !!rescue?.sent;
+    console.error('checkout', orderNo, 'NOT SAVED', `rescue_email=${told ? 'sent' : 'failed'}`, why);
+    return NextResponse.json({
+      error: told
+        ? `Your payment went through and we received your order (${orderNo}), but our system hiccupped saving it. No need to pay again: we'll email you to confirm.`
+        : `Payment went through but we could not save the order. Please don't pay again; contact us with ${orderNo}.`
+    }, { status: 500 });
+  }
+
   const [ownerMail, customerMail] = await Promise.allSettled([
     sendEmail({
       subject: `${charge.demo ? '[DEMO] ' : ''}New online order ${orderNo} — ${fmt(q.dueNow)} paid`,
       replyTo: customer.email,
-      html: `${demoNote}<h2>${esc(orderNo)}</h2><p>${esc(customer.name)} · ${esc(customer.email)} ${esc(customer.phone)}</p>${table(rows)}
-             <p><b>${esc(q.delivery.label)}</b>${address ? `<br>${esc(address.line1)} ${esc(address.line2)}<br>${esc(address.city)}, ${esc(address.state)} ${esc(address.zip)}` : ''}</p>
-             <p>Square fee ${fmt(q.fee.amount)} · Net ${fmt(q.net)}</p>${row.note ? `<p>Note: ${esc(row.note)}</p>` : ''}
+      html: `${ownerHtml}
              ${photos.total ? `<p><b>${photos.total} photo${photos.total === 1 ? '' : 's'} uploaded.</b> <a href="${siteUrl()}/admin/payments">Open Dashboard → Payments</a> to see them and download the print sheet.</p>` : ''}`
     }),
     sendEmail({
       to: customer.email, fromName: 'NeeksxArt',
       subject: `Your NeeksxArt order ${orderNo}`,
-      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! ${photos.total ? 'We print exactly the photos you uploaded and cropped, and we' : 'We'}'ll let you know when it's on the way.</p>${table(rows)}`
+      html: `${demoNote}<p>Hi ${esc(customer.name.split(' ')[0])}, thanks for your order! ${photos.total ? 'We print exactly the photos you uploaded and cropped, and we' : 'We'}'ll let you know when it's on the way.</p>${table(rows)}${tapHtml}${consentHtml}`
     })
   ]);
 

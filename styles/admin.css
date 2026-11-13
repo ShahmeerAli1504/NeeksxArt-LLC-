@@ -151,6 +151,13 @@ body:has(.adm){background:var(--ink);color:var(--paper)}
 .pay-items small{display:block;color:var(--cream-soft);font-size:.75rem}
 .pay-ful{font-size:.9rem;line-height:1.5}
 .pay-ful a{color:var(--accent-text)}
+.pay-consent{margin-top:8px;padding:8px 10px;border-radius:10px;border:1px solid}
+.pay-consent b{display:block}
+.pay-consent small{opacity:.8}
+.pay-consent.ok{border-color:#16a34a;background:rgba(22,163,74,.08)}
+.pay-consent.no{border-color:#b91c1c;background:rgba(185,28,28,.08)}
+.pay-tap{display:block;word-break:break-all}
+.pay-tap a{color:var(--accent-text)}
 .pay-explain{margin:6px 0 0;padding:10px 12px 10px 26px;background:var(--ink-3);border-radius:10px;font-size:.8rem;color:#d6d6d6;display:grid;gap:3px}
 .pay-money{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:.92rem;background:var(--ink-3);border-radius:12px;padding:12px 14px}
 .pay-money dt small{display:block;color:var(--cream-soft);font-size:.72rem}

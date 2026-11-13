@@ -7,6 +7,7 @@ import { paymentsMode } from '@/lib/payments';
 import AdminNav from '@/components/admin/AdminNav';
 import { signedUrls, BUCKETS } from '@/lib/supabase/admin';
 import { photoSpec } from '@/lib/shop-photos';
+import { canPost } from '@/lib/consent';
 
 /** pieces that go on the print sheet (lines with a template) */
 const sheetPieces = o => (o.items || []).filter(l => photoSpec(l.id)?.sheet)
@@ -126,7 +127,9 @@ export default async function PaymentsPage({ searchParams }) {
                     <table className="pay-items">
                       <tbody>
                         {(o.items || []).map(l => (
-                          <tr key={l.id}><td><b>{l.qty} ×</b> {l.name}<small>{l.tierNote}</small></td><td>{fmt(l.totalCents)}</td></tr>
+                          <tr key={l.id}><td><b>{l.qty} ×</b> {l.name}<small>{l.tierNote}</small>
+                            {l.tapUrl && <small className="pay-tap">Tap link: <a href={l.tapUrl} target="_blank" rel="noopener noreferrer">{l.tapUrl}</a></small>}
+                          </td><td>{fmt(l.totalCents)}</td></tr>
                         ))}
                       </tbody>
                     </table>
@@ -159,6 +162,12 @@ export default async function PaymentsPage({ searchParams }) {
 
                     <h4>Customer</h4>
                     <p className="pay-ful"><a href={`mailto:${c.email}`}>{c.email}</a>{c.phone && <> · <a href={`tel:${c.phone}`}>{c.phone}</a></>}</p>
+                    {c.consent && (
+                      <p className={`pay-ful pay-consent${canPost(c.consent) ? ' ok' : ' no'}`}>
+                        <b>{canPost(c.consent) ? 'OK to post on socials' : 'Do not post on socials'}</b>
+                        <small>Asked to share: {c.consent.social ? 'Yes' : 'No'} · Child under 18 in photos: {c.consent.minor ? 'Yes' : 'No'}</small>
+                      </p>
+                    )}
                     {o.note && <p className="pay-ful"><b>Note:</b> {o.note}</p>}
 
                     <h4>Emails</h4>

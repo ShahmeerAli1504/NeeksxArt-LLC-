@@ -4,6 +4,7 @@ import LegacyMount from '@/components/LegacyMount';
 import { getPopup } from '@/lib/popup';
 import { isAdmin } from '@/lib/admin-auth';
 import { pageMeta } from '@/lib/seo';
+import { CONSENT, MINOR_NOTE } from '@/lib/consent';
 
 export const metadata = pageMeta({
   title: "NeeksxArt Live Pop-Up | Upload Your Photos",
@@ -137,6 +138,16 @@ export default async function EventPage() {
                 <input id="evTap" type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck="false" maxLength="300" placeholder="https://instagram.com/yourname" />
                 <p className="ev-sub" id="tapHint">We program the NFC chip in every keychain in your pack so any phone opens this link with a tap. No app needed.</p>
               </div>
+              {[['evSocial', CONSENT.social], ['evMinor', CONSENT.minor]].map(([name, d]) => (
+                <fieldset key={name} className="ev-ask">
+                  <legend>{d.q} <em>*</em></legend>
+                  <div className="ev-ask-opts">
+                    <label><input type="radio" name={name} value="yes" /><span>{d.yes}</span></label>
+                    <label><input type="radio" name={name} value="no" /><span>{d.no}</span></label>
+                  </div>
+                </fieldset>
+              ))}
+              <p className="ev-sub ev-minor-note" id="minorNote" hidden>{MINOR_NOTE}</p>
               <div className="field">
                 <label htmlFor="evNote">
                   Notes for Neeks{" "}

@@ -177,6 +177,11 @@
 .sq-fields input:focus{outline:2px solid var(--ink);outline-offset:-2px}
 .sq-brand{display:block;padding:6px 14px 10px;color:var(--text-soft);font-weight:700}
 .co-err{margin-top:12px;color:#b91c1c;font-weight:700}
+.co-ask-q{font-weight:700;font-size:.95rem;margin:4px 0 8px}
+.co-ask-q em{color:#b91c1c;font-style:normal}
+.co-ask .co-methods{margin-bottom:14px}
+.co-tap-hint{display:block;margin:6px 0 0}
+input[aria-invalid="true"]{border-color:#b91c1c}
 .co-pay{width:100%;margin-top:16px;font-size:1rem;padding:18px}
 .co-pay:disabled{opacity:.6;cursor:wait;transform:none}
 .co-fine{display:block;color:var(--text-soft);font-size:.8rem;margin-top:10px}

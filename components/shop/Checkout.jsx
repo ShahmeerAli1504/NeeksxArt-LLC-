@@ -7,11 +7,30 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, setQty, removeFromCart, clearCart } from '@/lib/cart';
-import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById, LARGE_ORDER } from '@/lib/checkout';
+import { quote, fmt, CHECKOUT, SHIPPING_SUMMARY, productById, LARGE_ORDER, needsTapLink } from '@/lib/checkout';
 import { pics, isOrderableQty, bundlesFor, singleTier } from '@/lib/catalog';
+import { cleanTapUrl } from '@/lib/bundles';
+import { CONSENT, MINOR_NOTE, cleanConsent } from '@/lib/consent';
 import QtyPicker from './QtyPicker';
 import PhotoStep, { exportPhoto, assigned } from './PhotoStep';
 import { photoSpec } from '@/lib/shop-photos';
+
+/** Yes / No cards for one permission question */
+function Ask({ id, def, value, onChange }) {
+  return (
+    <div className="co-ask" role="radiogroup" aria-labelledby={id}>
+      <p id={id} className="co-ask-q">{def.q} <em>*</em></p>
+      <div className="co-methods co-methods-2">
+        {[['yes', def.yes], ['no', def.no]].map(([v, label]) => (
+          <label key={v} className={'co-method' + (value === v ? ' on' : '')}>
+            <input type="radio" name={id} value={v} checked={value === v} onChange={() => onChange(v)} />
+            <b>{label}</b>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const METHODS = [
   { id: 'delivery', title: 'Free local delivery', sub: 'Reno & Sparks addresses' },
@@ -41,6 +60,8 @@ export default function Checkout() {
   const [busyText, setBusyText] = useState('');
   const [err, setErr] = useState('');
   const [photos, setPhotos] = useState({}); // { [productId]: [{ id, img, zoom, ox, oy, count }] }
+  const [tapLinks, setTapLinks] = useState({}); // { [productId]: 'https://…' } for Tap-to-Connect lines
+  const [consent, setConsent] = useState({ social: '', minor: '' }); // 'yes' | 'no'
 
   // carts saved before bundle-only pricing may hold a quantity that isn't orderable now: snap it to the
   // closest single quantity / bundle below it, and drop special-order items (those are email-only)
@@ -59,21 +80,28 @@ export default function Checkout() {
   const bigEmail = CHECKOUT.largeOrder.email;
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
   const digits = card.number.replace(/\D/g, '');
+  const tapLines = q.lines.filter(l => needsTapLink(l.id));
+  const hasPhotos = q.lines.some(l => photoSpec(l.id));
+  const askStep = tapLines.length > 0 || hasPhotos; // tap links + photo permissions
+  const payStep = 3 + (hasPhotos ? 1 : 0) + (askStep ? 1 : 0);
 
   async function pay(e) {
     e.preventDefault();
     setErr('');
     if (!items.length) return setErr('Your cart is empty.');
     if (q.errors.length) return setErr(q.errors[0]);
-    if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
-    if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
-    if (!/^\d{3,4}$/.test(card.cvc)) return setErr('Enter the 3 or 4 digit security code.');
     const photoLines = q.lines.filter(l => photoSpec(l.id));
     const short = photoLines.find(l => assigned(photos[l.id]) !== l.qty);
     if (short) {
       const n = assigned(photos[short.id]);
       return setErr(n < short.qty ? `Add photos for all ${short.qty} ${short.name} (${n} so far).` : `${short.name}: you have photos for ${n} pieces but ordered ${short.qty}. Lower a count.`);
     }
+    const noLink = tapLines.find(l => !cleanTapUrl(tapLinks[l.id]));
+    if (noLink) return setErr(tapLinks[noLink.id] ? `Check the tap link for ${noLink.name}.` : `Add the tap link for ${noLink.name}.`);
+    if (hasPhotos && !cleanConsent(consent)) return setErr('Please answer both photo permission questions.');
+    if (digits.length < 12) return setErr('Enter a card number (any number works in demo mode).');
+    if (!/^\d{2}\s*\/\s*\d{2}$/.test(card.exp)) return setErr('Enter the expiry as MM/YY.');
+    if (!/^\d{3,4}$/.test(card.cvc)) return setErr('Enter the 3 or 4 digit security code.');
     setBusy(true);
     try {
       // 1. upload the cropped photos straight to storage (before the card is charged)
@@ -114,7 +142,9 @@ export default function Checkout() {
           note: c.note,
           payment: { sourceId, brand: brandOf(digits), last4: digits.slice(-4), exp: card.exp.replace(/\s/g, ''), postal: card.zip },
           expectedTotal: q.total,
-          photos: photoPayload
+          photos: photoPayload,
+          tapLinks: Object.fromEntries(tapLines.map(l => [l.id, cleanTapUrl(tapLinks[l.id])])),
+          consent: hasPhotos ? cleanConsent(consent) : null
         })
       });
       const data = await res.json().catch(() => ({}));
@@ -188,8 +218,33 @@ export default function Checkout() {
 
         <PhotoStep lines={q.lines} value={photos} onChange={setPhotos} step={3} />
 
+        {askStep && (
+          <fieldset className="co-step">
+            <legend><span>{hasPhotos ? 4 : 3}</span> {tapLines.length ? 'Tap link & permissions' : 'Photo permissions'}</legend>
+            {tapLines.map(l => {
+              const raw = tapLinks[l.id] || '', bad = !!raw.trim() && !cleanTapUrl(raw);
+              return (
+                <div className="field" key={l.id}>
+                  <label htmlFor={`coTap-${l.id}`}>Tap link for {l.qty} × {l.name} <em>*</em></label>
+                  <input id={`coTap-${l.id}`} type="url" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck="false" maxLength={300}
+                    placeholder="https://instagram.com/yourname" aria-invalid={bad} value={raw}
+                    onChange={e => setTapLinks(v => ({ ...v, [l.id]: e.target.value }))} />
+                  <small className="co-hint co-tap-hint">{bad ? 'That doesn’t look like a web link. Try something like instagram.com/yourname.' : 'We program the NFC chip in every keychain so any phone opens this link with a tap. No app needed.'}</small>
+                </div>
+              );
+            })}
+            {hasPhotos && (
+              <>
+                <Ask id="coSocial" def={CONSENT.social} value={consent.social} onChange={v => setConsent(c => ({ ...c, social: v }))} />
+                <Ask id="coMinor" def={CONSENT.minor} value={consent.minor} onChange={v => setConsent(c => ({ ...c, minor: v }))} />
+                {consent.minor === 'yes' && <p className="co-hint co-note">{MINOR_NOTE}</p>}
+              </>
+            )}
+          </fieldset>
+        )}
+
         <fieldset className="co-step">
-          <legend><span>{q.lines.some(l => photoSpec(l.id)) ? 4 : 3}</span> Payment</legend>
+          <legend><span>{payStep}</span> Payment</legend>
           {q.largeOrder && (
             <p className="co-hint co-note">
               <b>Ordering {LARGE_ORDER} or more?</b> Email us at{' '}
