@@ -243,7 +243,7 @@ export default function Checkout() {
 
           {method === 'delivery' && <p className="co-hint co-note"><b>Free in Reno &amp; Sparks.</b> {CHECKOUT.delivery.note}</p>}
           {method === 'shipping' && (
-            <p className="co-hint co-note">{SHIPPING_SUMMARY.shipping}. {SHIPPING_SUMMARY.free}.</p>
+            <p className="co-hint co-note">{SHIPPING_SUMMARY.shipping}. {SHIPPING_SUMMARY.free}. {SHIPPING_SUMMARY.time}.</p>
           )}
 
           {(

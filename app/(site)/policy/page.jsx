@@ -82,6 +82,10 @@ export default function PolicyPage() {
               <strong>Free shipping on out-of-state orders of ${CHECKOUT.shipping.freeOverCents / 100} and over</strong>
               {" "}— based on the merchandise subtotal before tax. Alaska and Hawaii are excluded.
             </li>
+            <li>
+              <strong>Standard shipping takes 7–10 business days</strong>
+              {" "}once your order ships, but may take longer due to the holidays.
+            </li>
             <li>Live pop-up orders are picked up at the booth and don&apos;t ship.</li>
           </ul>
           <h2>3. Live photo magnets (event orders)</h2>

@@ -35,7 +35,7 @@ export default function Receipt() {
       </table>
       <p className="rc-next">
         {f.method === 'delivery' && `Next: we print your order exactly as you uploaded it, then deliver to ${f.address?.line1}, ${f.address?.city}. If weather or an emergency means we can't deliver, we'll ship it instead and the standard $8.00 shipping fee applies.`}
-        {f.method === 'shipping' && `Next: we print your order exactly as you uploaded it, then ship it with tracking.`}
+        {f.method === 'shipping' && `Next: we print your order exactly as you uploaded it, then ship it with tracking. Standard shipping takes 7–10 business days, but may take longer due to the holidays.`}
       </p>
       <Link className="btn btn-orange" href="/catalog">Keep shopping</Link>
     </div>

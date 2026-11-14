@@ -10,6 +10,7 @@ export default function ShippingNote({ className = '', policyLink = true }) {
         <li>{SHIPPING_SUMMARY.delivery}</li>
         <li>{SHIPPING_SUMMARY.shipping}</li>
         <li>{SHIPPING_SUMMARY.free}</li>
+        <li>{SHIPPING_SUMMARY.time}</li>
       </ul>
       {policyLink && <Link href="/policy#shipping">Shipping details →</Link>}
     </div>

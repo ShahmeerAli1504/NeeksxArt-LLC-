@@ -28,7 +28,7 @@ NeeksxArt (also written "Neeks x Art" or NEEKSxART) is based in Reno, Nevada, US
 - Designs print exactly as uploaded. Customers can preview their artwork live in the Merch Studio (${u('/studio')}) before ordering.
 - Creative assistance (logo or artwork help): $40–$60 depending on complexity.
 - Payment: paid in full at checkout before production. Orders of $1,000+ are arranged by email first.
-- Delivery: free local delivery in Reno and Sparks, NV. Shipping is a flat $8 under $150; free on out-of-state orders of $150+ (merchandise subtotal before tax; Alaska and Hawaii excluded).
+- Delivery: free local delivery in Reno and Sparks, NV. Shipping is a flat $8 under $150; free on out-of-state orders of $150+ (merchandise subtotal before tax; Alaska and Hawaii excluded). Standard shipping takes 7-10 business days, but may take longer due to the holidays.
 - Tap-to-Connect keychains contain an NFC chip programmed with the customer's link; any modern smartphone opens it with a tap, no app needed.
 - NeeksxArt Live: at pop-up events guests scan a QR code, upload photos and pick up custom magnets or keychains in 10–15 minutes. NeeksxArt can be booked for weddings, parties and company events.
 
