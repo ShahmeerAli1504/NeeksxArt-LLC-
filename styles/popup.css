@@ -40,8 +40,10 @@
 .poster-steps{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center}
 .poster-steps div{font-weight:800;font-size:.86rem;background:var(--ink-3);padding:8px 14px 8px 8px;border-radius:999px;display:flex;align-items:center;gap:8px}
 .poster-steps b{width:24px;height:24px;border-radius:50%;background:var(--orange);display:grid;place-items:center;font-size:.8rem;color:var(--ink)}
-.poster-packs{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:auto;padding-top:18px}
-.poster-packs > div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.72rem}
+.poster-packs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 14px;width:100%;align-items:start;margin-top:auto;padding-top:18px}
+@media (min-width:980px){.poster-packs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.poster-packs > div{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;font-size:.72rem;min-width:0;text-align:center}
+.poster-packs b{min-height:3.3em;display:flex;align-items:center;justify-content:center;line-height:1.1}
 .poster-packs b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:.9rem;letter-spacing:.02em}
 .poster-packs span{color:var(--accent-text);font-weight:800}
 .poster-packs .bundle-ico{width:54px;height:54px;padding:5px;gap:2px;background:var(--ink-3)}
@@ -54,8 +56,20 @@
   body:has(.booth-shell) .pad{padding:0 !important}
   body:has(.booth-shell) .booth-grid{display:block}
   body:has(.booth-shell) .wrap{width:100% !important}
-  .poster{max-width:none;width:100vw;height:100vh;border-radius:0;box-shadow:none;aspect-ratio:auto;padding:0.6in 0.6in 0.45in;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html:has(.booth-shell),body:has(.booth-shell){height:11in;overflow:hidden}
+  /* One letter page: fixed 8.5x11in sheet, everything scaled to fit all 16 packs */
+  .poster{max-width:none;width:8.5in;height:11in;margin:0;border-radius:0;box-shadow:none;aspect-ratio:auto;padding:0.4in 0.45in 0.3in;overflow:hidden;break-inside:avoid;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .poster *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .poster-head{font-size:38pt}
-  .poster-qr{width:50%}
+  .poster-logo{height:0.85in}
+  .poster-live{margin-top:6px;font-size:8pt}
+  .poster-head{font-size:32pt;max-width:none;margin:6px 0 12px}
+  .poster-qr{width:2.9in;padding:6px;border-width:5px}
+  .poster-steps{margin-top:12px}
+  .poster-steps div{font-size:9pt;padding:5px 12px 5px 5px}
+  .poster-packs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 10px;width:100%;margin-top:auto;padding-top:10px}
+  .poster-packs > div{gap:3px}
+  .poster-packs .bundle-ico{width:0.42in;height:0.42in;padding:3px;gap:2px;border-radius:8px}
+  .poster-packs b{font-size:8.5pt;line-height:1.1;min-height:2.2em}
+  .poster-packs span{font-size:8.5pt}
+  .poster-foot{margin-top:8px;font-size:8pt}
 }
