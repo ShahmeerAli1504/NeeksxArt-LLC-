@@ -1,5 +1,5 @@
 import { media } from '@/lib/media';
-import { PosterPacks } from '@/components/popup/BundleCards';
+import { PosterPriceTable } from '@/components/popup/BundleCards';
 import LegacyMount from '@/components/LegacyMount';
 import { pageMeta } from '@/lib/seo';
 
@@ -43,6 +43,13 @@ export default function BoothPage() {
                 <button type="button" id="copyLink">Copy</button>
               </div>
             </div>
+            <div className="field">
+              <label htmlFor="boothSize">Print size</label>
+              <select id="boothSize" defaultValue="letter">
+                <option value="letter">8.5 × 11 in (letter)</option>
+                <option value="board">16 × 20 in (poster board)</option>
+              </select>
+            </div>
             <div className="booth-btns">
               <button type="button" className="btn btn-orange" id="printBtn">Print poster</button>
               {" "}
@@ -54,33 +61,26 @@ export default function BoothPage() {
             </div>
             <p className="fine-dark">Tip: test-scan the printed poster with your own phone before the doors open.</p>
           </div>
-          <div className="poster" id="poster">
-            <img className="poster-logo" src="/brand/neeksxart-logo-white.png" alt="NeeksxArt" />
-            <p className="poster-live">
-              <i></i>
-              {" "}Live custom merch
-            </p>
-            <h2 className="poster-head" id="posterHead">Your photos, pressed while you wait</h2>
-            <div className="poster-qr" id="posterQr"></div>
-            <div className="poster-steps">
-              <div>
-                <b>1</b>
-                Scan
+          <div className="poster-frame">
+            <div className="poster" id="poster" data-size="letter">
+              <img className="poster-logo" src="/brand/neeksxart-logo-black.png" alt="NeeksxArt" width="967" height="712" />
+              <p className="poster-live">
+                <i></i>
+                {" "}Live custom merch
+              </p>
+              <h2 className="poster-head" id="posterHead">Your photos, pressed while you wait</h2>
+              <div className="poster-qr" id="posterQr"></div>
+              <div className="poster-steps">
+                <div><b>1</b>Scan</div>
+                <div><b>2</b>Upload</div>
+                <div><b>3</b>Pick up in about 15 minutes</div>
               </div>
-              <div>
-                <b>2</b>
-                Upload
-              </div>
-              <div>
-                <b>3</b>
-                Pick up in 10–15 min
-              </div>
+              <PosterPriceTable id="posterTable" />
+              <p className="poster-foot">
+                <span id="posterEvent">Reno Pop-Up</span>
+                {" "}· @neeksxart
+              </p>
             </div>
-            <PosterPacks className="poster-packs" id="posterPacks" />
-            <p className="poster-foot">
-              <span id="posterEvent">Reno Pop-Up</span>
-              {" "}· @neeksxart
-            </p>
           </div>
         </div>
       </section>

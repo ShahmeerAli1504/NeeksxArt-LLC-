@@ -29,7 +29,7 @@
   --wrap:1220px;
 }
 /* on black backgrounds mustard text uses the bright brand mustard */
-.dark,.dark-2,.site-footer,.est-out,.co-summary,.live-card,.note-band,.side-card,.rc-head div,.adm,.ev-shell,.poster,.group,.stage-col,
+.dark,.dark-2,.site-footer,.est-out,.co-summary,.live-card,.note-band,.side-card,.rc-head div,.adm,.ev-shell,.group,.stage-col,
 .vs-kept,.value .ic,.masonry figure,.cta-band .btn-ink,.nav-links.open{--accent-text:var(--orange)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
