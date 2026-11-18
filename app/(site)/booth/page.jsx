@@ -21,7 +21,7 @@ export default function BoothPage() {
             <span className="script">QR poster</span>
           </h1>
           <p className="lead">
-            Name the event, then print this poster or put it on a tablet at the booth. Guests scan it to open the ordering page tagged with your event, and every order email shows which event it came from.
+            Name the event, then print this poster or put it on a tablet at the booth. Guests scan it to open the live ordering page. Orders are tagged with the pop-up you start in the dashboard, and every order email shows which event it came from.
           </p>
         </div>
       </section>

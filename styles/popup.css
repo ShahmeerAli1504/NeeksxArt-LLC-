@@ -36,7 +36,7 @@
 .poster-live{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:.78rem;color:var(--accent-text)}
 .poster-live i{width:9px;height:9px;border-radius:50%;background:#ff3b3b}
 .poster-head{font-size:clamp(1.8rem,4.2vw,2.9rem);line-height:.95;margin:12px 0 20px;max-width:14ch}
-.poster-qr{width:52%;background:#fff;padding:10px;border-radius:18px;border:6px solid var(--orange)}
+.poster-qr{width:60%;background:#fff;padding:10px;border-radius:18px;border:6px solid var(--orange)}
 .poster-steps{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center}
 .poster-steps div{font-weight:800;font-size:.86rem;background:var(--ink-3);padding:8px 14px 8px 8px;border-radius:999px;display:flex;align-items:center;gap:8px}
 .poster-steps b{width:24px;height:24px;border-radius:50%;background:var(--orange);display:grid;place-items:center;font-size:.8rem;color:var(--ink)}
