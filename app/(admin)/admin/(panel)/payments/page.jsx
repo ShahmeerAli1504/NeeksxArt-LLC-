@@ -58,7 +58,8 @@ export default async function PaymentsPage({ searchParams }) {
     ['Orders', String(live.length), `${orders.length - live.length} refunded`],
     ['Collected', fmt(sum(live, 'paid')), 'card payments received'],
     ['Balance due', fmt(sum(live, 'balance')), 'deposits still owed'],
-    ['Product sales', fmt(sum(live, 'subtotal')), 'before delivery & tax'],
+    ['Product sales', fmt(sum(live, 'subtotal') - sum(live, 'discount')), 'after discount codes, before delivery & tax'],
+    ['Discount codes', fmt(sum(live, 'discount')), `${live.filter(o => o.amounts?.discount > 0).length} orders used a code`],
     ['Delivery & shipping', fmt(sum(live, 'delivery')), 'charged to customers'],
     ['Sales tax', fmt(sum(live, 'tax')), 'owed to Nevada'],
     ['Square fees', fmt(sum(orders, 'fees')), '2.9% + 30¢ per payment'],
@@ -113,6 +114,9 @@ export default async function PaymentsPage({ searchParams }) {
             <li><b>Shipping:</b> {fmt(CHECKOUT.shipping.flatCents)} flat rate under {fmt(CHECKOUT.shipping.freeOverCents)} · free on out-of-state orders of {fmt(CHECKOUT.shipping.freeOverCents)} and over (merchandise subtotal before tax; {CHECKOUT.shipping.noFreeStates.join(' & ')} excluded).</li>
             <li><b>Sales tax</b> on products only: {CHECKOUT.tax.zones.map(z => `${z.label} ${pct(z.rate)}`).join(' · ')} · other NV {pct(CHECKOUT.tax.nevadaDefault.rate)} · out of state 0%.</li>
             <li><b>Payment:</b> every online order is paid in full at checkout. Customers ordering {LARGE_ORDER}+ are asked to email {CHECKOUT.largeOrder.email} first (invoice those through Square).</li>
+            {CHECKOUT.promos.map(p => (
+              <li key={p.code}><b>Code {p.code}:</b> {pct(p.pct)} off products on orders of {fmt(p.minCents)}+ (before shipping &amp; tax), {new Date(p.starts).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric' })} – {p.endsLabel}. Tax is charged on the discounted amount; shipping isn&apos;t discounted.</li>
+            ))}
             <li><b>Square fee:</b> {pct(CHECKOUT.square.pct)} + {fmt(CHECKOUT.square.fixedCents)} on each card payment, paid by NeeksxArt.</li>
             <li className="pay-muted">All of these are set in <code>lib/checkout.js</code>. Confirm the tax rates before going live.</li>
           </ul>
@@ -217,6 +221,7 @@ export default async function PaymentsPage({ searchParams }) {
                     <h4>Money</h4>
                     <dl className="pay-money">
                       <dt>Products</dt><dd>{fmt(a.subtotal)}</dd>
+                      {a.discount > 0 && (<><dt>Discount <small>{a.discount_code}</small></dt><dd>−{fmt(a.discount)}</dd></>)}
                       <dt>{METHOD[f.method] || 'Delivery'}</dt><dd>{a.delivery ? fmt(a.delivery) : 'Free'}</dd>
                       <dt>Sales tax <small>{a.tax_explain || o.tax_label}</small></dt><dd>{fmt(a.tax)}</dd>
                       <dt className="pm-total">Order total</dt><dd className="pm-total">{fmt(a.total)}</dd>

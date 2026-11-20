@@ -81,8 +81,11 @@ export async function POST(req) {
   };
   if (!address.line1 || !address.city || !address.zip) return bad('Please complete your address.');
 
-  const q = quote({ items, method, zip: address.zip, state: address.state });
+  const code = clean(b.code, 30).toUpperCase();
+  const q = quote({ items, method, zip: address.zip, state: address.state, code });
   if (q.errors.length) return bad(q.errors[0]);
+  // a code the customer applied must still apply here (dates and the $100 minimum are re-checked on the server)
+  if (code && q.discount.status !== 'applied') return bad(`${q.discount.message} Remove the code to continue. Nothing was charged.`);
   if (b.expectedTotal != null && Number(b.expectedTotal) !== q.total) return bad('Prices changed — please review your order and try again.');
 
   // every photo product needs one uploaded photo per piece (checked before the card is charged)
@@ -127,7 +130,9 @@ export async function POST(req) {
     })),
     tax_label: q.tax.label,
     amounts: {
-      subtotal: q.subtotal, delivery: q.delivery.amount, tax: q.tax.amount, tax_rate: q.tax.rate, tax_explain: q.tax.explain,
+      subtotal: q.subtotal,
+      ...(q.discount.amount ? { discount: q.discount.amount, discount_code: q.discount.code } : {}),
+      delivery: q.delivery.amount, tax: q.tax.amount, tax_rate: q.tax.rate, tax_explain: q.tax.explain,
       total: q.total, plan: q.plan, paid: q.dueNow, balance: q.balance, fees: q.fee.amount, net: q.net
     },
     payments: [{ kind: 'charge', id: charge.id, amount: q.dueNow, fee: q.fee.amount, brand: charge.brand, last4: charge.last4, status: charge.status, receipt_url: charge.receiptUrl, at: now, demo: !!charge.demo }],
@@ -137,7 +142,9 @@ export async function POST(req) {
   // emails (skipped quietly if SMTP isn't configured)
   const rows = [
     ...q.lines.map(l => [`${l.qty} × ${l.name}`, fmt(l.totalCents)]),
-    ['Subtotal', fmt(q.subtotal)], [q.delivery.label, q.delivery.amount ? fmt(q.delivery.amount) : 'Free'],
+    ['Subtotal', fmt(q.subtotal)],
+    ...(q.discount.amount ? [[`Discount (${q.discount.label})`, '−' + fmt(q.discount.amount)]] : []),
+    [q.delivery.label, q.delivery.amount ? fmt(q.delivery.amount) : 'Free'],
     [`Sales tax (${q.tax.label})`, fmt(q.tax.amount)], ['Total', fmt(q.total)], ['Paid today', `${fmt(q.dueNow)} · ${charge.brand} •••• ${charge.last4}`],
     ...(q.balance ? [['Balance due', fmt(q.balance)]] : [])
   ];

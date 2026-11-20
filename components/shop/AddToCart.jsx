@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { addToCart } from '@/lib/cart';
 import { productById } from '@/lib/checkout';
+import usePromo from './usePromo';
 import { money, totalFor, qtyLabel, requestLink } from '@/lib/catalog';
 import QtyPicker from './QtyPicker';
 
@@ -12,6 +13,7 @@ export default function AddToCart({ id, defaultQty = 1, compact = false }) {
   const p = productById(id);
   const [qty, setQty] = useState(defaultQty);
   const [added, setAdded] = useState(false);
+  const promo = usePromo();
   if (!p) return null;
 
   return (
@@ -23,6 +25,9 @@ export default function AddToCart({ id, defaultQty = 1, compact = false }) {
           Add to cart
         </button>
       </div>
+      {promo && <small className="atc-deal">
+        <b>{Math.round(promo.pct * 100)}% off</b> orders of ${promo.minCents / 100}+ with code <b>{promo.code}</b> at checkout · through {promo.endsLabel}
+      </small>}
       {added && <small className="atc-added">Added ✓ <Link href="/checkout">Go to checkout →</Link></small>}
       <small className="atc-other">Need a different quantity? <Link href={requestLink(p)}>Send a request</Link> or DM us.</small>
     </div>

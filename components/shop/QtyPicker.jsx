@@ -2,9 +2,11 @@
 // Quantity chooser for online orders: the single price (e.g. 1–9 pieces) or one bundle pack.
 // Bundles are sold only at their exact quantity; anything else is an email / DM order.
 import { money, singleTier, bundlesFor, bundleAt } from '@/lib/catalog';
+import usePromo from './usePromo';
 
 /** variant="chips" (catalog, pricing) or "select" (compact, checkout lines) */
 export default function QtyPicker({ product: p, value, onChange, variant = 'chips', label }) {
+  const promo = usePromo();
   const single = singleTier(p);
   const bundles = bundlesFor(p);
   const isPack = !!bundleAt(p, value);
@@ -27,6 +29,9 @@ export default function QtyPicker({ product: p, value, onChange, variant = 'chip
     );
   }
 
+  // packs that reach the running code's minimum on their own get a "10% off" sticker
+  const deal = b => promo && Math.round(b.price * 100) >= promo.minCents;
+
   return (
     <div className="qp" role="group" aria-label={label || `Quantity for ${p.name}`}>
       <div className="qp-chips">
@@ -36,6 +41,7 @@ export default function QtyPicker({ product: p, value, onChange, variant = 'chip
         {bundles.map(b => (
           <button type="button" key={b.qty} className={value === b.qty ? 'on' : ''} aria-pressed={value === b.qty} onClick={() => onChange(b.qty)}>
             <b>{b.qty}-pack</b><small>{money(b.price)}</small>
+            {deal(b) && <i className="qp-deal" aria-label={`${Math.round(promo.pct * 100)}% off with code ${promo.code}`}>{Math.round(promo.pct * 100)}% off</i>}
           </button>
         ))}
       </div>

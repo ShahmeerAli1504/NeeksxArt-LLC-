@@ -91,7 +91,11 @@ export default function Checkout() {
     });
   }, [items, ready]);
 
-  const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state }), [items, method, c.zip, c.state]);
+  const [codeInput, setCodeInput] = useState('');
+  const [code, setCode] = useState(''); // the code the customer applied (re-checked every time the cart changes)
+  const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state, code }), [items, method, c.zip, c.state, code]);
+  const applyCode = () => setCode(codeInput.trim().toUpperCase());
+  const removeCode = () => { setCode(''); setCodeInput(''); };
   const bigEmail = CHECKOUT.largeOrder.email;
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
   // iPhone Safari AutoFill can drop an address into the fields without telling React, which leaves
@@ -196,6 +200,7 @@ export default function Checkout() {
           address: { line1: c.line1, line2: c.line2, city: c.city, state: c.state, zip: c.zip },
           note: c.note,
           payment,
+          code: q.discount.status === 'applied' ? q.discount.code : '',
           expectedTotal: q.total,
           photos: photoPayload,
           tapLinks: Object.fromEntries(tapLines.map(l => [l.id, cleanTapUrl(tapLinks[l.id])])),
@@ -371,8 +376,33 @@ export default function Checkout() {
               );
             })}
           </ul>
+          <div className="co-code">
+            {q.discount.status === 'applied' || q.discount.status === 'below_min' ? (
+              <p className="co-code-on">
+                <b>{q.discount.code}</b> {q.discount.status === 'applied' ? 'applied' : 'added'}
+                <button type="button" className="co-remove" onClick={removeCode}>Remove</button>
+              </p>
+            ) : (
+              <div className="co-code-row">
+                <label htmlFor="coCode" className="sr-only">Discount code</label>
+                <input id="coCode" placeholder="Discount code" autoCapitalize="characters" autoComplete="off" spellCheck="false" maxLength={30}
+                  value={codeInput} onChange={e => setCodeInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyCode(); } }} />
+                <button type="button" className="btn btn-ink" onClick={applyCode} disabled={!codeInput.trim()}>Apply</button>
+              </div>
+            )}
+            {q.discount.status && q.discount.status !== 'applied' && (
+              <small className={'co-code-msg' + (q.discount.status === 'below_min' ? '' : ' bad')} role="status">{q.discount.message}</small>
+            )}
+          </div>
           <dl className="co-totals">
             <dt>Subtotal</dt><dd>{fmt(q.subtotal)}</dd>
+            {q.discount.amount > 0 && (
+              <>
+                <dt className="co-disc">Discount<small>{q.discount.label}</small></dt><dd className="co-disc">−{fmt(q.discount.amount)}</dd>
+                <dd className="co-x"><Explain lines={[q.discount.explain]} /></dd>
+              </>
+            )}
             <dt>{method === 'delivery' ? 'Delivery' : 'Shipping'}<small>{q.delivery.label}</small></dt>
             <dd>{q.delivery.amount ? fmt(q.delivery.amount) : 'Free'}</dd>
             <dd className="co-x"><Explain lines={q.delivery.explain} /></dd>

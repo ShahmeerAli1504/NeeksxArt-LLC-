@@ -26,6 +26,7 @@ export default function Receipt() {
         <tbody>
           {o.items.map(l => <tr key={l.id}><td>{l.qty} × {l.name}<small>{l.tierNote}</small></td><td>{fmt(l.totalCents)}</td></tr>)}
           <tr className="rc-sub"><td>Subtotal</td><td>{fmt(a.subtotal)}</td></tr>
+          {a.discount > 0 && <tr><td>Discount <small>{a.discount_code}</small></td><td>−{fmt(a.discount)}</td></tr>}
           <tr><td>{f.label}</td><td>{a.delivery ? fmt(a.delivery) : 'Free'}</td></tr>
           <tr><td>Sales tax <small>{o.tax_label}</small></td><td>{fmt(a.tax)}</td></tr>
           <tr className="rc-total"><td>Total</td><td>{fmt(a.total)}</td></tr>
