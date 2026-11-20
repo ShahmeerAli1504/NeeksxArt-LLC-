@@ -158,7 +158,7 @@ export default function StudioPage() {
                 <small>or tap to browse · PNG, JPG, WEBP or SVG · transparent PNG looks best</small>
               </label>
               <p className="fine studio-preview-note">
-                <b>This is just a preview.</b> Upload one photo or logo here to see how it looks. When you&apos;re ready, tap <b>Add to cart</b>, then go to checkout. That&apos;s where you upload all your photos (one for every piece) and crop each one.
+                <mark className="studio-preview-tag">This is just a preview.</mark> Upload one photo or logo here to see how it looks. When you&apos;re ready, tap <b>Add to cart</b>, then go to checkout. That&apos;s where you upload all your photos (one for every piece) and crop each one.
               </p>
               <PrintAsIs className="studio-print-note" />
               <div className="samples">

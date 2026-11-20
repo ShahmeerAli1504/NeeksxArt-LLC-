@@ -135,3 +135,4 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   .prod-grid span{padding-left:56px;min-height:60px;font-size:.92rem}
   .group{padding:18px}
 }
+.studio-preview-tag{background:var(--mustard,#E1AD01);color:#0b0b0b;font-weight:800;padding:2px 6px;border-radius:4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
