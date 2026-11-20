@@ -84,7 +84,7 @@ export async function POST(req) {
   const code = clean(b.code, 30).toUpperCase();
   const q = quote({ items, method, zip: address.zip, state: address.state, code });
   if (q.errors.length) return bad(q.errors[0]);
-  // a code the customer applied must still apply here (dates and the $100 minimum are re-checked on the server)
+  // a code the customer applied must still apply here (dates and the minimum are re-checked on the server)
   if (code && q.discount.status !== 'applied') return bad(`${q.discount.message} Remove the code to continue. Nothing was charged.`);
   if (b.expectedTotal != null && Number(b.expectedTotal) !== q.total) return bad('Prices changed — please review your order and try again.');
 
