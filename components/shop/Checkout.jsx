@@ -94,6 +94,23 @@ export default function Checkout() {
   const q = useMemo(() => quote({ items, method, zip: c.zip, state: c.state }), [items, method, c.zip, c.state]);
   const bigEmail = CHECKOUT.largeOrder.email;
   const set = k => e => setC(v => ({ ...v, [k]: e.target.value }));
+  // iPhone Safari AutoFill can drop an address into the fields without telling React, which leaves
+  // the ZIP (and so the tax) blank in the order summary. Read the fields back from the page to catch it.
+  const ADDR = { line1: 'coL1', line2: 'coL2', city: 'coCity', state: 'coState', zip: 'coZip' };
+  const syncAddress = () => setC(v => {
+    let next = v;
+    for (const [k, id] of Object.entries(ADDR)) {
+      const el = document.getElementById(id); if (!el) continue;
+      const val = k === 'state' ? el.value.toUpperCase() : el.value;
+      if (val !== v[k]) next = { ...next, [k]: val };
+    }
+    return next;
+  });
+  useEffect(() => {
+    const t = setInterval(syncAddress, 1000);
+    return () => clearInterval(t);
+  }, []);
+  const hasZip = c.zip.replace(/\D/g, '').length >= 5;
   const digits = card.number.replace(/\D/g, '');
   const tapLines = q.lines.filter(l => needsTapLink(l.id));
   const hasPhotos = q.lines.some(l => photoSpec(l.id));
@@ -208,7 +225,7 @@ export default function Checkout() {
   }
 
   return (
-    <form className="co" onSubmit={pay} noValidate>
+    <form className="co" onSubmit={pay} noValidate onBlurCapture={syncAddress} onChangeCapture={syncAddress}>
       <div className="co-main">
         {isDemo && (
           <div className="co-demo" role="note">
@@ -359,7 +376,7 @@ export default function Checkout() {
             <dt>{method === 'delivery' ? 'Delivery' : 'Shipping'}<small>{q.delivery.label}</small></dt>
             <dd>{q.delivery.amount ? fmt(q.delivery.amount) : 'Free'}</dd>
             <dd className="co-x"><Explain lines={q.delivery.explain} /></dd>
-            <dt>Sales tax<small>{q.tax.rate ? (q.tax.rate * 100).toFixed(3).replace(/0+$/, '') + '%' : ''}</small></dt><dd>{fmt(q.tax.amount)}</dd>
+            <dt>Sales tax<small>{q.tax.rate ? (q.tax.rate * 100).toFixed(3).replace(/0+$/, '') + '%' : hasZip ? '' : 'Added once you enter your ZIP'}</small></dt><dd>{hasZip ? fmt(q.tax.amount) : '—'}</dd>
             <dd className="co-x"><Explain lines={[q.tax.explain, 'Tax is charged on products only, not on delivery or shipping']} /></dd>
             <dt className="co-grand">Total</dt><dd className="co-grand">{fmt(q.total)}</dd>
           </dl>
