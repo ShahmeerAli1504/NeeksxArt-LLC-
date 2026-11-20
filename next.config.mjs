@@ -21,7 +21,7 @@ const nextConfig = {
       // old static-site URLs
       { source: '/index.html', destination: '/', permanent: true },
       { source: `/:page(${pages}).html`, destination: '/:page', permanent: true },
-      { source: '/about', destination: '/story', permanent: false },
+      { source: '/about', destination: '/story', permanent: true },
       // old Shopify URLs → matching new pages, so the domain can move over without broken links
       { source: '/pages/about-us', destination: '/story', permanent: true },
       { source: '/pages/contact', destination: '/contact', permanent: true },
